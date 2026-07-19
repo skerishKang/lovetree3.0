@@ -1,0 +1,135 @@
+/**
+ * LoveTree 3.0 Design Tokens
+ *
+ * 기준 이미지: home-landing.png (2752 × 1536px)
+ * vision_analyze 추출값 기반. 구현 후 screenshot 비교하며 보정 예정.
+ */
+:root {
+  /* ===== Page Background ===== */
+  --page-pink: #dcbdb6; /* 왼쪽 살구·핑크 */
+  --page-sage: #95a596; /* 오른쪽 세이지 그린 */
+  --page-curve-green: #95a596; /* 우측 상단 곡선형 녹색 면 */
+  --page-star: rgba(255, 255, 255, 0.55); /* 우측 하단 반투명 별 */
+
+  /* ===== Main Panel ===== */
+  --surface-main: #fcf9f0; /* 아이보리 메인 패널 */
+  --surface-panel-radius: 40px;
+
+  /* ===== Brand Accent ===== */
+  --accent-rose: #b87a7a; /* 장밋빛 CTA / 연결선 */
+  --accent-rose-soft: rgba(184, 122, 122, 0.15);
+
+  /* ===== Text ===== */
+  --text-primary: #2d2926; /* 검정에 가까운 짙은 갈색 */
+  --text-secondary: #66615d; /* 본문 회색 갈색 */
+  --text-on-rose: #ffffff; /* CTA 버튼 텍스트 */
+
+  /* ===== Typography ===== */
+  --font-sans: "Pretendard Variable", Pretendard, "Noto Sans KR",
+    "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+
+  /* Headline (원본 ~52-80px 추정, 2752px 기준 80px) */
+  --fs-headline: clamp(2.5rem, 5.2vw, 5rem);
+  --lh-headline: 1.15;
+  --ls-headline: -0.02em;
+
+  /* Description */
+  --fs-description: clamp(1.125rem, 1.6vw, 1.6rem);
+  --lh-description: 1.55;
+
+  /* Button */
+  --fs-button: clamp(0.95rem, 1.1vw, 1.25rem);
+
+  /* Card metadata */
+  --fs-card-date: 0.8125rem;
+  --fs-card-tag: 0.75rem;
+  --fs-card-memo: 0.875rem;
+
+  /* Feature section */
+  --fs-feature-title: 1.0625rem;
+  --fs-feature-body: 0.875rem;
+
+  /* Header */
+  --fs-logo: 1.75rem;
+  --fs-menu: 1.0625rem;
+
+  /* ===== Layout ===== */
+  --panel-x: clamp(2rem, 8.5vw, 8.5rem);
+  --panel-y: clamp(2rem, 3.5vw, 3.5rem);
+  --content-max-width: 1600px;
+
+  /* ===== Cards ===== */
+  --card-radius: 16px;
+  --card-shadow: 0 8px 24px rgba(45, 41, 38, 0.1), 0 2px 6px rgba(45, 41, 38, 0.06);
+
+  /* ===== Buttons ===== */
+  --btn-radius: 12px;
+  --btn-height: clamp(3rem, 3.5vw, 3.5rem);
+  --btn-width: clamp(16rem, 20vw, 20rem);
+
+  /* ===== Feature icon colors ===== */
+  --feat-bg-record: #f2dcd8; /* 분홍 */
+  --feat-bg-connect: #d4dcd5; /* 녹색 */
+  --feat-bg-replay: #f2e5d8; /* 살구 */
+  --feat-bg-share: #d8e2f2; /* 청회색 */
+
+  /* ===== Transitions ===== */
+  --transition-fast: 0.15s ease-out;
+  --transition-base: 0.25s ease-out;
+}
+
+/* ===== Reset ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  line-height: 1.5;
+  background: var(--page-pink);
+  overflow-x: hidden;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-rose);
+  outline-offset: 3px;
+  border-radius: 4px;
+}

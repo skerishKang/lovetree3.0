@@ -1,0 +1,87 @@
+.container {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    105deg,
+    var(--page-pink) 0%,
+    var(--page-pink) 55%,
+    var(--page-sage) 75%,
+    var(--page-sage) 100%
+  );
+}
+
+/* 우측 상단 큰 곡선형 녹색 면 */
+.curveTopRight {
+  position: absolute;
+  top: -8%;
+  right: -10%;
+  width: 55%;
+  height: 70%;
+  background: var(--page-curve-green);
+  border-radius: 0 0 0 100%;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 우측 하단 반투명 별 장식 */
+.starDeco {
+  position: absolute;
+  bottom: 4%;
+  right: 3%;
+  width: clamp(60px, 4vw, 90px);
+  height: clamp(60px, 4vw, 90px);
+  color: var(--page-star);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 중앙 대형 아이보리 패널 */
+.panel {
+  position: relative;
+  z-index: 1;
+  width: calc(100% - 2 * var(--panel-x));
+  max-width: var(--content-max-width);
+  min-height: calc(100vh - 2 * var(--panel-y));
+  margin: var(--panel-y) auto;
+  background: var(--surface-main);
+  border-radius: var(--surface-panel-radius);
+  padding: clamp(1.5rem, 3vw, 3rem) clamp(2rem, 5vw, 5rem);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(45, 41, 38, 0.08);
+}
+
+.panelContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 1440px) {
+  :root {
+    --panel-x: clamp(1.5rem, 6vw, 5rem);
+    --panel-y: clamp(1.5rem, 2.5vw, 2.5rem);
+  }
+}
+
+@media (max-width: 1200px) {
+  :root {
+    --panel-x: 1.5rem;
+    --panel-y: 1.5rem;
+  }
+  .panel {
+    padding: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.5rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .panel {
+    border-radius: 24px;
+    padding: 1.25rem;
+  }
+}

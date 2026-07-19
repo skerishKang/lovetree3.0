@@ -1,0 +1,24 @@
+.preview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+}
+
+/* SVG 연결선은 카드 뒤에 */
+.connector {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 카드 컨테이너 */
+.cardSlot {
+  position: absolute;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+}
