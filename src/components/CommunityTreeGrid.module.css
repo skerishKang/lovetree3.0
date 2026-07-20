@@ -13,6 +13,16 @@
   text-wrap: balance;
 }
 
+.mobileTitleLine {
+  display: inline;
+}
+
+@media (max-width: 768px) {
+  .mobileTitleLine {
+    display: block;
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
