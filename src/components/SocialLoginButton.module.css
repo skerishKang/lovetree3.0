@@ -1,0 +1,35 @@
+.socialBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.82rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #ece0d0;
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #3e2c1a;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.socialBtn:hover {
+  background: #faf5ee;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.socialBtn:focus-visible {
+  outline: 2px solid #d4a88a;
+  outline-offset: 2px;
+}
+
+.socialBtn:active {
+  background: #f5ede2;
+}
+
+.btnIcon {
+  font-size: 1.1rem;
+  font-weight: 600;
+}

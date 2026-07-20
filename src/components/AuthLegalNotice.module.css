@@ -1,0 +1,12 @@
+.legalNotice {
+  text-align: center;
+  padding: 1.5rem 1.25rem 2rem;
+}
+
+.legalText {
+  font-size: 0.72rem;
+  color: #b0a090;
+  margin: 0;
+  line-height: 1.5;
+  word-break: keep-all;
+}
