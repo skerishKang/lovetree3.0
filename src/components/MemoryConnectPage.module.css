@@ -1,0 +1,280 @@
+/* MemoryConnectPage — 모바일 우선 레이아웃 */
+
+/* ===== 배경 ===== */
+.page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #ede8e0 0%, #f5e6e1 40%, #f0e2dc 70%, #e8e0da 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 24px;
+  /* 모바일 ~390px 중앙 정렬 */
+  max-width: 100%;
+}
+
+/* ===== 상단바 ===== */
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 600px;
+  padding: 56px 0 0;
+  margin-bottom: 8px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #4a3f35;
+  cursor: default;
+  flex-shrink: 0;
+}
+
+.backButton:focus-visible {
+  outline: 2px solid #8b7a6b;
+  outline-offset: 2px;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4a3f35;
+  letter-spacing: 0.02em;
+}
+
+/* ===== 제목 영역 ===== */
+.intro {
+  width: 100%;
+  max-width: 600px;
+  padding: 8px 0 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #3d3429;
+  margin: 0;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.description {
+  font-size: 14px;
+  color: #8a7e72;
+  margin: 8px 0 0;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+/* ===== 트리 구조 ===== */
+.treeSection {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* 중앙 연결선 (점선) */
+.connectorLine {
+  position: absolute;
+  top: 0;
+  bottom: 96px; /* CTA 영역 위에서 끝남 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #d4cdc4 0px,
+    #d4cdc4 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.nodeList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.nodeItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* ===== 노드 카드 ===== */
+.nodeCard {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  cursor: default;
+  transition: box-shadow 0.2s;
+}
+
+.nodeCard:focus-visible {
+  outline: 2px solid #8b7a6b;
+  outline-offset: 2px;
+}
+
+/* 선택 상태 */
+.nodeSelected {
+  box-shadow: 0 0 0 2.5px #8b7a6b, 0 6px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== 아이콘 영역 — 색상별 변형 ===== */
+.iconArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+  position: relative;
+}
+
+.iconColor_green {
+  background: linear-gradient(135deg, #e6f0e2 0%, #d4e6cc 100%);
+}
+
+.iconColor_pink {
+  background: linear-gradient(135deg, #f5e6e8 0%, #ebd6da 100%);
+}
+
+.iconColor_brown {
+  background: linear-gradient(135deg, #f0e8df 0%, #e4d9cb 100%);
+}
+
+.emoji {
+  font-size: 56px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+}
+
+/* ===== 텍스트 영역 ===== */
+.textArea {
+  padding: 14px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date {
+  font-size: 12px;
+  color: #a89a8c;
+  letter-spacing: 0.02em;
+}
+
+.nodeTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3d3429;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.tag {
+  font-size: 11px;
+  color: #8a7e72;
+  background: #f5f0eb;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.01em;
+}
+
+/* ===== 노드 간 연결 점선 ===== */
+.nodeConnector {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.nodeConnector svg {
+  display: block;
+}
+
+/* ===== 하단 CTA 영역 ===== */
+.ctaArea {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 24px;
+}
+
+.ctaPanel {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 20px 20px 28px;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.04);
+}
+
+.ctaButton {
+  width: 100%;
+  padding: 18px 24px;
+  border: none;
+  border-radius: 16px;
+  background: #4a3f35;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: default;
+  transition: background 0.2s;
+}
+
+.ctaButton:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #4a3f35;
+}
+
+/* ===== 데스크톱 확장 ===== */
+@media (min-width: 768px) {
+  .page {
+    padding: 0 24px 40px;
+  }
+
+  .topBar {
+    padding-top: 64px;
+  }
+
+  .nodeCard {
+    max-width: 400px;
+  }
+
+  .iconArea {
+    height: 180px;
+  }
+
+  .emoji {
+    font-size: 64px;
+  }
+
+  .ctaPanel {
+    padding: 24px 32px 32px;
+  }
+}
