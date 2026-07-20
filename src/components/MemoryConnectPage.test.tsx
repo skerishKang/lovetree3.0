@@ -23,9 +23,23 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
 
   it("4개의 기억 노드를 렌더링한다", () => {
     renderPage();
-    const nodes = screen.getAllByRole("button");
-    // 각 노드는 role="button"이며 aria-current로 구분 가능
-    expect(nodes.length).toBeGreaterThanOrEqual(4);
+    const nodes = screen.getAllByRole("article");
+    expect(nodes).toHaveLength(4);
+  });
+
+  it("실제 버튼은 뒤로 가기와 CTA 2개만 존재한다", () => {
+    renderPage();
+    expect(screen.getAllByRole("button")).toHaveLength(2);
+  });
+
+  it("노드에는 button role이 부여되지 않는다", () => {
+    renderPage();
+    const articles = screen.getAllByRole("article");
+    articles.forEach((article) => {
+      expect(article).not.toHaveAttribute("role", "button");
+      expect(article).not.toHaveAttribute("tabindex");
+      expect(article).not.toHaveAttribute("onClick");
+    });
   });
 
   it("고정 선택된 노드(컴백 D-Day)가 존재한다", () => {
@@ -33,10 +47,25 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     expect(screen.getByText("컴백 D-Day")).toBeInTheDocument();
   });
 
-  it("선택된 노드에 aria-current=true가 설정되어 있다", () => {
+  it("선택된 노드가 정확히 하나이고 data-selected=true, aria-current=location을 갖는다", () => {
     renderPage();
-    const selectedNode = screen.getByText("컴백 D-Day").closest('[aria-current="true"]');
-    expect(selectedNode).toBeInTheDocument();
+    const selectedNodes = document.querySelectorAll(
+      '[data-selected="true"][aria-current="location"]'
+    );
+    expect(selectedNodes).toHaveLength(1);
+    // 선택된 노드 안에 컴백 D-Day 제목이 존재
+    expect(selectedNodes[0].textContent).toContain("컴백 D-Day");
+  });
+
+  it("비선택 노드는 data-selected=false이고 aria-current가 없다", () => {
+    renderPage();
+    const unselectedNodes = document.querySelectorAll(
+      '[data-selected="false"]'
+    );
+    expect(unselectedNodes).toHaveLength(3);
+    unselectedNodes.forEach((node) => {
+      expect(node).not.toHaveAttribute("aria-current");
+    });
   });
 
   it("CTA 버튼 문구가 노출된다", () => {

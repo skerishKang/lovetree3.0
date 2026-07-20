@@ -10,7 +10,7 @@
 |---|---|
 | 구현 단계 | **BASE** — 디자인 구조·시각 계층·반응형·정적 목업 |
 | 상호작용 | **presentation-only** — React state 변경, API, Firebase, localStorage 모두 없음 |
-| 선택 상태 | **고정** — 목업 데이터에서 `selectedNodeId: 'node-4'`로 고정, 사용자 클릭으로 변경 불가 |
+| 선택 상태 | **고정** — 목업 데이터에서 `selectedNodeId: 'mem-node-4'`로 고정, 사용자 클릭으로 변경 불가 |
 | CTA | `button type="button"`, `onClick` 없음, 문구 변화 없음 |
 
 ## 기준 이미지와 BASE 구현 차이
@@ -39,7 +39,7 @@
 
 ### 4. 모바일 → 데스크톱 확장 방식
 
-모바일 390px 우선 설계를 기준으로 데스크톱에서는 `max-width: 480px` 제약을 적용하여 화면 중앙에 모바일 프레임처럼 표시합니다. 기준 이미지에는 데스크톱 레이아웃이 없으므로, 이는 BASE 구현의 해석입니다.
+데스크톱에서는 주요 콘텐츠 영역에 `max-width: 600px`을 적용하고, 기억 노드 카드는 최대 `400px`로 제한해 중앙 배치한다. 기준 이미지에는 데스크톱 레이아웃이 없으므로, 이는 BASE 구현의 해석이다.
 
 ### 5. 텍스트/문구
 
@@ -49,7 +49,8 @@
 
 ## 고정 selected 상태 구현 방식
 
-- 목업 데이터(`memoryConnectMockData.ts`)에서 `selectedNodeId: 'node-4'`로 네 번째 노드("컴백 D-Day")를 고정 선택
+- 목업 데이터(`memoryConnectMockData.ts`)에서 `selectedNodeId: 'mem-node-4'`로 네 번째 노드("컴백 D-Day")를 고정 선택
+- 각 노드의 선택 상태는 `node.id === data.selectedNodeId`로 계산 (단일 진실원천)
 - 선택된 노드는 `data-selected="true"` 속성 + 두꺼운 border + 배경색 차이로 시각적 구분
 - `aria-current="location"`으로 접근성 정보 제공
 - 사용자 클릭으로 선택 상태 변경 불가 (onClick 없음)

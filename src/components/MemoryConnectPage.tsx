@@ -28,21 +28,20 @@ export default function MemoryConnectPage() {
       <section className={styles.treeSection} aria-label="기억 노드 목록">
         <div className={styles.connectorLine} aria-hidden="true" />
         <ul className={styles.nodeList}>
-          {data.nodes.map((node, index) => (
+          {data.nodes.map((node, index) => {
+            const isSelected = node.id === data.selectedNodeId;
+            return (
             <li key={node.id} className={styles.nodeItem}>
-              <div
+              <article
                 className={`${styles.nodeCard} ${
-                  node.isSelected ? styles.nodeSelected : ""
+                  isSelected ? styles.nodeSelected : ""
                 }`}
-                role="button"
-                aria-current={node.isSelected ? "true" : undefined}
-                tabIndex={-1}
+                data-selected={isSelected ? "true" : "false"}
+                aria-current={isSelected ? "location" : undefined}
               >
                 {/* 아이콘 영역 */}
                 <div
-                  className={`${styles.iconArea} ${
-                    styles[`iconColor_${node.colorKey}`]
-                  }`}
+                  className={`${styles.iconArea} ${styles[`iconColor_${node.colorKey}`]}`}
                 >
                   <span className={styles.emoji} aria-hidden="true">
                     {node.emoji}
@@ -60,7 +59,7 @@ export default function MemoryConnectPage() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </article>
               {/* 노드 사이 연결 점선 노드 (마지막 제외) */}
               {index < data.nodes.length - 1 && (
                 <div className={styles.nodeConnector} aria-hidden="true">
@@ -70,7 +69,8 @@ export default function MemoryConnectPage() {
                 </div>
               )}
             </li>
-          ))}
+            );
+          })}
         </ul>
       </section>
 

@@ -12,7 +12,6 @@ export interface MemoryConnectNode {
   emoji: string;
   /** muted 색상 키 — css 변수 매핑 */
   colorKey: "green" | "pink" | "brown";
-  isSelected: boolean;
 }
 
 export interface MemoryConnectData {
@@ -36,7 +35,6 @@ export const MOCK_MEMORY_CONNECT: MemoryConnectData = {
       tags: ["#첫만남"],
       emoji: "🎬",
       colorKey: "green",
-      isSelected: false,
     },
     {
       id: "mem-node-2",
@@ -45,7 +43,6 @@ export const MOCK_MEMORY_CONNECT: MemoryConnectData = {
       tags: ["#앨범", "#첫구매"],
       emoji: "💿",
       colorKey: "pink",
-      isSelected: false,
     },
     {
       id: "mem-node-3",
@@ -54,7 +51,6 @@ export const MOCK_MEMORY_CONNECT: MemoryConnectData = {
       tags: ["#콘서트", "#직캠"],
       emoji: "🎤",
       colorKey: "green",
-      isSelected: false,
     },
     {
       id: "mem-node-4",
@@ -63,7 +59,6 @@ export const MOCK_MEMORY_CONNECT: MemoryConnectData = {
       tags: ["#컴백", "#신곡"],
       emoji: "🌟",
       colorKey: "brown",
-      isSelected: true,
     },
   ],
 };
