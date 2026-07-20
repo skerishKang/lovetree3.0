@@ -1,0 +1,13 @@
+.header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0 1.5rem;
+}
+
+.logo {
+  font-size: var(--fs-logo);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
