@@ -1,18 +1,26 @@
 .hero {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: clamp(1.5rem, 3vw, 3rem);
-  align-items: center;
+  /* 2차 보정: 원본 비율에 맞춤.
+     원본(2752): 제목 영역 x=580~1335(폭755), 트리 영역 x=1355~2300(폭945)
+     → copy:tree ≈ 755:945 ≈ 1:1.25 */
+  grid-template-columns: 1fr 1.25fr;
+  gap: clamp(1rem, 2vw, 2rem);
+  align-items: start;
   flex: 1;
-  padding: 1rem 0 2rem;
+  /* 원본: 제목 시작 y=509(2752). 헤더 끝 약 y=214.
+     509 - 214 = 295px 간격. 패널 내부 padding-top 별도.
+     14.7vh = 226px (2752에서). copy와 preview 모두 위로 이동 */
+  padding: clamp(3rem, 14.7vh, 15rem) 0 2rem;
 }
 
 /* ===== 왼쪽: 복사 + 버튼 ===== */
 .copy {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
-  padding-right: 1rem;
+  /* 원본 세로 리듬: 제목(69px) → 34px 간격 → 설명(70px) → 49px → CTA
+     gap을 늘려 원본 세로 리듬 재현 */
+  gap: clamp(1.5rem, 3vh, 3.5rem);
+  padding-right: 0.5rem;
 }
 
 .headline {
@@ -22,6 +30,8 @@
   letter-spacing: var(--ls-headline);
   color: var(--text-primary);
   margin: 0;
+  /* 명시적 <br /> 줄바꿈 보장, 자동 줄바꿈 방지 */
+  white-space: nowrap;
 }
 
 .description {
@@ -103,11 +113,19 @@
   outline-offset: 3px;
 }
 
-/* ===== 오른쪽: 트리 미리보기 ===== */
+/* ===== 오른쪽: 트리 미리보기 =====
+ * 2차 보정: 원본 트리 영역 y=304~822(2752기준) → 높이 518px
+ * viewport 높이 1536의 33.7%
+ * 원본에서 트리는 제목보다 위에서 시작 (가장 위 카드 y=304, 제목 y=509)
+ * preview에 음수 margin-top으로 트리를 위로 올림 */
 .preview {
   position: relative;
   width: 100%;
-  height: clamp(360px, 46vh, 560px);
+  height: clamp(420px, 34vh, 560px);
+  /* 트리를 제목 위로 이동 (원본: 트리 시작 y=304, 제목 y=509 → 205px 위)
+     카드들이 약 190px 아래에 있으므로 위로 이동.
+     grid item에서는 margin-top보다 transform이 확실하게 적용됨 */
+  transform: translateY(clamp(-15rem, -12.37vh, -10rem));
 }
 
 /* ===== 반응형 ===== */
@@ -148,6 +166,6 @@
     width: 100%;
   }
   .preview {
-    height: 420px;
+    height: 560px;
   }
 }

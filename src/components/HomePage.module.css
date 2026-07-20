@@ -39,19 +39,41 @@
   z-index: 0;
 }
 
-/* 중앙 대형 아이보리 패널 */
+/* 중앙 대형 아이보리 패널
+ *
+ * 원본 정밀 측정 (2752×1536):
+ *   패널 상단 y = 126px (4.58vw)
+ *   패널 좌측 x = 412px (14.97vw)
+ *   패널 우측 x = 2338px
+ *   패널 폭 = 1926px (69.99vw)
+ *   패널 하단 = viewport 아래로 이어짐 (하단 둥근 모서리 미노출)
+ *
+ * 2차 보정: vw 기반으로 정확한 px 보장.
+ *   - margin-top = 4.58vw (2752px에서 정확히 126px)
+ *   - margin-x = 14.97vw (2752px에서 정확히 412px)
+ *   - width = 69.99vw (2752px에서 정확히 1926px)
+ *   - border-radius 하단 = 0 (상단만 둥글게)
+ */
 .panel {
   position: relative;
   z-index: 1;
-  width: calc(100% - 2 * var(--panel-x));
+  /* 원본: 패널 폭 1926px = 69.99vw (2752 기준) */
+  width: 69.99vw;
   max-width: var(--content-max-width);
-  min-height: calc(100vh - 2 * var(--panel-y));
-  margin: var(--panel-y) auto;
+  /* 원본: 상단 126px(4.58vw), 좌우 412px(14.97vw) */
+  margin: 4.58vw 14.97vw 0 14.97vw;
   background: var(--surface-main);
-  border-radius: var(--surface-panel-radius);
-  padding: clamp(1.5rem, 3vw, 3rem) clamp(2rem, 5vw, 5rem);
+  /* 상단만 둥글게, 하단은 viewport 끝까지 이어짐 */
+  border-radius: var(--surface-panel-radius) var(--surface-panel-radius) 0 0;
+  /* 원본: 패널 내부 좌측 padding.
+     제목/로고/기능 시작 x=580px, 패널 좌측 x=412px
+     → 내부 좌측 padding = 580-412 = 168px = 6.11vw (2752 기준)
+     vw 단위로 지정하여 정확한 px 보장 */
+  padding: clamp(1.5rem, 2.5vw, 3rem) 6.11vw;
   display: flex;
   flex-direction: column;
+  /* viewport 끝까지 확장 (하단 모서리 미노출) */
+  min-height: calc(100vh - 4.58vw);
   box-shadow: 0 20px 60px rgba(45, 41, 38, 0.08);
 }
 

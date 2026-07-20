@@ -2,6 +2,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* 2차 보정: 원본 헤더 패딩.
+     패널 내부 padding 8.7%가 이미 있으므로 헤더 자체 패딩은 최소화 */
   padding: 0.5rem 0 2rem;
   width: 100%;
 }
@@ -16,7 +18,11 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: clamp(1.5rem, 2.5vw, 2.5rem);
+  /* 2차 보정: 원본 메뉴 간격 (2752 기준)
+     원본 gap 약 81px = 2.94vw.
+     About→Features: 140px, Features→Community: 178px, Community→My Tree: 211px
+     (항목 너비 포함한 시작점 간격, gap 자체는 약 81px) */
+  gap: clamp(1.5rem, 2.94vw, 3rem);
 }
 
 .navItem {

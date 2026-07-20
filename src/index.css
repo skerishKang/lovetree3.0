@@ -28,35 +28,44 @@
   --font-sans: "Pretendard Variable", Pretendard, "Noto Sans KR",
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
 
-  /* Headline (원본 ~52-80px 추정, 2752px 기준 80px) */
-  --fs-headline: clamp(2.5rem, 5.2vw, 5rem);
-  --lh-headline: 1.15;
+  /* Headline (원본 정밀 측정: 2752×1536에서 약 65px, 첫 줄 폭 755px)
+     "사랑에 빠진 모든 순간을 / 기록해 보세요" 정확히 2줄.
+     2차 보정: 원본 폰트 크기에 맞춰 확대 (이전 ~52px → ~65px).
+     vw 기반으로 2752px에서 65px 보장: 65/2752*100 = 2.36vw */
+  --fs-headline: clamp(2rem, 2.4vw, 4rem);
+  --lh-headline: 1.08;
   --ls-headline: -0.02em;
 
-  /* Description */
-  --fs-description: clamp(1.125rem, 1.6vw, 1.6rem);
-  --lh-description: 1.55;
+  /* Description (원본: 설명 텍스트 y=612~681, 높이 약 70px → 2줄)
+     폰트 크기 약 22-24px (2752 기준) */
+  --fs-description: clamp(1.125rem, 1.5vw, 1.6rem);
+  --lh-description: 1.5;
 
   /* Button */
-  --fs-button: clamp(0.95rem, 1.1vw, 1.25rem);
+  --fs-button: clamp(0.95rem, 1vw, 1.15rem);
 
   /* Card metadata */
   --fs-card-date: 0.8125rem;
   --fs-card-tag: 0.75rem;
   --fs-card-memo: 0.875rem;
 
-  /* Feature section */
-  --fs-feature-title: 1.0625rem;
-  --fs-feature-body: 0.875rem;
+  /* Feature section — 원본 기준 확대 (2차 보정)
+     원본: 아이콘 상단 y=946px(2048)=1272px(2752), 기능 블록 높이 약 200px
+     아이콘 박스 약 90px, 제목 약 28px, 본문 약 22px (2752 기준) */
+  --fs-feature-title: clamp(1.25rem, 1.5vw, 1.75rem);
+  --fs-feature-body: clamp(1rem, 1.15vw, 1.3rem);
 
   /* Header */
-  --fs-logo: 1.75rem;
-  --fs-menu: 1.0625rem;
+  --fs-logo: clamp(1.5rem, 1.8vw, 2rem);
+  --fs-menu: clamp(1rem, 1.1vw, 1.25rem);
 
-  /* ===== Layout ===== */
-  --panel-x: clamp(2rem, 8.5vw, 8.5rem);
-  --panel-y: clamp(2rem, 3.5vw, 3.5rem);
-  --content-max-width: 1600px;
+  /* ===== Layout =====
+     2차 보정: 패널 geometry는 HomePage.module.css에서 직접 관리.
+     원본 패널: 상단 126px(8.2vw), 좌우 413px(15%), 폭 1926px(70%)
+     content-max-width는 2752px 기준 패널 폭 */
+  --panel-x: clamp(2rem, 6vw, 7rem);
+  --panel-y: 4.58vw;
+  --content-max-width: 1926px;
 
   /* ===== Cards ===== */
   --card-radius: 16px;

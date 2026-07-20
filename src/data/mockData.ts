@@ -4,6 +4,25 @@
  * 원본 이미지의 작은 한글 문구는 정확한 판독이 어려워
  * 시각 밀도와 레이아웃을 재현하는 목업 문구를 사용합니다.
  * 실제 API 호출 없음.
+ *
+ * 카드 위치는 원본 2752×1536px 이미지에서 추출한 비율 기준입니다.
+ *
+ * 2차 보정: 박사님이 제시한 정확한 anchor (2048×1143 기준)를
+ * 2752×1536으로 변환 후 트리 컨테이너 내부 %로 재매핑.
+ *
+ * 원본 카드 구조 (3열 분기):
+ *   mem-001 (시작):     좌측 열, 중간 높이
+ *   mem-002 (중앙상단): 중앙 열, 상단
+ *   mem-003 (중앙하단): 중앙 열, 하단
+ *   mem-004 (우측상단): 우측 열, 상단
+ *   mem-005 (우측하단): 우측 열, 하단
+ *
+ * 연결 구조 (원본 기준):
+ *   mem-001 → mem-002 (시작 → 중앙 상단)
+ *   mem-001 → mem-003 (시작 → 중앙 하단)
+ *   mem-002 → mem-004 (중앙 상단 → 우측 상단)
+ *   mem-003 → mem-005 (중앙 하단 → 우측 하단)
+ *   mem-002 → mem-005 (중앙 상단 → 우측 하단, 교차 연결)
  */
 
 export interface MemoryCardData {
@@ -30,7 +49,8 @@ export const memoryCards: MemoryCardData[] = [
     date: "2023-01-07",
     tags: ["나상", "감정", "이시나"],
     memo: "처음 마주한 순간, 설렘이 피어났어요",
-    position: { top: "58%", left: "8%" },
+    /* 원본: 시작 카드, 좌측 열 중간 높이 (anchor: left 4.4%, top 68%) */
+    position: { top: "68%", left: "4%" },
     scale: 0.82,
     bokeh: {
       c1: "rgba(255,244,200,0.85)",
@@ -44,7 +64,8 @@ export const memoryCards: MemoryCardData[] = [
     date: "2023-01-10",
     tags: ["감상", "함께"],
     memo: "아론이 말아요 ❤️",
-    position: { top: "12%", left: "36%" },
+    /* 원본: 중앙 열 상단 (anchor: left 43%, top 34%) */
+    position: { top: "34%", left: "43%" },
     scale: 0.95,
     bokeh: {
       c1: "rgba(255,236,210,0.8)",
@@ -58,7 +79,8 @@ export const memoryCards: MemoryCardData[] = [
     date: "2023-03-06",
     tags: ["현상", "감정"],
     memo: "이런 익숙함, 왠지 진짜 사랑잖아요 🥺",
-    position: { top: "72%", left: "40%" },
+    /* 원본: 중앙 열 하단 (anchor: left 43%, top 100% → 컨테이너 내 95%) */
+    position: { top: "95%", left: "43%" },
     scale: 0.88,
     bokeh: {
       c1: "rgba(255,240,195,0.82)",
@@ -72,7 +94,8 @@ export const memoryCards: MemoryCardData[] = [
     date: "2023-03-20",
     tags: ["성장", "이데이자"],
     memo: "영상 입력, 백일 차렸다...",
-    position: { top: "4%", left: "68%" },
+    /* 원본: 우측 열 상단 (anchor: left 88%, top 20%) */
+    position: { top: "20%", left: "88%" },
     scale: 1.0,
     bokeh: {
       c1: "rgba(255,245,205,0.85)",
@@ -86,7 +109,8 @@ export const memoryCards: MemoryCardData[] = [
     date: "2023-05-17",
     tags: ["남상", "이어짐", "자라"],
     memo: "나쁘지 않아요",
-    position: { top: "66%", left: "72%" },
+    /* 원본: 우측 열 하단 (anchor: left 88%, top 100% → 컨테이너 내 95%) */
+    position: { top: "95%", left: "88%" },
     scale: 1.0,
     bokeh: {
       c1: "rgba(255,238,198,0.82)",
