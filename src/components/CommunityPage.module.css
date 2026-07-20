@@ -1,0 +1,32 @@
+.page {
+  min-height: 100vh;
+  width: 100%;
+  /* 커뮤니티 배경: 크리미 베이지 + 좌우 나무 실루엣 느낌 */
+  background:
+    radial-gradient(120% 80% at 0% 50%, rgba(149, 165, 150, 0.18) 0%, transparent 40%),
+    radial-gradient(120% 80% at 100% 50%, rgba(220, 189, 182, 0.22) 0%, transparent 40%),
+    linear-gradient(180deg, #f3ece1 0%, #efe6d8 100%);
+  padding: clamp(1rem, 4.58vw, 4.5rem) clamp(2rem, 6vw, 7rem);
+  box-sizing: border-box;
+}
+
+.panel {
+  width: 100%;
+  max-width: 1926px;
+  margin: 0 auto;
+  background: var(--surface-main);
+  border-radius: var(--surface-panel-radius);
+  box-shadow: 0 12px 40px rgba(45, 41, 38, 0.08);
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 1rem 0.75rem;
+  }
+  .panel {
+    border-radius: 24px;
+    padding: 1.25rem 1rem;
+  }
+}
