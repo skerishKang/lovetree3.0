@@ -23,15 +23,12 @@
 
 ## 인터랙션
 
-| 항목 | 기준 이미지 | 구현 | 비고 |
-|---|---|---|---|
-| 좋아요 버튼 | 클릭 시 토글 | React state 토글 | 시각적 위장 없음, 실제 API 없음 |
-| 저장 버튼 | 클릭 시 색상 변화 | state 토글 | text 변경 (저장됨) |
-| 댓글 입력 | placeholder | 동일 구현 | 입력 가능, 실제 전송 없음 |
-
-## 의도적 누락 (MyPage DEFERRED)
-
-`/my-page` 경로는 reference 부재로 DEFERRED 상태이며, 추후 reference 확보 후 FUNC 단계에서 작업 예정.
+| 항목 | 기준 이미지 | BASE 구현 |
+|---|---|---|
+| 좋아요·댓글·공유 버튼 | 동작 가능한 UI로 보임 | presentation-only, state 변경과 side effect 없음 |
+| 저장 버튼 | 실제 저장 동작 예상 | presentation-only, 문구·색상·상태 변경 없음 |
+| 댓글 입력 | 입력·등록 가능한 UI | readOnly 입력창, 등록 버튼 항상 disabled |
+| 댓글 좋아요 | 실제 반응 기능 예상 | 정적 버튼 UI, count 변경 없음 |
 
 ## VISUAL 이관 항목
 
