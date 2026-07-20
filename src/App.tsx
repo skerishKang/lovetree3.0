@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import CommunityPage from "./components/CommunityPage";
 import AuthLoginPage from "./components/AuthLoginPage";
+import TreeDetailPage from "./components/TreeDetailPage";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/login" element={<AuthLoginPage />} />
+        <Route path="/tree/community-demo" element={<TreeDetailPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

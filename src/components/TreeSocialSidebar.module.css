@@ -1,0 +1,78 @@
+/* TreeSocialSidebar — 우측 소셜 사이드바 */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.socialActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.5rem;
+  background: #fff;
+  border: 1px solid #e5ddd4;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #5a4e44;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.actionBtn:hover {
+  background: #f5f0ea;
+  border-color: #d0c5b8;
+}
+
+.actionBtn:focus-visible {
+  outline: 2px solid #b8a08e;
+  outline-offset: 2px;
+}
+
+.actionBtn:active {
+  background: #ebe3da;
+}
+
+.count {
+  font-weight: 600;
+}
+
+/* 저장 버튼 */
+.saveBtn {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: #e8c8b8;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.saveBtn:hover {
+  background: #dcb8a8;
+}
+
+.saveBtn:focus-visible {
+  outline: 2px solid #b8a08e;
+  outline-offset: 2px;
+}
+
+.saveBtn:active {
+  background: #d0a898;
+}
+
+@media (max-width: 900px) {
+  .socialActions {
+    justify-content: center;
+  }
+}
