@@ -1,0 +1,145 @@
+/* CommentSection — 댓글 목록 + 입력 */
+.commentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.heading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2a221a;
+}
+
+.count {
+  color: #b09a88;
+  font-weight: 400;
+}
+
+/* 댓글 목록 */
+.commentList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.commentItem {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.commentAvatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: #f0e8de;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.commentBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+
+.commentAuthor {
+  font-size: 0.85rem;
+  color: #2a221a;
+}
+
+.commentHandle {
+  font-size: 0.7rem;
+  color: #b09a88;
+}
+
+.commentText {
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  color: #4a3e34;
+  line-height: 1.5;
+}
+
+.likeBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.7rem;
+  color: #b09a88;
+  cursor: pointer;
+}
+
+.likeBtn:hover {
+  color: #d06a4a;
+}
+
+.likeBtn:focus-visible {
+  outline: 2px solid #b8a08e;
+  outline-offset: 2px;
+}
+
+/* 댓글 입력 */
+.inputArea {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid #e5ddd4;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  background: #fff;
+  color: #2a221a;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input::placeholder {
+  color: #c0b5a8;
+}
+
+.input:focus {
+  border-color: #d0b8a8;
+}
+
+.submitBtn {
+  padding: 0.5rem 0.85rem;
+  background: #e8c8b8;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #dcb8a8;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.submitBtn:focus-visible {
+  outline: 2px solid #b8a08e;
+  outline-offset: 2px;
+}

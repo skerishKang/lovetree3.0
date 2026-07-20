@@ -1,0 +1,89 @@
+/* TimelineSection — 중앙 가지선 + 카드 배치 */
+.timeline {
+  position: relative;
+  padding: 0.5rem 0 1.5rem;
+}
+
+/* 중심 가지선 */
+.branchLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  background: linear-gradient(
+    180deg,
+    #d4b8a8 0%,
+    #c9a898 30%,
+    #d4b8a8 60%,
+    #e0c8b8 100%
+  );
+  border-radius: 2px;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+/* 카드 그리드 */
+.cardsGrid {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* 각 카드 래퍼 */
+.cardWrapper {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* 중앙 노드 점 */
+.nodeDot {
+  position: absolute;
+  left: 50%;
+  top: 1.5rem;
+  width: 14px;
+  height: 14px;
+  background: #f0d6c8;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #c9a898;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* top: 카드가 왼쪽 (중앙선 기준 위) */
+.sideTop {
+  justify-content: flex-start;
+  padding-right: calc(50% + 1.5rem);
+}
+
+/* bottom: 카드가 오른쪽 (중앙선 기준 아래) */
+.sideBottom {
+  justify-content: flex-end;
+  padding-left: calc(50% + 1.5rem);
+}
+
+/* 모바일: 카드 전체폭, 중앙선은 얇게 */
+@media (max-width: 768px) {
+  .branchLine {
+    left: 20px;
+    width: 3px;
+  }
+
+  .nodeDot {
+    left: 20px;
+    width: 12px;
+    height: 12px;
+    top: 1.25rem;
+  }
+
+  .sideTop,
+  .sideBottom {
+    padding-left: 3rem;
+    padding-right: 0;
+    justify-content: flex-start;
+  }
+}
