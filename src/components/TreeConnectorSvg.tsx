@@ -9,16 +9,23 @@ interface TreeConnectorSvgProps extends SVGProps<SVGSVGElement> {}
  * 장밋빛 곡선 (stroke: var(--accent-rose))
  * viewBox: 0 0 100 100 (percentage 기준, preserveAspectRatio none)
  *
- * 카드 위치 (mockData.ts 보정값 기준 %):
- *   mem-001: top 58%, left 8%  (왼쪽 시작)
- *   mem-002: top 12%, left 36% (중앙 상단)
- *   mem-003: top 72%, left 40% (중앙 하단)
- *   mem-004: top 4%,  left 68% (상단 오른쪽)
- *   mem-005: top 66%, left 72% (하단 오른쪽)
+ * 2차 보정: 박사님 anchor 기준 카드 위치 (%):
+ *   mem-001: top 68%, left 4%  (좌측 시작)
+ *   mem-002: top 34%, left 43% (중앙 상단)
+ *   mem-003: top 95%, left 43% (중앙 하단)
+ *   mem-004: top 20%, left 88% (우측 상단)
+ *   mem-005: top 95%, left 88% (우측 하단)
+ *
+ * 연결 구조 (원본 기준, S자 곡선 + 수직선):
+ *   mem-001 → mem-002 (시작 → 중앙 상단): 우상향 곡선
+ *   mem-001 → mem-003 (시작 → 중앙 하단): 우하향 곡선
+ *   mem-002 → mem-004 (중앙 상단 → 우측 상단): 우상향 곡선
+ *   mem-003 → mem-005 (중앙 하단 → 우측 하단): 수평 곡선
+ *   mem-002 → mem-005 (중앙 상단 → 우측 하단): S자 곡선
  */
 export default function TreeConnectorSvg({ className, ...rest }: TreeConnectorSvgProps) {
   const stroke = "var(--accent-rose)";
-  const strokeWidth = 0.35;
+  const strokeWidth = 0.4;
   const style: CSSProperties = { overflow: "visible" };
 
   return (
@@ -32,37 +39,37 @@ export default function TreeConnectorSvg({ className, ...rest }: TreeConnectorSv
       aria-hidden="true"
       {...rest}
     >
-      {/* mem-001(8,58) → mem-002(36,12) : 왼쪽 시작 → 중앙 상단 */}
+      {/* mem-001(4,68) → mem-002(43,34) : 시작 → 중앙 상단 (우상향 곡선) */}
       <path
-        d="M 14 58 C 22 44, 28 18, 36 12"
+        d="M 8 68 C 20 60, 30 40, 43 34"
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-      {/* mem-001(8,58) → mem-003(40,72) : 왼쪽 시작 → 중앙 하단 */}
+      {/* mem-001(4,68) → mem-003(43,95) : 시작 → 중앙 하단 (우하향 곡선) */}
       <path
-        d="M 14 58 C 24 64, 32 70, 40 72"
+        d="M 8 68 C 20 78, 32 90, 43 95"
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-      {/* mem-002(36,12) → mem-004(68,4) : 중앙 상단 → 상단 오른쪽 */}
+      {/* mem-002(43,34) → mem-004(88,20) : 중앙 상단 → 우측 상단 (우상향 곡선) */}
       <path
-        d="M 36 12 C 48 6, 58 2, 68 4"
+        d="M 47 34 C 60 28, 75 22, 88 20"
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-      {/* mem-003(40,72) → mem-005(72,66) : 중앙 하단 → 하단 오른쪽 */}
+      {/* mem-003(43,95) → mem-005(88,95) : 중앙 하단 → 우측 하단 (수평 곡선) */}
       <path
-        d="M 40 72 C 52 70, 62 67, 72 66"
+        d="M 47 95 C 60 95, 75 95, 88 95"
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-      {/* mem-002(36,12) → mem-005(72,66) : 교차 연결 */}
+      {/* mem-002(43,34) → mem-005(88,95) : 중앙 상단 → 우측 하단 (S자 곡선) */}
       <path
-        d="M 36 12 C 52 28, 62 50, 72 66"
+        d="M 47 34 C 65 50, 75 75, 88 95"
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
