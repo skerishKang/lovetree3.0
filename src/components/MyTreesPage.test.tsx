@@ -119,12 +119,12 @@ describe("MyTreesPage", () => {
   });
 
   it("does not make any network requests", () => {
-    const originalFetch = global.fetch;
+    const originalFetch = globalThis.fetch;
     const fetchSpy = vi.fn();
-    global.fetch = fetchSpy as unknown as typeof globalThis.fetch;
+    globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
     renderMyTrees();
     expect(fetchSpy).not.toHaveBeenCalled();
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
   });
 
   it("renders card action buttons per card", () => {
