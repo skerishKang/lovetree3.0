@@ -1,0 +1,14 @@
+.authPage {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fdf8f0 0%, #faf0e4 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.authCard {
+  flex: 1;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 0 2rem;
+}
