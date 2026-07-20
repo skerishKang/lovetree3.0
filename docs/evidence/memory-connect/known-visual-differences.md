@@ -33,8 +33,8 @@
 |---|---|---|
 | 아이콘 | 정밀 SVG/일러스트 | 이모지 문자 |
 | 카드 그림자 | 복합 그림자 | 기본 box-shadow |
-| 카드 테두리 | 정밀 border-radius | CSS border-radius 16px |
-| 선택 표시 | 정밀 하이라이트 효과 | 두꺼운 border + 배경색 |
+| 카드 테두리 | 정밀 border-radius | CSS border-radius 20px |
+| 선택 표시 | 정밀 하이라이트 효과 | 2.5px 외곽 box-shadow + 강화된 그림자 |
 | 태그 스타일 | 둥근 칩 디자인 | inline-block 태그 |
 
 ### 4. 모바일 → 데스크톱 확장 방식
@@ -51,7 +51,7 @@
 
 - 목업 데이터(`memoryConnectMockData.ts`)에서 `selectedNodeId: 'mem-node-4'`로 네 번째 노드("컴백 D-Day")를 고정 선택
 - 각 노드의 선택 상태는 `node.id === data.selectedNodeId`로 계산 (단일 진실원천)
-- 선택된 노드는 `data-selected="true"` 속성 + 두꺼운 border + 배경색 차이로 시각적 구분
+- 선택된 노드는 `data-selected="true"` 속성 + 2.5px 외곽 box-shadow + 강화된 그림자로 시각적 구분
 - `aria-current="location"`으로 접근성 정보 제공
 - 사용자 클릭으로 선택 상태 변경 불가 (onClick 없음)
 
