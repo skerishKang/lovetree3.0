@@ -9,11 +9,11 @@ interface Props {
 export default function TreeSocialSidebar({ data }: Props) {
   return (
     <div className={styles.sidebar}>
-      {/* 소셜 액션 버튼 */}
+      {/* 소셜 액션 버튼 (presentation-only) */}
       <div className={styles.socialActions}>
         <button
+          type="button"
           className={styles.actionBtn}
-          onClick={(e) => e.preventDefault()}
           aria-label="좋아요"
         >
           <span aria-hidden="true">❤️</span>
@@ -21,8 +21,8 @@ export default function TreeSocialSidebar({ data }: Props) {
         </button>
 
         <button
+          type="button"
           className={styles.actionBtn}
-          onClick={(e) => e.preventDefault()}
           aria-label="댓글"
         >
           <span aria-hidden="true">💬</span>
@@ -30,8 +30,8 @@ export default function TreeSocialSidebar({ data }: Props) {
         </button>
 
         <button
+          type="button"
           className={styles.actionBtn}
-          onClick={(e) => e.preventDefault()}
           aria-label="공유"
         >
           <span aria-hidden="true">🔗</span>
@@ -39,10 +39,10 @@ export default function TreeSocialSidebar({ data }: Props) {
         </button>
       </div>
 
-      {/* 저장 버튼 (시각적 UI만, 기능 없음) */}
+      {/* 저장 버튼 (presentation-only) */}
       <button
+        type="button"
         className={styles.saveBtn}
-        onClick={(e) => e.preventDefault()}
         aria-label="내 러브트리에 저장"
       >
         ♡ 내 러브트리에 저장

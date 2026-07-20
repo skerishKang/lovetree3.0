@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { TreeComment } from "../data/treeDetailMockData";
 import styles from "./CommentSection.module.css";
 
@@ -7,8 +6,6 @@ interface Props {
 }
 
 export default function CommentSection({ comments }: Props) {
-  const [inputValue, setInputValue] = useState("");
-
   return (
     <div className={styles.commentSection}>
       {/* 댓글 개수 */}
@@ -34,8 +31,8 @@ export default function CommentSection({ comments }: Props) {
               </div>
               <p className={styles.commentText}>{comment.text}</p>
               <button
+                type="button"
                 className={styles.likeBtn}
-                onClick={(e) => e.preventDefault()}
                 aria-label={`${comment.author}의 댓글에 좋아요`}
               >
                 ♥ {comment.likes}
@@ -45,22 +42,20 @@ export default function CommentSection({ comments }: Props) {
         ))}
       </ul>
 
-      {/* 댓글 입력 */}
+      {/* 댓글 입력 (presentation-only) */}
       <div className={styles.inputArea}>
         <input
           type="text"
           className={styles.input}
           placeholder="댓글 달기..."
           aria-label="댓글 입력"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          readOnly
         />
         <button
-          type="submit"
+          type="button"
           className={styles.submitBtn}
-          onClick={(e) => e.preventDefault()}
           aria-label="댓글 등록"
-          disabled={!inputValue.trim()}
+          disabled
         >
           등록
         </button>
