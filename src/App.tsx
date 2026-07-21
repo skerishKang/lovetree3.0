@@ -7,6 +7,7 @@ import MemoryConnectPage from "./components/MemoryConnectPage";
 import MyTreesPage from "./components/MyTreesPage";
 import TreeEditorPage from "./components/TreeEditorPage";
 import MemoryDetailPage from "./components/MemoryDetailPage";
+import MediaSearchPage from "./components/MediaSearchPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/my-trees" element={<MyTreesPage />} />
         <Route path="/tree/edit-demo" element={<TreeEditorPage />} />
         <Route path="/memory/detail-demo" element={<MemoryDetailPage />} />
+        <Route path="/media/search-demo" element={<MediaSearchPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
