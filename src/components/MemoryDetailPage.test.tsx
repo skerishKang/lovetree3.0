@@ -1,5 +1,5 @@
 /**
- * LT3-MEMORY-002 — MemoryDetailPage UI BASE 테스트
+ * LT3-MEMORY-002 — MemoryDetailPage 테스트
  * 실제 App 기반 렌더링, presentation-only 검증
  */
 
@@ -81,10 +81,10 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     ).toBeInTheDocument();
   });
 
-  it("관련 기억 카드가 정확히 3개여야 한다", () => {
+  it("관련 기억 카드가 4개여야 한다", () => {
     renderAppAt("/memory/detail-demo");
     const articles = screen.getAllByRole("article");
-    expect(articles).toHaveLength(3);
+    expect(articles).toHaveLength(4);
   });
 
   it("관련 기억이 ul > li > article 구조여야 한다", () => {
@@ -93,7 +93,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     expect(list).toBeInTheDocument();
     expect(list!.tagName).toBe("UL");
     const items = list!.querySelectorAll(":scope > li");
-    expect(items).toHaveLength(3);
+    expect(items).toHaveLength(4);
     items.forEach((li) => {
       const article = li.querySelector(":scope > article");
       expect(article).toBeInTheDocument();
@@ -110,6 +110,9 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("article", { name: "콘서트 후 일기" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("article", { name: "팬미팅 초대장" })
     ).toBeInTheDocument();
   });
 
@@ -205,7 +208,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
     const articlesAfter = screen.getAllByRole("article");
     expect(articlesAfter).toHaveLength(articlesBefore);
-    expect(articlesAfter).toHaveLength(3);
+    expect(articlesAfter).toHaveLength(4);
   });
 
   it("모든 버튼 클릭 후 제목·날짜·메모가 불변이어야 한다", () => {
@@ -256,6 +259,84 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     }
 
     expect(window.location.pathname).toBe("/memory/detail-demo");
+  });
+
+  /* ── New assertions for enriched content ── */
+
+  it("미디어 출처 정보가 표시되어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    expect(screen.getByText("직캠 (직접 촬영)")).toBeInTheDocument();
+  });
+
+  it("미디어 형식 정보가 표시되어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    expect(screen.getAllByText("MP4 · 1080p").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("미디어 길이 정보가 표시되어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    expect(screen.getAllByText("3분 42초").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("기억 유형 배지가 표시되어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    expect(screen.getByText("영상")).toBeInTheDocument();
+  });
+
+  it("작성자 이름이 표시되어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    expect(screen.getByText("민지")).toBeInTheDocument();
+  });
+
+  it("트리 이름이 표시되어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    expect(screen.getAllByText("민지의 Love Tree").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("각 관련 기억에 유형이 표시되어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    const typeLabels = screen.getAllByText(/^(사진|텍스트|문서)$/);
+    expect(typeLabels.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("각 관련 기억에 관계 문구가 표시되어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    expect(screen.getByText("이전 기억")).toBeInTheDocument();
+    const relations = screen.getAllByText(/(이어진 기억|관련 기억)/);
+    expect(relations.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("좋아요가 눌린 상태여야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    const likeButton = screen.getByRole("button", { name: "좋아요 128" });
+    expect(likeButton).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("더보기 메뉴 버튼이 있어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    expect(
+      screen.getByRole("button", { name: "더보기 메뉴" })
+    ).toBeInTheDocument();
+  });
+
+  it("fetch/network 요청이 없어야 한다", () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    renderAppAt("/memory/detail-demo");
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("XMLHttpRequest가 없어야 한다", () => {
+    const openSpy = vi.fn();
+    vi.stubGlobal("XMLHttpRequest", vi.fn(() => ({ open: openSpy })));
+    renderAppAt("/memory/detail-demo");
+    expect(openSpy).not.toHaveBeenCalled();
+  });
+
+  it("navigation 링크가 없어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    const links = screen.queryAllByRole("link");
+    expect(links).toHaveLength(0);
   });
 });
 
