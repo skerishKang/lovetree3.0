@@ -137,7 +137,7 @@ export default function MemoryDetailPage() {
             <h2 id="related-heading" className={styles.relatedHeading}>
               이 순간과 이어진 기억
             </h2>
-            <ul className={styles.relatedList}>
+            <ul className={styles.relatedList} aria-label="연관 기억 목록">
               {data.relatedMemories.map((mem) => (
                 <li key={mem.id} className={styles.relatedItem}>
                   <article

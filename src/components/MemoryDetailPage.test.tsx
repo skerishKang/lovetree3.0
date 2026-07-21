@@ -89,10 +89,12 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
   it("관련 기억이 ul > li > article 구조여야 한다", () => {
     renderAppAt("/memory/detail-demo");
-    const list = document.querySelector('[class*="relatedList"]');
+    const list = screen.getByRole("list", {
+      name: "연관 기억 목록",
+    });
     expect(list).toBeInTheDocument();
-    expect(list!.tagName).toBe("UL");
-    const items = list!.querySelectorAll(":scope > li");
+    expect(list.tagName).toBe("UL");
+    const items = list.querySelectorAll(":scope > li");
     expect(items).toHaveLength(4);
     items.forEach((li) => {
       const article = li.querySelector(":scope > article");
