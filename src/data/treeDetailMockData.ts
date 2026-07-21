@@ -247,4 +247,4 @@ export const MOCK_TREE_DETAIL: TreeDetailData = {
       timeLabel: "어제",
     },
   ],
-};;
+};
