@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 16px 120px;
+  padding: 0 16px 140px;
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -35,11 +35,6 @@
   color: #4a3f35;
   cursor: default;
   flex-shrink: 0;
-  transition: background 0.15s;
-}
-
-.backButton:hover {
-  background: rgba(45, 41, 38, 0.06);
 }
 
 .backButton:focus-visible {
@@ -54,10 +49,27 @@
   letter-spacing: 0.02em;
 }
 
+/* ===== 메인 레이아웃 (mobile: single column) ===== */
+.memoryConnectLayout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+}
+
+.contextColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.treeColumn {
+  display: flex;
+  flex-direction: column;
+}
+
 /* ===== 제목 영역 ===== */
 .intro {
   width: 100%;
-  max-width: 600px;
   padding: 4px 0 16px;
 }
 
@@ -81,7 +93,6 @@
 /* ===== 새 기억 미리보기 ===== */
 .newMemorySection {
   width: 100%;
-  max-width: 600px;
   margin-bottom: 20px;
 }
 
@@ -195,12 +206,17 @@
   font-weight: 500;
 }
 
+/* ===== 연결 결과 (connection hint) ===== */
 .connectionHint {
   margin: 0.6rem 0 0;
+}
+
+.connectionHint p {
   font-size: 0.8rem;
   color: #8a7e72;
   text-align: center;
   line-height: 1.4;
+  margin: 0;
 }
 
 .connectionHint strong {
@@ -209,19 +225,7 @@
 
 /* ===== 트리 구조 ===== */
 .treeSection {
-  position: relative;
   width: 100%;
-  max-width: 600px;
-}
-
-.connectorSvg {
-  position: absolute;
-  left: 34px;
-  top: 0;
-  width: 32px;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
 }
 
 .nodeList {
@@ -232,8 +236,6 @@
   flex-direction: column;
   align-items: center;
   gap: 0;
-  position: relative;
-  z-index: 1;
 }
 
 .nodeItem {
@@ -243,7 +245,34 @@
   width: 100%;
 }
 
+/* ===== DOM-flow connector ===== */
+.connectorItem {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+}
+
+.connectorBlock {
+  display: flex;
+  justify-content: center;
+  width: 32px;
+  height: 48px;
+}
+
+.connectorSvg {
+  width: 32px;
+  height: 48px;
+  display: block;
+}
+
 /* ===== 삽입 마커 ===== */
+.insertMarkerItem {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .insertMarker {
   display: flex;
   align-items: center;
@@ -286,12 +315,7 @@
   border: 1.5px solid rgba(45, 41, 38, 0.06);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   cursor: default;
-  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
   position: relative;
-}
-
-.nodeCard:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .nodeCard:focus-visible {
@@ -303,10 +327,6 @@
 .nodeSelected {
   border-color: var(--accent-rose, #e06b8b);
   box-shadow: 0 0 0 2px rgba(224, 107, 139, 0.15), 0 4px 20px rgba(224, 107, 139, 0.08);
-}
-
-.nodeSelected:hover {
-  box-shadow: 0 0 0 2px rgba(224, 107, 139, 0.2), 0 6px 24px rgba(224, 107, 139, 0.12);
 }
 
 /* ===== 선택 배지 ===== */
@@ -430,7 +450,7 @@
   font-weight: 500;
 }
 
-/* ===== 하단 CTA 영역 ===== */
+/* ===== CTA 영역 (mobile: fixed bottom) ===== */
 .ctaArea {
   position: fixed;
   bottom: 0;
@@ -450,6 +470,11 @@
   padding: 1rem 1.25rem 1.25rem;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
   pointer-events: auto;
+}
+
+/* desktop CTA panel (static in context column) */
+.desktopCtaPanel {
+  display: none;
 }
 
 .ctaContext {
@@ -489,26 +514,19 @@
   box-shadow: 0 0 0 4px #4a3f35;
 }
 
-/* ===== 데스크톱 ===== */
+/* ===== 768px ~ 1099px: 안정적 축소형 1-column ===== */
 @media (min-width: 768px) {
   .page {
-    padding: 0 24px 120px;
+    padding: 0 24px 140px;
+  }
+
+  .topBar,
+  .memoryConnectLayout {
+    max-width: 640px;
   }
 
   .topBar {
     padding-top: 60px;
-  }
-
-  .intro {
-    max-width: 640px;
-  }
-
-  .newMemorySection {
-    max-width: 640px;
-  }
-
-  .treeSection {
-    max-width: 640px;
   }
 
   .nodeCard {
@@ -529,31 +547,75 @@
   }
 }
 
+/* ===== 1100px+: 실제 2-column ===== */
 @media (min-width: 1100px) {
   .page {
-    padding: 0 32px 120px;
+    padding: 0 32px 40px;
+    align-items: stretch;
   }
 
-  .topBar,
-  .intro,
-  .newMemorySection,
-  .treeSection {
-    max-width: 680px;
+  .topBar {
+    max-width: 1000px;
+    padding-top: 48px;
+    margin: 0 auto 8px;
+  }
+
+  .memoryConnectLayout {
+    max-width: 1000px;
+    flex-direction: row;
+    gap: 2rem;
+    margin: 0 auto;
+  }
+
+  .contextColumn {
+    flex: 0 0 380px;
+    position: sticky;
+    top: 48px;
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .treeColumn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .desktopCtaPanel {
+    display: block;
+    background: #ffffff;
+    border: 1px solid rgba(45, 41, 38, 0.06);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(45, 41, 38, 0.03);
+  }
+
+  .ctaArea {
+    display: none;
   }
 
   .nodeCard {
-    max-width: 440px;
+    max-width: none;
   }
 
-  .ctaPanel {
-    max-width: 680px;
+  .iconArea {
+    height: 140px;
+  }
+
+  .emoji {
+    font-size: 52px;
+  }
+
+  .insertMarker {
+    max-width: none;
   }
 }
 
 /* ===== 모바일 하단 여백 보정 ===== */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .page {
-    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    padding-bottom: calc(140px + env(safe-area-inset-bottom));
   }
 
   .ctaArea {

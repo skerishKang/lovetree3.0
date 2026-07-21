@@ -138,20 +138,40 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     expect(screen.getByText("선택됨")).toBeInTheDocument();
   });
 
-  it("insert marker가 선택된 노드 뒤에 표시된다", () => {
+  it("기존 노드 사이 connector가 정확히 3개 존재한다", () => {
+    renderPage();
+    const connectors = screen.getAllByTestId("connector");
+    expect(connectors).toHaveLength(3);
+  });
+
+  it("highlighted connector가 정확히 1개 존재한다", () => {
+    renderPage();
+    const highlighted = screen.getAllByTestId("connector-highlighted");
+    expect(highlighted).toHaveLength(1);
+  });
+
+  it("insert marker가 정확히 1개 존재한다", () => {
     renderPage();
     const markers = screen.getAllByTestId("insert-marker");
     expect(markers).toHaveLength(1);
     expect(markers[0].textContent).toContain("여기에 연결");
   });
 
-  it("CTA 영역에 연결 컨텍스트 문구가 노출된다", () => {
+  it("연결 결과 문구에 선택된 노드와 새 기억 제목이 모두 포함된다", () => {
     renderPage();
-    const ctaContext = document.querySelector('[class*="ctaContext"]');
+    const result = screen.getByTestId("connection-result");
+    expect(result).toBeInTheDocument();
+    expect(result.textContent).toContain("컴백 D-Day");
+    expect(result.textContent).toContain("뒤에 연결됩니다");
+  });
+
+  it("CTA 컨텍스트 문구에 두 제목이 모두 포함된다", () => {
+    renderPage();
+    const ctaContext = screen.getByTestId("cta-context");
     expect(ctaContext).toBeInTheDocument();
-    expect(ctaContext?.textContent).toContain("컴백 D-Day");
-    expect(ctaContext?.textContent).toContain("첫 음악방송 1위");
-    expect(ctaContext?.textContent).toContain("연결합니다");
+    expect(ctaContext.textContent).toContain("컴백 D-Day");
+    expect(ctaContext.textContent).toContain("첫 음악방송 1위");
+    expect(ctaContext.textContent).toContain("연결합니다");
   });
 
   it("CTA 버튼 문구가 노출된다", () => {
@@ -167,8 +187,10 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
       name: "이 순간 뒤에 연결하기",
     });
     const textBefore = ctaBtn.textContent;
+    const htmlBefore = document.body.innerHTML;
     ctaBtn.click();
     expect(ctaBtn.textContent).toBe(textBefore);
+    expect(document.body.innerHTML).toBe(htmlBefore);
   });
 
   it("뒤로 가기 버튼 클릭 후에도 상태 변화가 없다", () => {
@@ -191,13 +213,5 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     expect(
       screen.getByRole("button", { name: "뒤로 가기" })
     ).toBeInTheDocument();
-  });
-
-  it("connection hint에 선택된 노드 맥락이 노출된다", () => {
-    renderPage();
-    const hint = document.querySelector('[class*="connectionHint"]');
-    expect(hint).toBeInTheDocument();
-    expect(hint?.textContent).toContain("컴백 D-Day");
-    expect(hint?.textContent).toContain("뒤에 연결됩니다");
   });
 });
