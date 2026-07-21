@@ -34,6 +34,7 @@ export default function CommentSection({ comments }: Props) {
                 type="button"
                 className={styles.likeBtn}
                 aria-label={`${comment.author}의 댓글에 좋아요`}
+                onClick={(e) => e.preventDefault()}
               >
                 ♥ {comment.likes}
               </button>
@@ -55,7 +56,7 @@ export default function CommentSection({ comments }: Props) {
           type="button"
           className={styles.submitBtn}
           aria-label="댓글 등록"
-          disabled
+          onClick={(e) => e.preventDefault()}
         >
           등록
         </button>

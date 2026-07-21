@@ -79,9 +79,9 @@ describe("TreeDetailPage (LT3-TREE-DETAIL-001)", () => {
     const saveBtn = screen.getByRole("button", {
       name: "내 러브트리에 저장",
     });
-    expect(saveBtn).toHaveTextContent("♡ 내 러브트리에 저장");
+    expect(saveBtn).toHaveTextContent("내 러브트리에 저장");
     saveBtn.click();
-    expect(saveBtn).toHaveTextContent("♡ 내 러브트리에 저장");
+    expect(saveBtn).toHaveTextContent("내 러브트리에 저장");
   });
 
   it("네트워크 요청을 하지 않는다", () => {

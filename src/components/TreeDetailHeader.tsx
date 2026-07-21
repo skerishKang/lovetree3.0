@@ -14,7 +14,7 @@ export default function TreeDetailHeader({ data }: Props) {
           aria-label="뒤로 가기"
           onClick={(e) => e.preventDefault()}
         >
-          ←
+          &lt;
         </button>
       </div>
       <div className={styles.titleArea}>
@@ -28,9 +28,10 @@ export default function TreeDetailHeader({ data }: Props) {
         <div className={styles.authorInfo}>
           <strong className={styles.authorName}>{data.authorName}</strong>
           <span className={styles.authorHandle}>{data.authorHandle}</span>
+          <span className={styles.badge}>🌐 {data.visibility}</span>
         </div>
-        <span className={styles.badge}>{data.visibility}</span>
       </div>
     </header>
   );
 }
+

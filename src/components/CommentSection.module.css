@@ -119,19 +119,23 @@
 }
 
 .submitBtn {
-  padding: 0.5rem 0.85rem;
-  background: #e8c8b8;
+  padding: 0.5rem 1rem;
+  background: var(--accent-rose, #e06b8b);
   color: #fff;
   border: none;
   border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.1s;
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #dcb8a8;
+  background: #d45979;
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .submitBtn:disabled {
@@ -140,6 +144,7 @@
 }
 
 .submitBtn:focus-visible {
-  outline: 2px solid #b8a08e;
+  outline: 2px solid var(--accent-rose);
   outline-offset: 2px;
 }
+

@@ -15,8 +15,10 @@ export default function TreeSocialSidebar({ data }: Props) {
           type="button"
           className={styles.actionBtn}
           aria-label="좋아요"
+          onClick={(e) => e.preventDefault()}
         >
-          <span aria-hidden="true">❤️</span>
+          <span className={styles.icon}>❤️</span>
+          <span className={styles.btnLabel}>좋아요</span>
           <span className={styles.count}>{data.likeCount}</span>
         </button>
 
@@ -24,8 +26,10 @@ export default function TreeSocialSidebar({ data }: Props) {
           type="button"
           className={styles.actionBtn}
           aria-label="댓글"
+          onClick={(e) => e.preventDefault()}
         >
-          <span aria-hidden="true">💬</span>
+          <span className={styles.icon}>💬</span>
+          <span className={styles.btnLabel}>댓글</span>
           <span className={styles.count}>{data.commentCount}</span>
         </button>
 
@@ -33,8 +37,10 @@ export default function TreeSocialSidebar({ data }: Props) {
           type="button"
           className={styles.actionBtn}
           aria-label="공유"
+          onClick={(e) => e.preventDefault()}
         >
-          <span aria-hidden="true">🔗</span>
+          <span className={styles.icon}>↗️</span>
+          <span className={styles.btnLabel}>공유</span>
           <span className={styles.count}>{data.shareCount}</span>
         </button>
       </div>
@@ -44,8 +50,9 @@ export default function TreeSocialSidebar({ data }: Props) {
         type="button"
         className={styles.saveBtn}
         aria-label="내 러브트리에 저장"
+        onClick={(e) => e.preventDefault()}
       >
-        ♡ 내 러브트리에 저장
+        내 러브트리에 저장
       </button>
 
       {/* 댓글 영역 */}
