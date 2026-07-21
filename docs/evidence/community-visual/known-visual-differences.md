@@ -6,9 +6,9 @@ This document describes the known visual differences between the reference image
 
 ## Reference Image
 
-- **Path:** `docs/reference/screens/05-community/community-discovery.png`
+- **Path:** `docs/reference/screens/01-community/community-discovery.png`
 - **Resolution:** 2752 × 1536
-- **SHA-256:** `8c4f2b1e3d5a6f7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b`
+- **SHA-256:** `8d54dcd05d95196248658008ab5ba630d4538f66c61945bbff13034183229b2b`
 
 ## Implementation Details
 
@@ -60,8 +60,31 @@ This document describes the known visual differences between the reference image
 2. **Shadow Intensity:** Slight differences in shadow blur radius
 3. **Border Radius:** Minor variations in corner rounding
 4. **Font Rendering:** Browser-specific text rendering differences
+5. **Bokeh Effect:** Reference has more pronounced bokeh blur on thumbnails
+6. **Card Depth:** Reference cards appear slightly more elevated
 
-## Visual Refinement Notes
+## Visual Refinement Applied
+
+### Card Thumbnails
+- Multi-stop gradients (5 stops) for richer color depth
+- Radial bokeh overlay with transparency
+- Subtle border for card definition
+
+### Shadows & Depth
+- Enhanced shadow intensity for better visual hierarchy
+- Border added for card separation
+- Hover state transitions with depth increase
+
+### Featured Section
+- Enhanced featured card with bokeh overlay
+- Improved visual separation from grid cards
+- Hover effects for interactive feedback
+
+### Typography
+- CSS custom properties for consistent theming
+- Mobile-first responsive approach
+
+## Visual Refinement Notes (Future)
 
 ### Priority 1: Card Thumbnail Enhancement
 - Add more complex gradient patterns
