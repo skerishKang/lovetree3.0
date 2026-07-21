@@ -614,6 +614,49 @@
   margin-top: auto;
 }
 
+.detailField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d4c9bd;
+  border-radius: 8px;
+  background: #faf8f5;
+  color: #3d2e22;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  cursor: default;
+}
+
+.detailInput:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+.detailTextarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 8px 12px;
+  border: 1px solid #d4c9bd;
+  border-radius: 8px;
+  background: #faf8f5;
+  color: #3d2e22;
+  font-size: 0.875rem;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+  cursor: default;
+}
+
+.detailTextarea:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
 .actionBtn {
   flex: 1;
   padding: 8px 12px;

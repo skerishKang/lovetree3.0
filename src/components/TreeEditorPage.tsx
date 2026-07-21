@@ -1,23 +1,32 @@
 import { MOCK_TREE_EDITOR } from "../data/treeEditorMockData";
+import type { TreeConnector } from "../data/treeEditorMockData";
 import styles from "./TreeEditorPage.module.css";
 
-function TreeConnectorSvg({ highlighted }: { highlighted: boolean }) {
+function StraightConnector({ connector }: { connector: TreeConnector }) {
   return (
-    <div className={styles.connectorBlock} aria-hidden="true" data-testid="connector">
+    <div
+      className={styles.connectorBlock}
+      aria-hidden="true"
+      data-testid="connector"
+      data-connector-id={connector.id}
+      data-from-id={connector.fromId}
+      data-to-id={connector.toId}
+      data-highlighted={connector.highlighted ? "true" : "false"}
+    >
       <svg viewBox="0 0 40 48" className={styles.connectorSvg}>
         <path
           d="M 20 0 C 20 16, 20 32, 20 48"
           fill="none"
-          stroke={highlighted ? "#5c4a3a" : "#c4b8a8"}
-          strokeWidth={highlighted ? 2.5 : 1.5}
-          strokeDasharray={highlighted ? "none" : "5 4"}
+          stroke={connector.highlighted ? "#5c4a3a" : "#c4b8a8"}
+          strokeWidth={connector.highlighted ? 2.5 : 1.5}
+          strokeDasharray={connector.highlighted ? "none" : "5 4"}
           strokeLinecap="round"
         />
         <circle
           cx="20" cy="0"
           r="3"
-          fill={highlighted ? "#5c4a3a" : "#fff"}
-          stroke={highlighted ? "#5c4a3a" : "#c4b8a8"}
+          fill={connector.highlighted ? "#5c4a3a" : "#fff"}
+          stroke={connector.highlighted ? "#5c4a3a" : "#c4b8a8"}
           strokeWidth="1.5"
         />
       </svg>
@@ -25,27 +34,45 @@ function TreeConnectorSvg({ highlighted }: { highlighted: boolean }) {
   );
 }
 
-function BranchConnector({ highlighted }: { highlighted: boolean }) {
+function BranchConnectorGroup({ leftConnector, rightConnector }: { leftConnector: TreeConnector; rightConnector: TreeConnector }) {
   return (
     <div className={styles.branchConnector} aria-hidden="true" data-testid="branch-connector">
-      <svg viewBox="0 0 80 48" className={styles.branchSvg}>
-        <path
-          d="M 40 0 L 40 20 C 40 28, 20 28, 20 48"
-          fill="none"
-          stroke={highlighted ? "#5c4a3a" : "#c4b8a8"}
-          strokeWidth={highlighted ? 2.5 : 1.5}
-          strokeDasharray={highlighted ? "none" : "5 4"}
-          strokeLinecap="round"
-        />
-        <path
-          d="M 40 20 C 40 28, 60 28, 60 48"
-          fill="none"
-          stroke={highlighted ? "#5c4a3a" : "#c4b8a8"}
-          strokeWidth={highlighted ? 2.5 : 1.5}
-          strokeDasharray={highlighted ? "none" : "5 4"}
-          strokeLinecap="round"
-        />
-      </svg>
+      <div
+        data-testid="connector"
+        data-connector-id={leftConnector.id}
+        data-from-id={leftConnector.fromId}
+        data-to-id={leftConnector.toId}
+        data-highlighted={leftConnector.highlighted ? "true" : "false"}
+      >
+        <svg viewBox="0 0 80 48" className={styles.branchSvg}>
+          <path
+            d="M 40 0 L 40 20 C 40 28, 20 28, 20 48"
+            fill="none"
+            stroke={leftConnector.highlighted ? "#5c4a3a" : "#c4b8a8"}
+            strokeWidth={leftConnector.highlighted ? 2.5 : 1.5}
+            strokeDasharray={leftConnector.highlighted ? "none" : "5 4"}
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
+      <div
+        data-testid="connector"
+        data-connector-id={rightConnector.id}
+        data-from-id={rightConnector.fromId}
+        data-to-id={rightConnector.toId}
+        data-highlighted={rightConnector.highlighted ? "true" : "false"}
+      >
+        <svg viewBox="0 0 80 48" className={styles.branchSvg}>
+          <path
+            d="M 40 0 C 40 28, 60 28, 60 48"
+            fill="none"
+            stroke={rightConnector.highlighted ? "#5c4a3a" : "#c4b8a8"}
+            strokeWidth={rightConnector.highlighted ? 2.5 : 1.5}
+            strokeDasharray={rightConnector.highlighted ? "none" : "5 4"}
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
     </div>
   );
 }
@@ -58,6 +85,16 @@ export default function TreeEditorPage() {
 
   const memById = Object.fromEntries(data.memories.map((m) => [m.id, m]));
   const rootMem = data.memories.find((m) => m.parentId === null)!;
+
+  const conn1 = data.connectors.find((c) => c.id === "conn-1")!;
+  const conn2 = data.connectors.find((c) => c.id === "conn-2")!;
+  const conn3 = data.connectors.find((c) => c.id === "conn-3")!;
+  const conn4 = data.connectors.find((c) => c.id === "conn-4")!;
+
+  const grandchildren = selectedMemory.childIds.flatMap((cid) => {
+    const child = memById[cid];
+    return child?.childIds.map((gcid) => memById[gcid]).filter(Boolean) ?? [];
+  });
 
   return (
     <div className={styles.page}>
@@ -140,7 +177,8 @@ export default function TreeEditorPage() {
                 <MemoryNodeCard memory={rootMem} isSelected={false} />
               </div>
 
-              <TreeConnectorSvg highlighted={false} />
+              {/* conn-1: mem-1 → mem-2 */}
+              <StraightConnector connector={conn1} />
 
               {/* Row 2: Selected node */}
               <div className={styles.treeRow}>
@@ -154,8 +192,8 @@ export default function TreeEditorPage() {
                 <span className={styles.insertLine} />
               </div>
 
-              {/* Branch connectors */}
-              <BranchConnector highlighted={false} />
+              {/* Branch connectors: conn-2 (mem-2→mem-3) highlighted + conn-3 (mem-2→mem-4) */}
+              <BranchConnectorGroup leftConnector={conn2} rightConnector={conn3} />
 
               {/* Row 3: Children of selected */}
               <div className={styles.treeRowBranch}>
@@ -168,28 +206,21 @@ export default function TreeEditorPage() {
                 </div>
               </div>
 
-              {/* Connector to leaf */}
-              {selectedMemory.childIds.some((cid) => memById[cid]?.childIds.length > 0) && (
-                <TreeConnectorSvg highlighted={false} />
+              {/* conn-4: mem-4 → mem-5 */}
+              {grandchildren.length > 0 && (
+                <StraightConnector connector={conn4} />
               )}
 
               {/* Row 4: Grandchildren */}
-              {(() => {
-                const grandchildren = selectedMemory.childIds.flatMap((cid) => {
-                  const child = memById[cid];
-                  return child?.childIds.map((gcid) => memById[gcid]).filter(Boolean) ?? [];
-                });
-                if (grandchildren.length === 0) return null;
-                return (
-                  <div className={styles.treeRowBranch}>
-                    <div className={styles.branchGroup}>
-                      {grandchildren.map((gc) => (
-                        <MemoryNodeCard key={gc!.id} memory={gc!} isSelected={false} />
-                      ))}
-                    </div>
+              {grandchildren.length > 0 && (
+                <div className={styles.treeRowBranch}>
+                  <div className={styles.branchGroup}>
+                    {grandchildren.map((gc) => (
+                      <MemoryNodeCard key={gc!.id} memory={gc!} isSelected={false} />
+                    ))}
                   </div>
-                );
-              })()}
+                </div>
+              )}
             </div>
           </section>
 
@@ -218,10 +249,45 @@ export default function TreeEditorPage() {
             </div>
 
             <div className={styles.inspectorFields}>
-              <div className={styles.fieldRow}>
-                <span className={styles.fieldLabel}>날짜:</span>
-                <span className={styles.fieldValue}>{selectedMemory.date}</span>
+              {/* Read-only fields */}
+              <div className={styles.detailField}>
+                <label htmlFor="editor-title-input" className={styles.fieldLabel}>러브트리 제목</label>
+                <input
+                  id="editor-title-input"
+                  className={styles.detailInput}
+                  defaultValue={data.treeTitle}
+                  readOnly
+                />
               </div>
+              <div className={styles.detailField}>
+                <label htmlFor="editor-desc-input" className={styles.fieldLabel}>설명</label>
+                <input
+                  id="editor-desc-input"
+                  className={styles.detailInput}
+                  defaultValue={data.treeDescription}
+                  readOnly
+                />
+              </div>
+              <div className={styles.detailField}>
+                <label htmlFor="editor-date-input" className={styles.fieldLabel}>날짜</label>
+                <input
+                  id="editor-date-input"
+                  className={styles.detailInput}
+                  defaultValue={selectedMemory.date}
+                  readOnly
+                />
+              </div>
+              <div className={styles.detailField}>
+                <label htmlFor="editor-memo-input" className={styles.fieldLabel}>메모</label>
+                <textarea
+                  id="editor-memo-input"
+                  className={styles.detailTextarea}
+                  defaultValue={selectedMemory.description}
+                  readOnly
+                />
+              </div>
+
+              {/* Metadata display */}
               <div className={styles.fieldRow}>
                 <span className={styles.fieldLabel}>유형:</span>
                 <span className={styles.fieldValue}>{selectedMemory.typeLabel}</span>
@@ -245,10 +311,6 @@ export default function TreeEditorPage() {
                     <span key={tag} className={styles.tag}>{tag}</span>
                   ))}
                 </div>
-              </div>
-              <div className={styles.fieldBlock}>
-                <span className={styles.fieldLabel}>메모:</span>
-                <p className={styles.memoText} data-testid="inspector-memo">{selectedMemory.description}</p>
               </div>
 
               {/* Connection context */}
