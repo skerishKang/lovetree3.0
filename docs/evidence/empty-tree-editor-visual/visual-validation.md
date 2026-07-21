@@ -4,7 +4,7 @@
 
 - **Actual Branch Preview URL:** `https://style-empty-tree-onboarding.lovetree3.pages.dev/tree/new-demo`
 - **Visual Source Commit (Commit 1):** `edc9ad1eeeae5171c335e786760865cf38a30ac3`
-- **Evidence Commit (Commit 2):** Pending commit creation
+- **Evidence Commit (Commit 2):** `f7075f33bd628ec387305464df9a4488db6b454e`
 - **Metadata Commit (Commit 3):** Recorded in PR body and final report
 - **Reference SHA-256:** `a13fda6cefee5914eda12d4913bd9bbf3900f5b282b4c87fdfcf9aca579e0158` (`docs/reference/screens/05-editor/empty-tree-desktop.png`)
 
