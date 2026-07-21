@@ -20,15 +20,6 @@ export default function MediaSearchPage() {
         />
       </div>
 
-      {/* 카테고리 필터 */}
-      <div className={styles.filterSection} role="group" aria-label="카테고리 필터">
-        {MEDIA_CATEGORIES.map((cat) => (
-          <button key={cat} type="button" className={styles.filterButton}>
-            {cat}
-          </button>
-        ))}
-      </div>
-
       {/* 검색 결과 */}
       <section className={styles.resultSection} aria-label="검색 결과">
         <ul className={styles.resultList}>
@@ -57,6 +48,17 @@ export default function MediaSearchPage() {
           ))}
         </ul>
       </section>
+
+      {/* 하단 카테고리 필터 */}
+      <footer className={styles.filterBar}>
+        <div className={styles.filterGroup} role="group" aria-label="카테고리 필터">
+          {MEDIA_CATEGORIES.map((cat) => (
+            <button key={cat} type="button" className={styles.filterButton}>
+              {cat}
+            </button>
+          ))}
+        </div>
+      </footer>
     </div>
   );
 }

@@ -193,6 +193,76 @@ describe("MediaSearchPage — /media/search-demo", () => {
 
     expect(window.location.pathname).toBe("/media/search-demo");
   });
+
+  it("검색 결과 section이 필터 group보다 DOM상 먼저 위치해야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const resultSection = screen.getByRole("region", { name: "검색 결과" });
+    const filterGroup = screen.getByRole("group", { name: "카테고리 필터" });
+
+    expect(
+      resultSection.compareDocumentPosition(filterGroup) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  it("필터 그룹이 결과 목록 뒤에 존재해야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const filterGroup = screen.getByRole("group", { name: "카테고리 필터" });
+    expect(filterGroup).toBeInTheDocument();
+  });
+
+  it("필터 버튼만 클릭해도 카드 수가 불변이어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const filterButtons = screen.getAllByRole("button").filter(
+      (btn) =>
+        btn.textContent === "무대" ||
+        btn.textContent === "직캠" ||
+        btn.textContent === "컴백" ||
+        btn.textContent === "콘서트"
+    );
+
+    const initialCount = screen.getAllByRole("article").length;
+
+    for (const btn of filterButtons) {
+      fireEvent.click(btn);
+    }
+
+    expect(screen.getAllByRole("article")).toHaveLength(initialCount);
+  });
+
+  it("필터 버튼만 클릭해도 URL이 변하지 않아야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const filterButtons = screen.getAllByRole("button").filter(
+      (btn) =>
+        btn.textContent === "무대" ||
+        btn.textContent === "직캠" ||
+        btn.textContent === "컴백" ||
+        btn.textContent === "콘서트"
+    );
+
+    for (const btn of filterButtons) {
+      fireEvent.click(btn);
+    }
+
+    expect(window.location.pathname).toBe("/media/search-demo");
+  });
+
+  it("필터 버튼에 aria-pressed, role='tab', aria-selected가 없어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const filterButtons = screen.getAllByRole("button").filter(
+      (btn) =>
+        btn.textContent === "무대" ||
+        btn.textContent === "직캠" ||
+        btn.textContent === "컴백" ||
+        btn.textContent === "콘서트"
+    );
+
+    for (const btn of filterButtons) {
+      expect(btn).not.toHaveAttribute("aria-pressed");
+      expect(btn).not.toHaveAttribute("aria-selected");
+      expect(btn).not.toHaveAttribute("role", "tab");
+    }
+  });
 });
 
 describe("기존 App 경로 검증", () => {

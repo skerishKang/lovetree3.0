@@ -55,11 +55,29 @@
   outline-offset: 2px;
 }
 
-/* ─── Filter Section ─── */
-.filterSection {
+/* ─── Result Section ─── */
+.resultSection {
+  flex: 1;
+  padding: 0 16px 96px;
+}
+
+/* ─── Filter Bar (하단 고정) ─── */
+.filterBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: #f8f5f0;
+  border-top: 1px solid #e8ddd0;
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+}
+
+.filterGroup {
   display: flex;
   gap: 8px;
-  padding: 0 16px 16px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -216,18 +234,18 @@
     box-sizing: border-box;
   }
 
-  .filterSection {
-    justify-content: center;
+  .resultSection {
     max-width: 480px;
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
   }
 
-  .resultSection {
-    max-width: 480px;
-    margin: 0 auto;
-    width: 100%;
+  .filterBar {
+    left: 50%;
+    right: auto;
+    width: min(100%, 480px);
+    transform: translateX(-50%);
     box-sizing: border-box;
   }
 }
