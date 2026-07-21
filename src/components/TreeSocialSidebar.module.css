@@ -1,8 +1,123 @@
-/* TreeSocialSidebar — 우측 소셜 사이드바 */
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+.sidebarLabel {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #8a7e72;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.authorCard,
+.statsCard,
+.featuredMemoryBox {
+  background: #ffffff;
+  border: 1px solid rgba(45, 41, 38, 0.05);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 8px rgba(45, 41, 38, 0.02);
+}
+
+.authorHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.authorAvatarCircle {
+  font-size: 1.8rem;
+  width: 38px;
+  height: 38px;
+  background: #f7ede2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authorText {
+  display: flex;
+  flex-direction: column;
+}
+
+.authorNameText {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #2a221a;
+}
+
+.authorHandleText {
+  font-size: 0.75rem;
+  color: #8a7e72;
+}
+
+.statsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.statsItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.statLabel {
+  color: #8a7e72;
+  font-weight: 500;
+}
+
+.statVal {
+  color: #2a221a;
+  font-weight: 700;
+}
+
+.featuredSummary {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.featuredEmoji {
+  font-size: 1.6rem;
+  padding: 0.2rem;
+  background: #fdf5f6;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.featuredText {
+  flex: 1;
+  min-width: 0;
+}
+
+.featuredTitle {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #2a221a;
+  margin-bottom: 0.15rem;
+}
+
+.featuredDesc {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6b6056;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .socialActions {
@@ -48,27 +163,40 @@
 .saveBtn {
   width: 100%;
   padding: 0.85rem 1rem;
-  background: #e8c8b8;
+  background: var(--accent-rose, #e06b8b);
   color: #fff;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
+  box-shadow: 0 4px 12px rgba(255, 107, 139, 0.25);
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
 .saveBtn:hover {
-  background: #dcb8a8;
+  background: #d45979;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 107, 139, 0.35);
 }
 
 .saveBtn:focus-visible {
-  outline: 2px solid #b8a08e;
-  outline-offset: 2px;
+  outline: 2px solid var(--accent-rose);
+  outline-offset: 3px;
 }
 
 .saveBtn:active {
-  background: #d0a898;
+  background: #be4664;
+  transform: translateY(1px);
+}
+
+.btnLabel {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.icon {
+  font-size: 0.95rem;
 }
 
 @media (max-width: 900px) {

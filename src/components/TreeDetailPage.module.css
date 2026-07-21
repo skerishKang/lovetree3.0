@@ -23,18 +23,18 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  padding: 2rem 2.5rem 2.5rem;
+  padding: 2rem 2rem 2rem;
 }
 
 .sidebar {
-  width: 320px;
+  width: 360px;
   flex-shrink: 0;
   background: #faf7f2;
   border-left: 1px solid #eeeae4;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 /* 모바일: 사이드바가 아래로 내려감 */

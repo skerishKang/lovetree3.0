@@ -28,12 +28,16 @@ export default function CommentSection({ comments }: Props) {
                 <span className={styles.commentHandle}>
                   {comment.authorHandle}
                 </span>
+                <span className={styles.commentTime} data-testid="comment-time-label">
+                  {comment.timeLabel}
+                </span>
               </div>
               <p className={styles.commentText}>{comment.text}</p>
               <button
                 type="button"
                 className={styles.likeBtn}
                 aria-label={`${comment.author}의 댓글에 좋아요`}
+                onClick={(e) => e.preventDefault()}
               >
                 ♥ {comment.likes}
               </button>
@@ -44,6 +48,9 @@ export default function CommentSection({ comments }: Props) {
 
       {/* 댓글 입력 (presentation-only) */}
       <div className={styles.inputArea}>
+        <span className={styles.currentUserAvatar} aria-hidden="true">
+          👤
+        </span>
         <input
           type="text"
           className={styles.input}
@@ -55,7 +62,7 @@ export default function CommentSection({ comments }: Props) {
           type="button"
           className={styles.submitBtn}
           aria-label="댓글 등록"
-          disabled
+          onClick={(e) => e.preventDefault()}
         >
           등록
         </button>
