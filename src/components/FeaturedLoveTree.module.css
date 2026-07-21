@@ -1,15 +1,31 @@
 .section {
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 2rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .label {
   display: inline-block;
   font-size: clamp(0.9rem, 1vw, 1.1rem);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent-rose);
   letter-spacing: 0.02em;
-  margin-bottom: 1rem;
+}
+
+.featuredBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--accent-rose);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(255, 107, 139, 0.3);
 }
 
 .card {
@@ -19,41 +35,93 @@
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
   overflow: hidden;
-  padding: 1.25rem;
-  align-items: center;
+  padding: 1.5rem;
+  align-items: stretch;
+  border: 1px solid rgba(45, 41, 38, 0.06);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(45, 41, 38, 0.14), 0 4px 8px rgba(45, 41, 38, 0.08);
 }
 
 .thumbnail {
   position: relative;
   flex-shrink: 0;
-  width: clamp(140px, 18vw, 240px);
+  width: clamp(180px, 24vw, 320px);
   aspect-ratio: 4 / 3;
   border-radius: 12px;
   display: flex;
   align-items: flex-end;
   padding: 0.75rem;
+  overflow: hidden;
+}
+
+/* 보케 스타일 오버레이 */
+.thumbnail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 25% 35%, rgba(255, 255, 255, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 75% 65%, rgba(255, 255, 255, 0.25) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.treePreviewWrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8%;
+  z-index: 1;
 }
 
 .previewNote {
+  position: relative;
+  z-index: 3;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(0, 0, 0, 0.25);
-  padding: 0.25rem 0.6rem;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.25rem 0.65rem;
   border-radius: 999px;
+  backdrop-filter: blur(4px);
 }
 
 .body {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 0.75rem;
+  flex-grow: 1;
 }
 
 .title {
-  font-size: clamp(1.25rem, 1.6vw, 1.9rem);
-  font-weight: 700;
+  font-size: clamp(1.2rem, 1.8vw, 1.8rem);
+  font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
   line-height: 1.25;
+}
+
+.summary {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.2rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.middleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .author {
@@ -79,12 +147,75 @@
   color: var(--text-secondary);
 }
 
+.updated {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed rgba(45, 41, 38, 0.08);
+  padding-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.leftMeta {
+  display: flex;
+  align-items: center;
+}
+
+.memoryCount {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.rightMeta {
+  display: flex;
+  gap: 1rem;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 768px) {
   .card {
     flex-direction: column;
     align-items: stretch;
+    border-radius: 20px;
+    padding: 1.1rem;
+    gap: 1.1rem;
   }
+  
   .thumbnail {
     width: 100%;
+    aspect-ratio: 16 / 9;
   }
+
+  .summary {
+    -webkit-line-clamp: 4;
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+}
+
+.tag {
+  font-size: var(--fs-card-tag);
+  color: var(--accent-rose);
+  background: var(--accent-rose-soft);
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
 }

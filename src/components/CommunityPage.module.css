@@ -19,6 +19,7 @@
   box-shadow: 0 12px 40px rgba(45, 41, 38, 0.08);
   padding: clamp(1.5rem, 4vw, 3.5rem);
   box-sizing: border-box;
+  border: 1px solid rgba(45, 41, 38, 0.04);
 }
 
 @media (max-width: 768px) {
