@@ -1,0 +1,358 @@
+/* LT3-MEMORY-002 — 기억 상세 UI BASE */
+
+/* ─── Page Layout ─── */
+.page {
+  min-height: 100vh;
+  background: #f8f5f0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Top Bar ─── */
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f8f5f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #3d3229;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.backButton:focus-visible {
+  outline: 2px solid #3d3229;
+  outline-offset: 2px;
+}
+
+.screenTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3d3229;
+  margin: 0;
+}
+
+/* ─── Media Section ─── */
+.mediaSection {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.mediaPlaceholder {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 360px;
+  background: linear-gradient(135deg, #e8ddd0, #d4cdc4);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+}
+
+.playButton:focus-visible {
+  outline: 2px solid #3d3229;
+  outline-offset: 4px;
+}
+
+.playButton:hover {
+  transform: scale(1.05);
+}
+
+/* ─── Info Section ─── */
+.infoSection {
+  padding: 0 16px 24px;
+}
+
+.memoryTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2b221a;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.date {
+  font-size: 14px;
+  color: #8a7e72;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.tagList {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 13px;
+  color: #8a7e72;
+  background: #ede8e0;
+  padding: 4px 10px;
+  border-radius: 20px;
+  line-height: 1.4;
+}
+
+.memo {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #3d3229;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ─── Related Section ─── */
+.relatedSection {
+  padding: 24px 16px 100px;
+  background: #f0ece6;
+}
+
+.relatedHeading {
+  font-size: 17px;
+  font-weight: 700;
+  color: #3d3229;
+  margin: 0 0 16px;
+}
+
+.relatedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.relatedItem {
+  margin: 0;
+  padding: 0;
+}
+
+.relatedCard {
+  display: flex;
+  gap: 12px;
+  background: #f8f5f0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e8ddd0;
+  padding: 0;
+  cursor: default;
+}
+
+.relatedThumb {
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  border-radius: 0;
+}
+
+.thumbColor_pink {
+  background: linear-gradient(135deg, #f0c8c8, #e8a8a8);
+}
+
+.thumbColor_green {
+  background: linear-gradient(135deg, #c8e0c8, #a8c8a8);
+}
+
+.thumbColor_brown {
+  background: linear-gradient(135deg, #d4cdc4, #b8a898);
+}
+
+.relatedBody {
+  flex: 1;
+  padding: 10px 12px 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.relatedCardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2b221a;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.relatedDate {
+  font-size: 12px;
+  color: #8a7e72;
+  display: block;
+}
+
+.relatedDesc {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #6b5f53;
+  margin: 2px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Bottom Action Bar ─── */
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #f8f5f0;
+  border-top: 1px solid #e8ddd0;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  z-index: 20;
+}
+
+.actionButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  color: #6b5f53;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-family: inherit;
+  min-width: 56px;
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid #3d3229;
+  outline-offset: 2px;
+}
+
+.actionButton:hover {
+  color: #3d3229;
+}
+
+.actionLabel {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ─── Visually Hidden ─── */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─── Desktop ─── */
+@media (min-width: 768px) {
+  .topBar {
+    padding: 16px 24px;
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mediaSection {
+    max-width: 720px;
+    margin: 0 auto 24px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mediaPlaceholder {
+    max-height: 405px;
+  }
+
+  .infoSection {
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .memoryTitle {
+    font-size: 26px;
+  }
+
+  .relatedSection {
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 12px;
+    margin-top: 24px;
+    margin-bottom: 80px;
+  }
+
+  .relatedList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .relatedCard {
+    flex-direction: column;
+  }
+
+  .relatedThumb {
+    width: 100%;
+    height: 120px;
+  }
+
+  .relatedBody {
+    padding: 12px;
+  }
+
+  .actionBar {
+    position: fixed;
+    bottom: 0;
+    max-width: 480px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 16px 16px 0 0;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+}
