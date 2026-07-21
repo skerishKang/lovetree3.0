@@ -6,7 +6,9 @@ import HomePage from "./HomePage";
 import CommunityPage from "./CommunityPage";
 import AuthLoginPage from "./AuthLoginPage";
 
-const { fetch: originalFetch } = global;
+const { fetch: originalFetch } = globalThis as typeof globalThis & {
+  fetch: typeof fetch;
+};
 
 function renderWithRouter(initialPath: string) {
   return render(
@@ -23,13 +25,13 @@ function renderWithRouter(initialPath: string) {
 
 describe("Auth BASE 라우팅 (LT3-AUTH-001)", () => {
   beforeEach(() => {
-    vi.spyOn(global, "fetch").mockImplementation(originalFetch);
-    vi.spyOn(global.XMLHttpRequest.prototype, "open").mockImplementation(() => null as never);
+    vi.spyOn(globalThis, "fetch").mockImplementation(originalFetch);
+    vi.spyOn(globalThis.XMLHttpRequest.prototype, "open").mockImplementation(() => null as never);
     vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => null);
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {});
     vi.spyOn(Storage.prototype, "clear").mockImplementation(() => {});
-    vi.spyOn(global, "open").mockImplementation(() => null as never);
+    vi.spyOn(globalThis, "open").mockImplementation(() => null as never);
   });
 
   it("/login에서 로그인 화면이 노출된다", () => {
