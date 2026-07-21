@@ -203,3 +203,19 @@
     -webkit-line-clamp: 4;
   }
 }
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+}
+
+.tag {
+  font-size: var(--fs-card-tag);
+  color: var(--accent-rose);
+  background: var(--accent-rose-soft);
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+}

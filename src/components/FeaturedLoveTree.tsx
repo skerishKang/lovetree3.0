@@ -33,6 +33,14 @@ export default function FeaturedLoveTree() {
           <h2 className={styles.title}>{feat.title}</h2>
           <p className={styles.summary}>{feat.summary}</p>
 
+          <div className={styles.tags}>
+            {feat.tags.map((tag) => (
+              <span key={tag} className={styles.tag}>
+                {tag}
+              </span>
+            ))}
+          </div>
+
           <div className={styles.middleRow}>
             <div className={styles.author}>
               <span

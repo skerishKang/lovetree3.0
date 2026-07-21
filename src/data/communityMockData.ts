@@ -50,6 +50,7 @@ export interface FeaturedLoveTree {
   updatedLabel: string;
   likes: number;
   comments: number;
+  tags: string[];
 }
 
 export const communityCategories: CommunityCategory[] = [
@@ -207,4 +208,5 @@ export const featuredLoveTree: FeaturedLoveTree = {
   updatedLabel: "12시간 전 업데이트",
   likes: 852,
   comments: 124,
+  tags: ["#레드벨벳", "#10주년", "#콘서트"],
 };

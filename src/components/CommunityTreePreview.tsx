@@ -120,6 +120,7 @@ export default function CommunityTreePreview({ variant }: Props) {
       viewBox="0 0 100 100"
       preserveAspectRatio="xMidYMid meet"
       aria-hidden="true"
+      data-testid="community-tree-preview"
     >
       {/* Connections (Lines) */}
       {layout.connections.map((conn, idx) => {
