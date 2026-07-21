@@ -218,3 +218,18 @@
     font-size: 15px;
   }
 }
+
+/* 반응형: 데스크톱 — 전체 페이지 480px 중앙 모바일 프레임 */
+@media (min-width: 768px) {
+  .page {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .topBar,
+  .content {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
