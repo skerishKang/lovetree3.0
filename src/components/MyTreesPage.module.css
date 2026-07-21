@@ -23,12 +23,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 14px 28px;
   background: #ffffff;
   border-bottom: 1px solid #ede6dc;
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.brandArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .logo {
@@ -78,8 +84,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  padding: 32px 24px 16px;
-  max-width: 1200px;
+  padding: 32px 28px 20px;
+  max-width: 1240px;
   margin: 0 auto;
 }
 
@@ -107,8 +113,8 @@
 .newTreeButton {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
+  gap: 8px;
+  padding: 11px 20px;
   background: #d96b8f;
   color: #ffffff;
   border: none;
@@ -117,7 +123,8 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 12px rgba(217, 107, 143, 0.2);
 }
 
 .newTreeButton:focus-visible {
@@ -127,15 +134,16 @@
 
 .newTreeButton:hover {
   background: #c95c7f;
+  box-shadow: 0 6px 16px rgba(217, 107, 143, 0.28);
 }
 
 /* 본문 그리드 */
 .contentGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 24px;
-  padding: 0 24px 48px;
-  max-width: 1200px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 28px;
+  padding: 0 28px 48px;
+  max-width: 1240px;
   margin: 0 auto;
 }
 
@@ -144,11 +152,27 @@
   min-width: 0;
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
 .sectionTitle {
-  margin: 0 0 16px;
+  margin: 0;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: #2a2622;
+}
+
+.treeCountBadge {
+  font-size: 12px;
+  color: #7a7268;
+  background: #eee7de;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 500;
 }
 
 .treeList {
@@ -156,8 +180,8 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .treeListItem {
@@ -175,50 +199,74 @@
 }
 
 .treeCard:hover {
-  box-shadow: 0 4px 16px rgba(42, 38, 34, 0.08);
+  box-shadow: 0 6px 20px rgba(42, 38, 34, 0.08);
 }
 
 .treeCardSelected {
   border-color: #d96b8f;
-  box-shadow: 0 0 0 2px rgba(217, 107, 143, 0.25), 0 4px 16px rgba(42, 38, 34, 0.08);
+  box-shadow: 0 0 0 2px rgba(217, 107, 143, 0.3), 0 6px 20px rgba(42, 38, 34, 0.08);
 }
 
-/* 썸네일 */
+/* 썸네일 & 미니 트리 시각화 */
 .thumbnail {
+  position: relative;
   width: 100%;
-  height: 120px;
+  height: 124px;
+  overflow: hidden;
+}
+
+.selectedBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #d96b8f;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.miniTreeGraphic {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .thumb_rose {
-  background: linear-gradient(135deg, #ffd6e0 0%, #ff9eb5 100%);
+  background: linear-gradient(135deg, #f5a9b8 0%, #d96b8f 100%);
 }
 
 .thumb_amber {
-  background: linear-gradient(135deg, #fff0d6 0%, #ffc987 100%);
+  background: linear-gradient(135deg, #f7cb7d 0%, #e09b3d 100%);
 }
 
 .thumb_sage {
-  background: linear-gradient(135deg, #d8f0e0 0%, #9bd4ae 100%);
+  background: linear-gradient(135deg, #9fd6b1 0%, #56a372 100%);
 }
 
 .thumb_lavender {
-  background: linear-gradient(135deg, #e6d6ff 0%, #b89dff 100%);
+  background: linear-gradient(135deg, #c7a9f5 0%, #906bd9 100%);
 }
 
 .thumb_sky {
-  background: linear-gradient(135deg, #d6ecff 0%, #87b8ff 100%);
+  background: linear-gradient(135deg, #99c2f5 0%, #4f8bd9 100%);
 }
 
 .thumb_coral {
-  background: linear-gradient(135deg, #ffd9cc 0%, #ff9e87 100%);
+  background: linear-gradient(135deg, #f5aa99 0%, #d95d43 100%);
 }
 
 /* 카드 본문 */
 .cardBody {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 16px 12px;
+  gap: 10px;
+  padding: 16px;
 }
 
 .cardHeader {
@@ -231,7 +279,7 @@
 .treeTitle {
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: #2a2622;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -270,8 +318,11 @@
 
 .cardMeta {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   margin: 0;
+  padding: 6px 0;
+  border-top: 1px solid #f7f3ee;
+  border-bottom: 1px solid #f7f3ee;
 }
 
 .metaItem {
@@ -288,41 +339,40 @@
 .metaValue {
   margin: 0;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: #5a544c;
 }
 
 .cardStats {
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 
 .statItem {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: 12px;
   color: #7a7268;
 }
 
 .cardActions {
   display: flex;
-  gap: 4px;
-  border-top: 1px solid #f0ece6;
-  padding-top: 8px;
-  margin-top: 4px;
+  gap: 6px;
+  padding-top: 4px;
 }
 
 .cardActionButton {
   flex: 1;
-  padding: 6px 4px;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
+  padding: 7px 4px;
+  background: #faf6f1;
+  border: 1px solid #eee7de;
+  border-radius: 8px;
   font-size: 12px;
+  font-weight: 600;
   color: #5a544c;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .cardActionButton:focus-visible {
@@ -331,7 +381,9 @@
 }
 
 .cardActionButton:hover {
-  background: #f5f0e9;
+  background: #f0ece6;
+  border-color: #e0d8cd;
+  color: #2a2622;
 }
 
 /* 사이드바 */
@@ -339,17 +391,40 @@
   background: #ffffff;
   border: 1px solid #ede6dc;
   border-radius: 16px;
-  padding: 16px;
+  padding: 20px;
   align-self: start;
   position: sticky;
   top: 80px;
 }
 
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
 .sidebarTitle {
-  margin: 0 0 12px;
-  font-size: 14px;
-  font-weight: 600;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
   color: #2a2622;
+}
+
+.sidebarBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d96b8f;
+  background: #fdf0f4;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.sidebarDescription {
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: #8a8278;
+  line-height: 1.4;
 }
 
 .recentList {
@@ -364,14 +439,25 @@
 .recentItem {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 10px;
+  background: #faf6f1;
+  border: 1px solid #eee7de;
+  border-radius: 12px;
 }
 
 .recentThumb {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recentThumbIcon {
+  font-size: 1.125rem;
 }
 
 .recentText {
@@ -383,7 +469,7 @@
 
 .recentTitle {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: #2a2622;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -395,25 +481,36 @@
   color: #9a9088;
 }
 
-/* 반응형: 모바일 */
-@media (max-width: 900px) {
+/* ─── Intermediate ( 태블릿 / Compact: 768px ~ 1024px ) ─── */
+
+@media (max-width: 1024px) and (min-width: 768px) {
   .contentGrid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 20px;
+    padding: 0 20px 40px;
+  }
+
+  .treeList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
 
   .sidebar {
-    position: static;
+    padding: 16px;
   }
 }
 
-@media (max-width: 560px) {
+/* ─── Mobile ( 모바일: 767px 이하 ) ─── */
+
+@media (max-width: 767px) {
   .topBar {
     padding: 12px 16px;
   }
 
   .intro {
     flex-direction: column;
-    padding: 24px 16px 12px;
+    padding: 20px 16px 16px;
+    gap: 16px;
   }
 
   .newTreeButton {
@@ -422,7 +519,9 @@
   }
 
   .contentGrid {
-    padding: 0 16px 32px;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 16px 36px;
+    gap: 24px;
   }
 
   .treeList {
@@ -431,5 +530,9 @@
 
   .pageTitle {
     font-size: 22px;
+  }
+
+  .sidebar {
+    position: static;
   }
 }
