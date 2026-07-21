@@ -5,6 +5,7 @@ import AuthLoginPage from "./components/AuthLoginPage";
 import TreeDetailPage from "./components/TreeDetailPage";
 import MemoryConnectPage from "./components/MemoryConnectPage";
 import MyTreesPage from "./components/MyTreesPage";
+import TreeEditorPage from "./components/TreeEditorPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/tree/community-demo" element={<TreeDetailPage />} />
         <Route path="/memory/connect-demo" element={<MemoryConnectPage />} />
         <Route path="/my-trees" element={<MyTreesPage />} />
+        <Route path="/tree/edit-demo" element={<TreeEditorPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
