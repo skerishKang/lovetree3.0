@@ -1,0 +1,245 @@
+/* LT3-MEDIA-001 — 미디어 검색 UI BASE */
+
+/* ─── Page Layout ─── */
+.page {
+  min-height: 100vh;
+  background: #f8f5f0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Top Bar ─── */
+.topBar {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8f5f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.screenTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3d3229;
+  margin: 0;
+}
+
+/* ─── Search Section ─── */
+.searchSection {
+  padding: 0 16px 12px;
+}
+
+.searchInput {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #3d3229;
+  background: #ede8e0;
+  border: 1px solid #e8ddd0;
+  border-radius: 10px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.searchInput::placeholder {
+  color: #8a7e72;
+}
+
+.searchInput:focus-visible {
+  border-color: #3d3229;
+  outline: 2px solid #3d3229;
+  outline-offset: 2px;
+}
+
+/* ─── Result Section ─── */
+.resultSection {
+  flex: 1;
+  padding: 0 16px 96px;
+}
+
+/* ─── Filter Bar (하단 고정) ─── */
+.filterBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: #f8f5f0;
+  border-top: 1px solid #e8ddd0;
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+}
+
+.filterGroup {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filterButton {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  color: #6b5f53;
+  background: #ede8e0;
+  border: 1px solid #e8ddd0;
+  border-radius: 20px;
+  cursor: default;
+}
+
+.filterButton:focus-visible {
+  outline: 2px solid #3d3229;
+  outline-offset: 2px;
+}
+
+.filterButton:hover {
+  background: #e2dad0;
+}
+
+.resultList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resultItem {
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Result Card ─── */
+.resultCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e8ddd0;
+  padding: 12px;
+  cursor: default;
+}
+
+.thumbnail {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+}
+
+.thumbColor_purple {
+  background: linear-gradient(135deg, #d4c4f0, #b8a8e0);
+}
+
+.thumbColor_blue {
+  background: linear-gradient(135deg, #b8d0f0, #90b0d8);
+}
+
+.thumbColor_pink {
+  background: linear-gradient(135deg, #f0c8d8, #e0a8b8);
+}
+
+.thumbColor_green {
+  background: linear-gradient(135deg, #c8e0c0, #a0c8a0);
+}
+
+.thumbColor_brown {
+  background: linear-gradient(135deg, #d4c8b8, #b8a898);
+}
+
+.cardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2b221a;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardDate {
+  font-size: 12px;
+  color: #8a7e72;
+  display: block;
+}
+
+.cardChannel {
+  font-size: 12px;
+  color: #6b5f53;
+  display: block;
+}
+
+/* ─── Add Button ─── */
+.addButton {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: #3d3229;
+  border: none;
+  border-radius: 8px;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.addButton:focus-visible {
+  outline: 2px solid #3d3229;
+  outline-offset: 2px;
+}
+
+.addButton:hover {
+  background: #2b221a;
+}
+
+/* ─── Desktop ─── */
+@media (min-width: 768px) {
+  .topBar {
+    justify-content: center;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .searchSection {
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .resultSection {
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .filterBar {
+    left: 50%;
+    right: auto;
+    width: min(100%, 480px);
+    transform: translateX(-50%);
+    box-sizing: border-box;
+  }
+}
