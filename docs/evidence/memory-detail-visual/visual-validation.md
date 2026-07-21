@@ -10,16 +10,13 @@
 
 | Item | SHA |
 |------|-----|
-| Current main | `8f9a24822f57b2a8174d08bbc97f0690f194ede3` |
-| Visual source (code) | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
-| Evidence (docs) | *(this file is part of the evidence commit, pending)* |
-| Merge-main commit | `d0908fe` |
-| Semantic test fix | `1955bf9` |
-| Desktop CSS fix | `cf56a3e` |
-| Scrollbar fix | `3652b52` |
-| Global scrollbar removal | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
-| Final branch head | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
-| Cloudflare deployed source | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
+| Current integrated main | `f250ec32d434dc243a570f2dbb57bafe9f1db973` |
+| Visual source commit | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
+| Screenshot deployment source | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
+| Evidence asset commit | `81914d944b947b74da653a81c1e1752405a1a87b` |
+| Merge-main commit | `31829eb` |
+
+Current PR head and final integration commit are maintained in the PR body to avoid self-referential commit metadata.
 
 ## Browser / Version
 
