@@ -11,16 +11,14 @@
 }
 
 .timeline::before {
-  content: "community-tree";
+  content: "커뮤니티 데모 트리";
   position: absolute;
   top: 1rem;
   left: 1.5rem;
   font-size: 0.85rem;
-  font-family: var(--ff-mono, monospace);
   color: rgba(45, 41, 38, 0.45);
   letter-spacing: 0.05em;
-  font-weight: 500;
-  text-transform: lowercase;
+  font-weight: 700;
   z-index: 3;
 }
 
@@ -44,8 +42,8 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 3.5rem;
-  padding: 2rem 0;
+  gap: 4.5rem;
+  padding: 2.5rem 0;
 }
 
 /* 각 카드 래퍼 */
@@ -53,6 +51,29 @@
   position: relative;
   display: flex;
   align-items: center;
+}
+
+/* 연결 관계 라인 및 텍스트 배지 */
+.connectorLine {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.5rem);
+  transform: translateX(-50%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.connectionPathText {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent-rose, #e06b8b);
+  border: 1px solid #fff;
+  box-shadow: 0 2px 8px rgba(224, 107, 139, 0.2);
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  white-space: nowrap;
 }
 
 /* 중앙 노드 점 */
@@ -83,6 +104,16 @@
   padding-right: calc(50% + 2rem);
 }
 
+.cardContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sideBottom .cardContainer {
+  justify-content: flex-start;
+}
+
 /* bottom: 카드가 오른쪽 (중앙선 기준 아래) */
 .sideBottom {
   justify-content: flex-end;
@@ -111,12 +142,12 @@
     left: 20px;
     width: 12px;
     height: 12px;
-    top: 2rem;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .cardWrapper:hover .nodeDot {
-    transform: translateX(-50%) scale(1.2);
+    transform: translate(-50%, -50%) scale(1.2);
   }
 
   .sideTop,
@@ -124,5 +155,16 @@
     padding-left: 2.5rem;
     padding-right: 0;
     justify-content: flex-start;
+  }
+
+  .cardContainer,
+  .sideBottom .cardContainer {
+    justify-content: flex-start;
+  }
+
+  .connectorLine {
+    left: 20px;
+    top: calc(100% + 0.2rem);
+    transform: translateX(-50%);
   }
 }

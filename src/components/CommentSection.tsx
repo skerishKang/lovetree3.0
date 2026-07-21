@@ -28,6 +28,9 @@ export default function CommentSection({ comments }: Props) {
                 <span className={styles.commentHandle}>
                   {comment.authorHandle}
                 </span>
+                <span className={styles.commentTime} data-testid="comment-time-label">
+                  {comment.timeLabel}
+                </span>
               </div>
               <p className={styles.commentText}>{comment.text}</p>
               <button
@@ -45,6 +48,9 @@ export default function CommentSection({ comments }: Props) {
 
       {/* 댓글 입력 (presentation-only) */}
       <div className={styles.inputArea}>
+        <span className={styles.currentUserAvatar} aria-hidden="true">
+          👤
+        </span>
         <input
           type="text"
           className={styles.input}
