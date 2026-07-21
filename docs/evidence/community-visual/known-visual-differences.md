@@ -23,13 +23,13 @@ This document describes the known visual differences between the reference image
 - **Mobile:** Single column layout
 - **Header:** Brand logo + search bar
 - **Categories:** Horizontal scrollable chips
-- **Featured Section:** Full-width featured card
+- **Featured Section:** Prominent header and card with side-by-side SVG tree structures
 
 ### Visual Elements
 
 #### Card Thumbnails
 - **Reference:** Gradient backgrounds with bokeh effect
-- **Implementation:** Multi-stop gradients with radial overlay
+- **Implementation:** Multi-stop gradients with radial overlay and SVG connection trees (3-5 nodes)
 - **Difference:** Subtle color variation due to gradient stopping points
 
 #### Typography
@@ -46,13 +46,19 @@ This document describes the known visual differences between the reference image
 - **Viewport:** 390px (DPR 2)
 - **Expected PNG width:** 780px
 - **Actual PNG width:** 780px ✅
+- **Actual PNG height:** 8856px ✅
 - **Horizontal overflow:** None ✅
+- **Visual Evidence SHA-256:** `d24a01793aab4d1cbfa0e71f395cf535923bea3ad5a173b85e5b21feee3d721e`
+- **Visual Evidence Git blob SHA:** `07121729e3719cec0dd5ebdeec3832a5152b6364`
 
 ### Desktop Specifics
 - **Viewport:** 1440px (DPR 1)
 - **Expected PNG width:** 1440px
 - **Actual PNG width:** 1440px ✅
+- **Actual PNG height:** 2031px ✅
 - **Horizontal overflow:** None ✅
+- **Visual Evidence SHA-256:** `0fef853c2a0907113479bacc9b4f7981a621755c5bfd01963a1cf64a95e9410a`
+- **Visual Evidence Git blob SHA:** `84c11d863e77296769215756e010322526f02295`
 
 ## Known Differences
 
@@ -68,6 +74,7 @@ This document describes the known visual differences between the reference image
 ### Card Thumbnails
 - Multi-stop gradients (5 stops) for richer color depth
 - Radial bokeh overlay with transparency
+- SVG Tree Node structure (3-5 nodes, lines, active node emphasis) layered on gradients
 - Subtle border for card definition
 
 ### Shadows & Depth
@@ -76,42 +83,15 @@ This document describes the known visual differences between the reference image
 - Hover state transitions with depth increase
 
 ### Featured Section
-- Enhanced featured card with bokeh overlay
-- Improved visual separation from grid cards
+- Enhanced featured card with custom large SVG tree layout (7 nodes, connections, special glowing active node)
+- Rich description summary text and metadata (기억 수, 업데이트 라벨, 추천 배지)
 - Hover effects for interactive feedback
-
-### Typography
-- CSS custom properties for consistent theming
-- Mobile-first responsive approach
-
-## Visual Refinement Notes (Future)
-
-### Priority 1: Card Thumbnail Enhancement
-- Add more complex gradient patterns
-- Enhance bokeh effect with multiple radial gradients
-- Improve color depth and variation
-
-### Priority 2: Shadow & Depth
-- Increase shadow depth for better visual hierarchy
-- Add subtle border for card definition
-- Improve hover state transitions
-
-### Priority 3: Typography Hierarchy
-- Increase title font size
-- Improve weight contrast between elements
-- Enhance letter spacing for readability
-
-### Priority 4: Featured Section
-- Make featured card more prominent
-- Add gradient overlay for depth
-- Improve visual separation from grid cards
 
 ## Accessibility
 
-- All interactive elements have focus-visible states
-- Color contrast meets WCAG AA standards
-- Screen reader friendly structure
-- Keyboard navigation supported
+- All interactive controls have focus-visible outlines styled appropriately.
+- Automated WCAG AA color-contrast compliance was not independently measured.
+- Full screen-reader and keyboard-flow audits remain pending.
 
 ## Technical Notes
 
@@ -119,3 +99,4 @@ This document describes the known visual differences between the reference image
 - Responsive design with mobile-first approach
 - No horizontal overflow on any viewport
 - Smooth transitions for hover states
+- SVG graphics marked with `aria-hidden="true"` to prevent bloating the accessibility tree.
