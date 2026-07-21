@@ -5,10 +5,16 @@
 
 ## Commit Metadata
 - Visual Source Commit: `71983cc28d5459f4eeb287e4781e8089146f2883`
+- Evidence Asset Commit: `4e832717582ffb559d98e43e828ebb3b702d72ce`
 - Branch: `style/my-trees-dashboard-visual-refinement`
 - Base (origin/main): `6199f475186fba6f2b966fb392eedf9bc32b50a6`
 - Cloudflare Deployment ID: `371d1a35-8c27-43f1-a353-10d9fe876223`
 - Cloudflare Check run completed: `2026-07-21T19:17:29Z`
+
+## Remediation Commit Metadata
+- Original Implementation Model: `Claude Sonnet 4.6 (Thinking)`
+- Independent Reviewer/Remediator: `MiMo V2.5`
+- Final PR head and remediation commit are recorded in the PR body to avoid self-referential evidence metadata.
 
 ## Browser
 - Engine: HeadlessChromium `149.0.7827.55` (via Playwright)
@@ -66,8 +72,10 @@
 - Total: 24
 
 ## Recent Moments (verified in aside)
-- "첫 콘서트 도착": present
-- "앙코르 무대": present
+- Recent moment items: 2
+- "첫 콘서트 도착": 1
+- "앙코르 무대": 1
+- Each item verified non-interactive (no role=button, tabIndex, onclick)
 
 ## Interactions Not Implemented (as expected)
 - Card navigation/routing: not implemented (presentation-only)
