@@ -12,12 +12,12 @@
 ## Source Commits (Separation of Concerns)
 
 - **Visual code source:** `a22863964e63684a52edee21b2bfb6030ef467c7` (code fix — filter chips, main/aside structure, search query fix, tree context text)
-- **Screenshot source deployment commit:** `e7a0b6713a16d6ce58bb36c451f5a751c1aaba21` (first merge of origin/main)
-- **Screenshot source unique preview:** `https://b703307f.lovetree3.pages.dev` (independently unverified — Cloudflare bot comment for `e7a0b67` showed this URL, but screenshots were captured via branch preview URL which always points to latest deployment at capture time)
+- **Screenshot source deployment commit:** `3d5aff8588933e9fb48093f20993b92e94e1ac31` (final main integration merge)
+- **Screenshot source unique preview:** `https://bb097231.lovetree3.pages.dev` (Cloudflare Pages check-run output for commit `3d5aff8`)
 - **Evidence asset refresh commit:** `0335f068b19007a7840fb53415dcf27a0cdd6c20`
-- **Latest-main integration commit:** `82750ba8ed76c099423c98272f08c4c6a92164a8`
-- **Final branch validation source:** `82750ba8ed76c099423c98272f08c4c6a92164a8`
-- **Final branch validation preview:** `https://3a661307.lovetree3.pages.dev` (independently unverified — derived from Cloudflare bot comment)
+- **Latest-main integration commit:** `3d5aff8588933e9fb48093f20993b92e94e1ac31`
+- **Final branch validation source:** `3d5aff8588933e9fb48093f20993b92e94e1ac31`
+- **Final branch validation preview:** `https://bb097231.lovetree3.pages.dev` (Cloudflare Pages check-run output for commit `3d5aff8`)
 - **Branch preview (stable):** `https://style-media-search-visual-re.lovetree3.pages.dev/media/search-demo`
 
 **Captured from:** Cloudflare branch preview (NOT localhost)
@@ -97,7 +97,7 @@
 
 | Metric | Value |
 |---|---|
-| Tests | 280/280 passed |
+| Tests | 287/288 passed (1 flaky MyTreesPage timeout; 288/288 in CI) |
 | Test files | 12 passed |
 | MediaSearchPage tests | 38/38 passed |
 | Lint | 0 errors |
