@@ -372,13 +372,16 @@
 }
 
 .filterGroup {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   gap: 8px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.filterButton {
+.filterChip {
   flex-shrink: 0;
   padding: 8px 16px;
   font-size: 14px;
@@ -391,28 +394,24 @@
   cursor: default;
 }
 
-.filterButton:focus-visible {
-  outline: 2px solid #3d3229;
-  outline-offset: 2px;
-}
-
-.filterButton:hover {
-  background: #e2dad0;
-}
-
 .filterSelected {
   color: #ffffff;
   background: #3d3229;
   border-color: #3d3229;
 }
 
-.filterSelected:hover {
-  background: #2b221a;
-}
-
 /* === Tree Sidebar (Desktop only) === */
 .treeSidebar {
   display: none;
+}
+
+/* === Desktop Workspace === */
+.desktopWorkspace {
+  /* mobile: default flow */
+}
+
+.mainContent {
+  /* mobile: default flow */
 }
 
 /* === Tablet (768px+) === */
@@ -458,11 +457,7 @@
 /* === Desktop (1100px+) — main/aside 2-column === */
 @media (min-width: 1100px) {
   .page {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    grid-template-rows: auto 1fr;
     min-height: 100vh;
-    gap: 0 24px;
     padding: 0 32px;
     max-width: 1440px;
     margin: 0 auto;
@@ -470,27 +465,28 @@
   }
 
   .topBar {
-    grid-column: 1 / -1;
     justify-content: flex-start;
     padding: 48px 0 16px;
     max-width: none;
   }
 
+  .desktopWorkspace {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 0 24px;
+  }
+
+  .mainContent {
+    min-width: 0;
+  }
+
   .searchSection {
-    grid-column: 1;
     padding: 0 0 12px;
     max-width: none;
   }
 
   .searchContext {
-    grid-column: 1;
     padding: 0 0 12px;
-    max-width: none;
-  }
-
-  .resultSection {
-    grid-column: 1;
-    padding: 0 16px 40px 0;
     max-width: none;
   }
 
@@ -505,8 +501,12 @@
     background: transparent;
     border-top: none;
     padding: 0 0 12px;
-    grid-column: 1;
     z-index: auto;
+  }
+
+  .resultSection {
+    padding: 0 16px 40px 0;
+    max-width: none;
   }
 
   .ctaArea {
@@ -515,8 +515,6 @@
 
   .treeSidebar {
     display: block;
-    grid-column: 2;
-    grid-row: 2;
     padding: 0 0 40px;
     position: sticky;
     top: 48px;
@@ -560,6 +558,12 @@
   .treeSummaryName {
     font-size: 14px;
     font-weight: 700;
+    color: #3d3229;
+  }
+
+  .treeSummaryCount {
+    font-size: 12px;
+    font-weight: 600;
     color: #3d3229;
   }
 

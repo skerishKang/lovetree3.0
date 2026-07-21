@@ -25,7 +25,7 @@ export interface MediaSearchContext {
 }
 
 export const MOCK_MEDIA_CONTEXT: MediaSearchContext = {
-  searchQuery: "무대 직캠 상랑크 검색",
+  searchQuery: "무대 직캠 검색",
   resultCount: 6,
   sourceScope: "YouTube · 전체 채널",
   recentKeywords: ["컴백 무대", "직캠 모음", "콘서트 하이라이트", "데뷔 무대"],

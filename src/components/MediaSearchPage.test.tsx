@@ -44,7 +44,7 @@ describe("MediaSearchPage — /media/search-demo", () => {
 
   it("검색 맥락에 검색어와 결과 수가 표시되어야 한다", () => {
     renderAppAt("/media/search-demo");
-    expect(screen.getByText(/무대 직캠 상랑크 검색/)).toBeInTheDocument();
+    expect(screen.getByText(/무대 직캠 검색/)).toBeInTheDocument();
     expect(screen.getByTestId("result-count")).toHaveTextContent("6건");
   });
 
@@ -56,20 +56,37 @@ describe("MediaSearchPage — /media/search-demo", () => {
     expect(screen.getByText("데뷔 무대")).toBeInTheDocument();
   });
 
-  it("카테고리 필터 4개가 표시되어야 한다", () => {
+  it("카테고리 필터 chip이 4개 표시되어야 한다", () => {
     renderAppAt("/media/search-demo");
-    expect(
-      screen.getByRole("button", { name: "무대" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "직캠" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "컴백" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "콘서트" })
-    ).toBeInTheDocument();
+    const filterGroup = screen.getByRole("list", { name: "카테고리 필터" });
+    const items = filterGroup.querySelectorAll(":scope > li");
+    expect(items).toHaveLength(4);
+  });
+
+  it("data-selected=true인 chip이 정확히 1개이고 선택텍스트가 '무대'여야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const filterGroup = screen.getByRole("list", { name: "카테고리 필터" });
+    const selectedChips = filterGroup.querySelectorAll('[data-selected="true"]');
+    expect(selectedChips).toHaveLength(1);
+    expect(selectedChips[0]).toHaveTextContent("무대");
+  });
+
+  it("필터 chip에 button role이 없어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const filterGroup = screen.getByRole("list", { name: "카테고리 필터" });
+    const chips = filterGroup.querySelectorAll("span");
+    chips.forEach((chip) => {
+      expect(chip).not.toHaveAttribute("role");
+    });
+  });
+
+  it("필터 chip에 tabIndex가 없어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const filterGroup = screen.getByRole("list", { name: "카테고리 필터" });
+    const chips = filterGroup.querySelectorAll("span");
+    chips.forEach((chip) => {
+      expect(chip).not.toHaveAttribute("tabindex");
+    });
   });
 
   it("검색 결과 카드가 정확히 6개여야 한다", () => {
@@ -80,10 +97,12 @@ describe("MediaSearchPage — /media/search-demo", () => {
 
   it("각 결과가 article로 노출되어야 한다", () => {
     renderAppAt("/media/search-demo");
-    const list = document.querySelector('[class*="resultList"]');
+    const list = screen.getByRole("list", {
+      name: "미디어 검색 결과 목록",
+    });
     expect(list).toBeInTheDocument();
-    expect(list!.tagName).toBe("UL");
-    const items = list!.querySelectorAll(":scope > li");
+    expect(list.tagName).toBe("UL");
+    const items = list.querySelectorAll(":scope > li");
     expect(items).toHaveLength(6);
     items.forEach((li) => {
       const article = li.querySelector(":scope > article");
@@ -190,7 +209,7 @@ describe("MediaSearchPage — /media/search-demo", () => {
     renderAppAt("/media/search-demo");
     expect(screen.getByTestId("tree-context")).toBeInTheDocument();
     expect(screen.getAllByText(/MY_STARLINE/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/러브트리에 추가할 수 있습니다/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/선택한 미디어가 이 트리에 추가됩니다/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("모든 버튼 클릭 후 fetch가 0회여야 한다", () => {
@@ -253,73 +272,42 @@ describe("MediaSearchPage — /media/search-demo", () => {
     expect(window.location.pathname).toBe("/media/search-demo");
   });
 
-  it("검색 결과 section이 필터 group보다 DOM상 먼저 위치해야 한다", () => {
+  it("검색 결과 section이 필터 list보다 DOM상 뒤에 위치해야 한다", () => {
     renderAppAt("/media/search-demo");
     const resultSection = screen.getByRole("region", { name: "검색 결과" });
-    const filterGroup = screen.getByRole("group", { name: "카테고리 필터" });
+    const filterList = screen.getByRole("list", { name: "카테고리 필터" });
 
     expect(
-      resultSection.compareDocumentPosition(filterGroup) &
+      filterList.compareDocumentPosition(resultSection) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
   });
 
-  it("필터 그룹이 결과 목록 뒤에 존재해야 한다", () => {
+  it("필터 list가 결과 목록 뒤에 존재해야 한다", () => {
     renderAppAt("/media/search-demo");
-    const filterGroup = screen.getByRole("group", { name: "카테고리 필터" });
-    expect(filterGroup).toBeInTheDocument();
+    const filterList = screen.getByRole("list", { name: "카테고리 필터" });
+    expect(filterList).toBeInTheDocument();
   });
 
-  it("필터 버튼만 클릭해도 카드 수가 불변이어야 한다", () => {
+  it("필터 chip은 비상호작용으로 button이 없어야 한다", () => {
     renderAppAt("/media/search-demo");
-    const filterButtons = screen.getAllByRole("button").filter(
-      (btn) =>
-        btn.textContent === "무대" ||
-        btn.textContent === "직캠" ||
-        btn.textContent === "컴백" ||
-        btn.textContent === "콘서트"
-    );
-
-    const initialCount = screen.getAllByRole("article").length;
-
-    for (const btn of filterButtons) {
-      fireEvent.click(btn);
-    }
-
-    expect(screen.getAllByRole("article")).toHaveLength(initialCount);
+    const filterList = screen.getByRole("list", { name: "카테고리 필터" });
+    const chips = filterList.querySelectorAll("span");
+    expect(chips).toHaveLength(4);
+    chips.forEach((chip) => {
+      expect(chip.tagName).toBe("SPAN");
+      expect(chip).not.toHaveAttribute("role");
+    });
   });
 
-  it("필터 버튼만 클릭해도 URL이 변하지 않아야 한다", () => {
+  it("필터 chip에 aria-pressed, aria-selected가 없어야 한다", () => {
     renderAppAt("/media/search-demo");
-    const filterButtons = screen.getAllByRole("button").filter(
-      (btn) =>
-        btn.textContent === "무대" ||
-        btn.textContent === "직캠" ||
-        btn.textContent === "컴백" ||
-        btn.textContent === "콘서트"
-    );
+    const filterList = screen.getByRole("list", { name: "카테고리 필터" });
+    const chips = filterList.querySelectorAll("span");
 
-    for (const btn of filterButtons) {
-      fireEvent.click(btn);
-    }
-
-    expect(window.location.pathname).toBe("/media/search-demo");
-  });
-
-  it("필터 버튼에 aria-pressed, role='tab', aria-selected가 없어야 한다", () => {
-    renderAppAt("/media/search-demo");
-    const filterButtons = screen.getAllByRole("button").filter(
-      (btn) =>
-        btn.textContent === "무대" ||
-        btn.textContent === "직캠" ||
-        btn.textContent === "컴백" ||
-        btn.textContent === "콘서트"
-    );
-
-    for (const btn of filterButtons) {
-      expect(btn).not.toHaveAttribute("aria-pressed");
-      expect(btn).not.toHaveAttribute("aria-selected");
-      expect(btn).not.toHaveAttribute("role", "tab");
+    for (const chip of chips) {
+      expect(chip).not.toHaveAttribute("aria-pressed");
+      expect(chip).not.toHaveAttribute("aria-selected");
     }
   });
 
@@ -328,6 +316,7 @@ describe("MediaSearchPage — /media/search-demo", () => {
     const ctaContext = screen.getByTestId("cta-context-mobile");
     expect(ctaContext).toBeInTheDocument();
     expect(ctaContext.textContent).toContain("MY_STARLINE");
+    expect(ctaContext.textContent).toContain("선택한 미디어를");
   });
 });
 
