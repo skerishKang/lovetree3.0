@@ -1,0 +1,464 @@
+/* 페이지 전체 */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #faf7f2;
+}
+
+/* 상단 헤더 */
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8e0d8;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #5c4a3a;
+  cursor: default;
+  transition: background 0.15s;
+}
+
+.iconButton:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+.pageTitle {
+  flex: 1;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #3d2e22;
+  letter-spacing: -0.01em;
+}
+
+.topBarRight {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.secondaryButton {
+  padding: 8px 16px;
+  border: 1px solid #d4c9bd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #5c4a3a;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: default;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.secondaryButton:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+.primaryButton {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #5c4a3a;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: default;
+  transition: background 0.15s;
+}
+
+.primaryButton:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+/* 편집기 본문 */
+.editorContent {
+  display: flex;
+  flex: 1;
+  gap: 0;
+  min-height: 0;
+}
+
+/* 캔버스 영역 */
+.canvasSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.treeTitleArea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e8e0d8;
+}
+
+.treeTitleInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inputLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #8a7a6a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.treeTitleInput {
+  width: 280px;
+  padding: 8px 12px;
+  border: 1px solid #d4c9bd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #3d2e22;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: default;
+}
+
+.treeTitleInput:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+.treeDescInput {
+  width: 320px;
+  padding: 8px 12px;
+  border: 1px solid #d4c9bd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #5c4a3a;
+  font-size: 0.875rem;
+  cursor: default;
+}
+
+.treeDescInput:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+.visibilityBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  gap: 4px;
+  cursor: default;
+}
+
+.visibilityPublic {
+  background: #e6f0e6;
+  color: #3d6b3d;
+}
+
+.visibilityPrivate {
+  background: #ede4dc;
+  color: #8a7a6a;
+}
+
+/* 캔버스 카드 목록 */
+.canvasWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.canvasCardList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.canvasCardItem {
+  display: contents;
+}
+
+.memoryCard {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1.5px solid #e8e0d8;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  cursor: default;
+}
+
+.memoryCardSelected {
+  border-color: #5c4a3a;
+  box-shadow: 0 0 0 2.5px #5c4a3a;
+}
+
+.memoryCard:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+.memThumb {
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.thumb_rose { background: linear-gradient(135deg, #f4c4c4, #e89e9e); }
+.thumb_amber { background: linear-gradient(135deg, #f0d4a8, #e0b87a); }
+.thumb_sage { background: linear-gradient(135deg, #c4d4b8, #a8c0a0); }
+.thumb_lavender { background: linear-gradient(135deg, #d4c8e8, #bca8d4); }
+.thumb_sky { background: linear-gradient(135deg, #b8d8e8, #90c0d8); }
+.thumb_coral { background: linear-gradient(135deg, #f0b8a8, #e09888); }
+
+.memBody {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.memTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #3d2e22;
+}
+
+.memDate {
+  font-size: 0.75rem;
+  color: #a09080;
+}
+
+.memDescription {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: #6c5c4c;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addMemoryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding: 10px 20px;
+  align-self: flex-start;
+  border: 1px dashed #c4b8a8;
+  border-radius: 8px;
+  background: transparent;
+  color: #6c5c4c;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: default;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.addMemoryButton:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+/* 상세 패널 */
+.detailPanel {
+  width: 340px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-left: 1px solid #e8e0d8;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.detailHeader {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid #e8e0d8;
+}
+
+.detailTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #3d2e22;
+}
+
+.detailThumb {
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.detailInfo {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detailField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #8a7a6a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detailInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d4c9bd;
+  border-radius: 8px;
+  background: #faf8f5;
+  color: #3d2e22;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  cursor: default;
+}
+
+.detailInput:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+.detailTextarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 8px 12px;
+  border: 1px solid #d4c9bd;
+  border-radius: 8px;
+  background: #faf8f5;
+  color: #3d2e22;
+  font-size: 0.875rem;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+  cursor: default;
+}
+
+.detailTextarea:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+.detailTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: #f0ece6;
+  color: #6c5c4c;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.detailActions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px 20px;
+  margin-top: auto;
+}
+
+.detailActionButton {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d4c9bd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #5c4a3a;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: default;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.detailActionButton:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .topBar {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+  }
+
+  .topBarRight {
+    margin-left: auto;
+  }
+
+  .editorContent {
+    flex-direction: column;
+  }
+
+  .canvasSection {
+    padding: 16px;
+  }
+
+  .treeTitleArea {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .treeTitleInputWrapper {
+    width: 100%;
+  }
+
+  .treeTitleInput,
+  .treeDescInput {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .canvasCardList {
+    grid-template-columns: 1fr;
+  }
+
+  .detailPanel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #e8e0d8;
+  }
+
+  .detailThumb {
+    height: 120px;
+  }
+}
