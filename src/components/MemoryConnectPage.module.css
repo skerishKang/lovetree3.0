@@ -1,4 +1,4 @@
-/* MemoryConnectPage — 모바일 우선 레이아웃 */
+/* MemoryConnectPage — 연결 선택 화면 */
 
 /* ===== 배경 ===== */
 .page {
@@ -7,9 +7,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 16px 24px;
-  /* 모바일 ~390px 중앙 정렬 */
+  padding: 0 16px 140px;
   max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* ===== 상단바 ===== */
@@ -19,8 +19,8 @@
   gap: 12px;
   width: 100%;
   max-width: 600px;
-  padding: 56px 0 0;
-  margin-bottom: 8px;
+  padding: 52px 0 0;
+  margin-bottom: 4px;
 }
 
 .backButton {
@@ -30,7 +30,7 @@
   width: 40px;
   height: 40px;
   border: none;
-  border-radius: 50%;
+  border-radius: 8px;
   background: transparent;
   color: #4a3f35;
   cursor: default;
@@ -38,7 +38,7 @@
 }
 
 .backButton:focus-visible {
-  outline: 2px solid #8b7a6b;
+  outline: 2px solid #b8a08e;
   outline-offset: 2px;
 }
 
@@ -49,16 +49,33 @@
   letter-spacing: 0.02em;
 }
 
+/* ===== 메인 레이아웃 (mobile: single column) ===== */
+.memoryConnectLayout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+}
+
+.contextColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.treeColumn {
+  display: flex;
+  flex-direction: column;
+}
+
 /* ===== 제목 영역 ===== */
 .intro {
   width: 100%;
-  max-width: 600px;
-  padding: 8px 0 24px;
+  padding: 4px 0 16px;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-weight: 800;
   color: #3d3429;
   margin: 0;
   line-height: 1.35;
@@ -66,37 +83,149 @@
 }
 
 .description {
-  font-size: 14px;
+  font-size: 0.88rem;
   color: #8a7e72;
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   line-height: 1.5;
   word-break: keep-all;
 }
 
-/* ===== 트리 구조 ===== */
-.treeSection {
-  position: relative;
+/* ===== 새 기억 미리보기 ===== */
+.newMemorySection {
   width: 100%;
-  max-width: 600px;
+  margin-bottom: 20px;
 }
 
-/* 중앙 연결선 (점선) */
-.connectorLine {
-  position: absolute;
-  top: 0;
-  bottom: 96px; /* CTA 영역 위에서 끝남 */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  background: repeating-linear-gradient(
-    to bottom,
-    #d4cdc4 0px,
-    #d4cdc4 4px,
-    transparent 4px,
-    transparent 8px
-  );
-  pointer-events: none;
-  z-index: 0;
+.newMemoryCard {
+  background: #ffffff;
+  border: 1px solid rgba(45, 41, 38, 0.06);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 4px 20px rgba(45, 41, 38, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.newMemoryBadge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent-rose, #e06b8b);
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 0.65rem;
+  letter-spacing: 0.02em;
+}
+
+.newMemoryContent {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.newMemoryEmoji {
+  font-size: 2.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdf5f6;
+  border-radius: 12px;
+}
+
+.newMemoryText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.newMemoryMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.1rem;
+}
+
+.newMemoryType {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-rose, #e06b8b);
+  background: rgba(224, 107, 139, 0.06);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.newMemoryMedia {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #8a7e72;
+  background: #f1ede6;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.newMemoryTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2a221a;
+  line-height: 1.3;
+}
+
+.newMemoryDate {
+  font-size: 0.72rem;
+  color: #b09a88;
+  font-family: var(--ff-mono, monospace);
+}
+
+.newMemoryDesc {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: #6b6056;
+  line-height: 1.45;
+}
+
+.newMemoryTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.newMemoryTag {
+  font-size: 0.62rem;
+  color: #8a7a6a;
+  background: #f5f0eb;
+  padding: 0.1rem 0.4rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* ===== 연결 결과 (connection hint) ===== */
+.connectionHint {
+  margin: 0.6rem 0 0;
+}
+
+.connectionHint p {
+  font-size: 0.8rem;
+  color: #8a7e72;
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.connectionHint strong {
+  color: #3d3429;
+}
+
+/* ===== 트리 구조 ===== */
+.treeSection {
+  width: 100%;
 }
 
 .nodeList {
@@ -107,8 +236,6 @@
   flex-direction: column;
   align-items: center;
   gap: 0;
-  position: relative;
-  z-index: 1;
 }
 
 .nodeItem {
@@ -118,34 +245,115 @@
   width: 100%;
 }
 
+/* ===== DOM-flow connector ===== */
+.connectorItem {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+}
+
+.connectorBlock {
+  display: flex;
+  justify-content: center;
+  width: 32px;
+  height: 48px;
+}
+
+.connectorSvg {
+  width: 32px;
+  height: 48px;
+  display: block;
+}
+
+/* ===== 삽입 마커 ===== */
+.insertMarkerItem {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.insertMarker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 360px;
+  padding: 0.6rem 0;
+}
+
+.insertMarkerLine {
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--accent-rose, #e06b8b) 0px,
+    var(--accent-rose, #e06b8b) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.insertMarkerLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-rose, #e06b8b);
+  background: rgba(224, 107, 139, 0.08);
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
 /* ===== 노드 카드 ===== */
 .nodeCard {
   width: 100%;
   max-width: 360px;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
   background: #ffffff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1.5px solid rgba(45, 41, 38, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   cursor: default;
-  transition: box-shadow 0.2s;
+  position: relative;
 }
 
 .nodeCard:focus-visible {
-  outline: 2px solid #8b7a6b;
+  outline: 2px solid #b8a08e;
   outline-offset: 2px;
 }
 
 /* 선택 상태 */
 .nodeSelected {
-  box-shadow: 0 0 0 2.5px #8b7a6b, 0 6px 24px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-rose, #e06b8b);
+  box-shadow: 0 0 0 2px rgba(224, 107, 139, 0.15), 0 4px 20px rgba(224, 107, 139, 0.08);
 }
 
-/* ===== 아이콘 영역 — 색상별 변형 ===== */
+/* ===== 선택 배지 ===== */
+.selectedBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent-rose, #e06b8b);
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(224, 107, 139, 0.3);
+  z-index: 2;
+}
+
+/* ===== 노드 비주얼 영역 ===== */
+.nodeVisual {
+  position: relative;
+}
+
 .iconArea {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 160px;
+  height: 120px;
   position: relative;
 }
 
@@ -162,88 +370,142 @@
 }
 
 .emoji {
-  font-size: 56px;
+  font-size: 44px;
   line-height: 1;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
 /* ===== 텍스트 영역 ===== */
 .textArea {
-  padding: 14px 18px 18px;
+  padding: 0.75rem 1rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.15rem;
+}
+
+.nodeMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.15rem;
+}
+
+.nodeType {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--accent-rose, #e06b8b);
+  background: rgba(224, 107, 139, 0.06);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.nodeMedia {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: #8a7e72;
+  background: #f1ede6;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
 }
 
 .date {
-  font-size: 12px;
-  color: #a89a8c;
+  font-size: 0.7rem;
+  color: #b09a88;
   letter-spacing: 0.02em;
+  font-family: var(--ff-mono, monospace);
 }
 
 .nodeTitle {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #3d3429;
-  line-height: 1.4;
+  line-height: 1.35;
   word-break: keep-all;
+}
+
+.nodeDesc {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: #8a7e72;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 4px;
+  gap: 0.2rem;
+  margin-top: 0.35rem;
 }
 
 .tag {
-  font-size: 11px;
-  color: #8a7e72;
+  font-size: 0.62rem;
+  color: #8a7a6a;
   background: #f5f0eb;
-  padding: 2px 8px;
-  border-radius: 10px;
-  letter-spacing: 0.01em;
+  padding: 0.1rem 0.4rem;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
-/* ===== 노드 간 연결 점선 ===== */
-.nodeConnector {
-  display: flex;
-  justify-content: center;
-  padding: 4px 0;
-  height: 40px;
-  flex-shrink: 0;
-}
-
-.nodeConnector svg {
-  display: block;
-}
-
-/* ===== 하단 CTA 영역 ===== */
+/* ===== CTA 영역 (mobile: fixed bottom) ===== */
 .ctaArea {
-  width: 100%;
-  max-width: 600px;
-  margin-top: 24px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 0 16px 20px;
+  background: linear-gradient(to top, #ede8e0 60%, transparent 100%);
+  pointer-events: none;
 }
 
 .ctaPanel {
+  max-width: 600px;
+  margin: 0 auto;
   background: #ffffff;
-  border-radius: 24px;
-  padding: 20px 20px 28px;
-  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.04);
+  border-radius: 20px 20px 16px 16px;
+  padding: 1rem 1.25rem 1.25rem;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+}
+
+/* desktop CTA panel (static in context column) */
+.desktopCtaPanel {
+  display: none;
+}
+
+.ctaContext {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: #6b6056;
+  text-align: center;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.ctaContext strong {
+  color: #3d3429;
 }
 
 .ctaButton {
   width: 100%;
-  padding: 18px 24px;
+  padding: 16px 24px;
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   background: #4a3f35;
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   letter-spacing: 0.01em;
   cursor: default;
-  transition: background 0.2s;
+  transition: background 0.15s;
+}
+
+.ctaButton:hover {
+  background: #3d3429;
 }
 
 .ctaButton:focus-visible {
@@ -252,14 +514,19 @@
   box-shadow: 0 0 0 4px #4a3f35;
 }
 
-/* ===== 데스크톱 확장 ===== */
+/* ===== 768px ~ 1099px: 안정적 축소형 1-column ===== */
 @media (min-width: 768px) {
   .page {
-    padding: 0 24px 40px;
+    padding: 0 24px 140px;
+  }
+
+  .topBar,
+  .memoryConnectLayout {
+    max-width: 640px;
   }
 
   .topBar {
-    padding-top: 64px;
+    padding-top: 60px;
   }
 
   .nodeCard {
@@ -267,14 +534,93 @@
   }
 
   .iconArea {
-    height: 180px;
+    height: 140px;
   }
 
   .emoji {
-    font-size: 64px;
+    font-size: 52px;
   }
 
   .ctaPanel {
-    padding: 24px 32px 32px;
+    max-width: 640px;
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+}
+
+/* ===== 1100px+: 실제 2-column ===== */
+@media (min-width: 1100px) {
+  .page {
+    padding: 0 32px 40px;
+    align-items: stretch;
+  }
+
+  .topBar {
+    max-width: 1000px;
+    padding-top: 48px;
+    margin: 0 auto 8px;
+  }
+
+  .memoryConnectLayout {
+    max-width: 1000px;
+    flex-direction: row;
+    gap: 2rem;
+    margin: 0 auto;
+  }
+
+  .contextColumn {
+    flex: 0 0 380px;
+    position: sticky;
+    top: 48px;
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    order: -1;
+  }
+
+  .treeColumn {
+    flex: 1;
+    min-width: 0;
+    order: 0;
+  }
+
+  .desktopCtaPanel {
+    display: block;
+    background: #ffffff;
+    border: 1px solid rgba(45, 41, 38, 0.06);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(45, 41, 38, 0.03);
+  }
+
+  .ctaArea {
+    display: none;
+  }
+
+  .nodeCard {
+    max-width: none;
+  }
+
+  .iconArea {
+    height: 140px;
+  }
+
+  .emoji {
+    font-size: 52px;
+  }
+
+  .insertMarker {
+    max-width: none;
+  }
+}
+
+/* ===== 모바일 하단 여백 보정 ===== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .page {
+    padding-bottom: calc(140px + env(safe-area-inset-bottom));
+  }
+
+  .ctaArea {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
 }
