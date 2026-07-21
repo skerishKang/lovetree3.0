@@ -21,10 +21,76 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     ).toBeInTheDocument();
   });
 
-  it("4개의 기억 노드를 렌더링한다", () => {
+  it("설명 문구를 렌더링한다", () => {
+    renderPage();
+    expect(
+      screen.getByText("기억을 선택하면 해당 순간 뒤에 새로운 기록이 추가됩니다.")
+    ).toBeInTheDocument();
+  });
+
+  it("새 기억 미리보기를 렌더링한다", () => {
+    renderPage();
+    expect(screen.getByText("새 기억")).toBeInTheDocument();
+    expect(screen.getAllByText("첫 음악방송 1위").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("새 기억의 날짜와 태그를 렌더링한다", () => {
+    renderPage();
+    expect(screen.getByText("2024. 1. 21.")).toBeInTheDocument();
+    expect(screen.getByText("#음악방송")).toBeInTheDocument();
+    expect(screen.getByText("#1위")).toBeInTheDocument();
+  });
+
+  it("새 기억의 유형과 미디어 라벨을 렌더링한다", () => {
+    renderPage();
+    expect(screen.getByText("음악방송")).toBeInTheDocument();
+    expect(screen.getByText("TV 방송 녹화")).toBeInTheDocument();
+  });
+
+  it("기존 기억 노드를 정확히 4개 렌더링한다", () => {
     renderPage();
     const nodes = screen.getAllByRole("article");
     expect(nodes).toHaveLength(4);
+  });
+
+  it("각 노드의 주요 메타데이터를 렌더링한다", () => {
+    renderPage();
+    expect(screen.getAllByText("첫 만남의 순간").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("첫 앨범 구매").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("콘서트 직캠").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("컴백 D-Day").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("각 노드의 날짜가 노출된다", () => {
+    renderPage();
+    expect(screen.getByText("2023. 9. 28.")).toBeInTheDocument();
+    expect(screen.getByText("2023. 10. 15.")).toBeInTheDocument();
+    expect(screen.getByText("2023. 11. 20.")).toBeInTheDocument();
+    expect(screen.getByText("2024. 1. 7.")).toBeInTheDocument();
+  });
+
+  it("각 노드의 태그가 노출된다", () => {
+    renderPage();
+    expect(screen.getByText("#첫만남")).toBeInTheDocument();
+    expect(screen.getAllByText("#컴백").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("#앨범")).toBeInTheDocument();
+    expect(screen.getByText("#콘서트")).toBeInTheDocument();
+  });
+
+  it("각 노드의 기억 유형 라벨을 렌더링한다", () => {
+    renderPage();
+    expect(screen.getByText("무대 영상")).toBeInTheDocument();
+    expect(screen.getByText("음반 수집")).toBeInTheDocument();
+    expect(screen.getByText("콘서트 현장")).toBeInTheDocument();
+    expect(screen.getByText("신보 발매")).toBeInTheDocument();
+  });
+
+  it("각 노드의 미디어 라벨을 렌더링한다", () => {
+    renderPage();
+    expect(screen.getByText("YouTube 링크")).toBeInTheDocument();
+    expect(screen.getByText("실물 앨범 사진")).toBeInTheDocument();
+    expect(screen.getByText("4K 직캠 영상")).toBeInTheDocument();
+    expect(screen.getByText("음원 스트리밍")).toBeInTheDocument();
   });
 
   it("실제 버튼은 뒤로 가기와 CTA 2개만 존재한다", () => {
@@ -44,7 +110,7 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
 
   it("고정 선택된 노드(컴백 D-Day)가 존재한다", () => {
     renderPage();
-    expect(screen.getByText("컴백 D-Day")).toBeInTheDocument();
+    expect(screen.getAllByText("컴백 D-Day").length).toBeGreaterThanOrEqual(1);
   });
 
   it("선택된 노드가 정확히 하나이고 data-selected=true, aria-current=location을 갖는다", () => {
@@ -53,7 +119,6 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
       '[data-selected="true"][aria-current="location"]'
     );
     expect(selectedNodes).toHaveLength(1);
-    // 선택된 노드 안에 컴백 D-Day 제목이 존재
     expect(selectedNodes[0].textContent).toContain("컴백 D-Day");
   });
 
@@ -66,6 +131,27 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     unselectedNodes.forEach((node) => {
       expect(node).not.toHaveAttribute("aria-current");
     });
+  });
+
+  it("선택된 노드에 선택 배지가 표시된다", () => {
+    renderPage();
+    expect(screen.getByText("선택됨")).toBeInTheDocument();
+  });
+
+  it("insert marker가 선택된 노드 뒤에 표시된다", () => {
+    renderPage();
+    const markers = screen.getAllByTestId("insert-marker");
+    expect(markers).toHaveLength(1);
+    expect(markers[0].textContent).toContain("여기에 연결");
+  });
+
+  it("CTA 영역에 연결 컨텍스트 문구가 노출된다", () => {
+    renderPage();
+    const ctaContext = document.querySelector('[class*="ctaContext"]');
+    expect(ctaContext).toBeInTheDocument();
+    expect(ctaContext?.textContent).toContain("컴백 D-Day");
+    expect(ctaContext?.textContent).toContain("첫 음악방송 1위");
+    expect(ctaContext?.textContent).toContain("연결합니다");
   });
 
   it("CTA 버튼 문구가 노출된다", () => {
@@ -85,6 +171,14 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     expect(ctaBtn.textContent).toBe(textBefore);
   });
 
+  it("뒤로 가기 버튼 클릭 후에도 상태 변화가 없다", () => {
+    renderPage();
+    const backBtn = screen.getByRole("button", { name: "뒤로 가기" });
+    const htmlBefore = document.body.innerHTML;
+    backBtn.click();
+    expect(document.body.innerHTML).toBe(htmlBefore);
+  });
+
   it("네트워크 요청을 하지 않는다", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     renderPage();
@@ -99,17 +193,11 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     ).toBeInTheDocument();
   });
 
-  it("각 노드의 날짜가 노출된다", () => {
+  it("connection hint에 선택된 노드 맥락이 노출된다", () => {
     renderPage();
-    expect(screen.getByText("2023. 9. 28.")).toBeInTheDocument();
-    expect(screen.getByText("2023. 10. 15.")).toBeInTheDocument();
-    expect(screen.getByText("2023. 11. 20.")).toBeInTheDocument();
-    expect(screen.getByText("2024. 1. 7.")).toBeInTheDocument();
-  });
-
-  it("태그가 노출된다", () => {
-    renderPage();
-    expect(screen.getByText("#첫만남")).toBeInTheDocument();
-    expect(screen.getByText("#컴백")).toBeInTheDocument();
+    const hint = document.querySelector('[class*="connectionHint"]');
+    expect(hint).toBeInTheDocument();
+    expect(hint?.textContent).toContain("컴백 D-Day");
+    expect(hint?.textContent).toContain("뒤에 연결됩니다");
   });
 });
