@@ -104,9 +104,9 @@ interface MemoryDetailMockData {
 - 태그는 `<ul>` 텍스트 목록
 - "이 순간과 이어진 기억"은 `<section>` + `<h2>`로 마크업
 - 관련 기억 목록 `ul > li > article`, 각 article은 `aria-labelledby`로 제목 연결
-- 하단 액션 버튼에 `aria-label` (좋아요, 댓글, 공유, 수정)
-- 좋아요/댓글 숫자에 `<span className="visuallyHidden">`으로 의미 텍스트 제공
-- 좋아요: "좋아요 128", 댓글: "댓글 17"
+- 하단 액션 버튼에 `aria-label` (좋아요 128, 댓글 17, 공유, 수정)
+- 좋아요/댓글 숫자는 `aria-label`에 포함하여 접근 가능한 이름 제공
+- 좋아요: `aria-label="좋아요 128"`, 댓글: `aria-label="댓글 17"`
 - `focus-visible` 스타일 적용
 - 색상만으로 상태를 표현하지 않음 (텍스트 + 숫자 병기)
 - `aria-live`, `aria-busy`, `aria-expanded`, `aria-pressed`, `role="dialog"` 미사용

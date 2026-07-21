@@ -140,14 +140,14 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
   it("좋아요 버튼이 있어야 한다", () => {
     renderAppAt("/memory/detail-demo");
     expect(
-      screen.getByRole("button", { name: "좋아요" })
+      screen.getByRole("button", { name: "좋아요 128" })
     ).toBeInTheDocument();
   });
 
   it("댓글 버튼이 있어야 한다", () => {
     renderAppAt("/memory/detail-demo");
     expect(
-      screen.getByRole("button", { name: "댓글" })
+      screen.getByRole("button", { name: "댓글 17" })
     ).toBeInTheDocument();
   });
 
@@ -165,16 +165,18 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     ).toBeInTheDocument();
   });
 
-  it("좋아요 숫자에 의미 있는 텍스트가 있어야 한다", () => {
+  it("좋아요 숫자에 의미 있는 accessible text가 있어야 한다", () => {
     renderAppAt("/memory/detail-demo");
-    const likeButton = screen.getByRole("button", { name: "좋아요" });
-    expect(likeButton.textContent).toContain("128");
+    expect(
+      screen.getByRole("button", { name: "좋아요 128" })
+    ).toBeInTheDocument();
   });
 
-  it("댓글 숫자에 의미 있는 텍스트가 있어야 한다", () => {
+  it("댓글 숫자에 의미 있는 accessible text가 있어야 한다", () => {
     renderAppAt("/memory/detail-demo");
-    const commentButton = screen.getByRole("button", { name: "댓글" });
-    expect(commentButton.textContent).toContain("17");
+    expect(
+      screen.getByRole("button", { name: "댓글 17" })
+    ).toBeInTheDocument();
   });
 
   it("모든 버튼 클릭 후 fetch가 0회여야 한다", () => {

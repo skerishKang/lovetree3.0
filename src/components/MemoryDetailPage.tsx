@@ -75,22 +75,20 @@ export default function MemoryDetailPage() {
 
       {/* 하단 액션 영역 */}
       <footer className={styles.actionBar}>
-        <button type="button" className={styles.actionButton} aria-label="좋아요">
+        <button type="button" className={styles.actionButton} aria-label={`좋아요 ${data.likeCount}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z" stroke="currentColor" strokeWidth="1.8" />
           </svg>
           <span className={styles.actionLabel}>
-            <span className={styles.visuallyHidden}>좋아요 </span>
             {data.likeCount}
           </span>
         </button>
 
-        <button type="button" className={styles.actionButton} aria-label="댓글">
+        <button type="button" className={styles.actionButton} aria-label={`댓글 ${data.commentCount}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M21 11.5C21 16.1944 16.9706 20 12 20C10.5426 20 9.15871 19.644 7.94583 19.0091L3 20L4.19762 15.9208C3.44581 14.6225 3 13.1147 3 11.5C3 6.80558 7.02944 3 12 3C16.9706 3 21 6.80558 21 11.5Z" stroke="currentColor" strokeWidth="1.8" />
           </svg>
           <span className={styles.actionLabel}>
-            <span className={styles.visuallyHidden}>댓글 </span>
             {data.commentCount}
           </span>
         </button>
