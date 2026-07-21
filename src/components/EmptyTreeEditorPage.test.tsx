@@ -69,6 +69,21 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
     ).toBeInTheDocument();
   });
 
+  /* ─── 메뉴 및 활성 상태 검증 ─── */
+
+  it("사이드바 메뉴가 정확히 3개이고 '내 러브트리'가 활성 상태여야 한다", () => {
+    renderAppAt("/tree/new-demo");
+    const nav = screen.getByRole("navigation", { name: "에디터 메뉴" });
+    const menuButtons = nav.querySelectorAll("button");
+    expect(menuButtons.length).toBe(3);
+
+    const activeButtons = Array.from(menuButtons).filter(
+      (btn) => btn.getAttribute("aria-current") === "page"
+    );
+    expect(activeButtons.length).toBe(1);
+    expect(activeButtons[0]).toHaveTextContent("내 러브트리");
+  });
+
   /* ─── 접근성 구조 ─── */
 
   it("navigation landmark가 존재해야 한다", () => {
@@ -83,19 +98,31 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
     expect(screen.getByRole("main")).toBeInTheDocument();
   });
 
-  it("메뉴가 ul > li > button 구조여야 한다", () => {
+  it("메뉴가 ul > li > button 구조여야 하며 정확히 3개 항목이어야 한다", () => {
     renderAppAt("/tree/new-demo");
     const nav = screen.getByRole("navigation", { name: "에디터 메뉴" });
     const list = nav.querySelector("ul");
     expect(list).toBeInTheDocument();
     const items = list!.querySelectorAll("li");
-    expect(items.length).toBeGreaterThanOrEqual(3);
+    expect(items.length).toBe(3);
     items.forEach((item) => {
       expect(item.querySelector("button")).toBeInTheDocument();
     });
   });
 
-  /* ─── 순간 카드 없음 ─── */
+  it("장식 SVG는 accessibility tree에서 숨겨져 있어야 한다", () => {
+    renderAppAt("/tree/new-demo");
+    const main = screen.getByRole("main");
+    const svgs = main.querySelectorAll("svg");
+    svgs.forEach((svg) => {
+      const isHidden =
+        svg.getAttribute("aria-hidden") === "true" ||
+        svg.closest('[aria-hidden="true"]') !== null;
+      expect(isHidden).toBe(true);
+    });
+  });
+
+  /* ─── 순간 카드 및 미허용 버튼 없음 ─── */
 
   it("article(순간 카드)이 0개여야 한다", () => {
     renderAppAt("/tree/new-demo");
