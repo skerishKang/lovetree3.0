@@ -7,21 +7,26 @@
 | `media-search-desktop-1440x-full.png` | 1440x1106 | `B738A58B6D4EC93ADF63C155DEF277923D9F3E63C3090DB2B2CA4996E494258E` |
 | `media-search-mobile-390x-full.png` | 390x1135 | `764153E3E8F70AB1C715F5C0AAD36E6CC9B887AEF3F7CB1F9E2CEEC2CE327C5A` |
 
-## Capture Source
+**Reference SHA-256:** `9634f8b428ade2de19bd911ad88d3759965cc94a26bef8569f0cab04760f3fb5`
 
-- **Actual preview URL:** `https://style-media-search-visual-re.lovetree3.pages.dev/media/search-demo`
-- **Unique preview URL:** `https://b703307f.lovetree3.pages.dev`
-- **Captured from:** Cloudflare branch preview (NOT localhost)
-- **Visual source commit:** `a22863964e63684a52edee21b2bfb6030ef467c7` (code fix)
-- **Screenshot source deployment commit:** `e7a0b6713a16d6ce58bb36c451f5a751c1aaba21` (merge main)
-- **Final evidence commit SHA:** (this document's commit — see git log)
-- **Reference SHA-256:** `9634f8b428ade2de19bd911ad88d3759965cc94a26bef8569f0cab04760f3fb5`
-- **Browser:** HeadlessChrome/150.0.0.0
-- **Viewport DPR:** 1 (CSS)
+## Source Commits (Separation of Concerns)
+
+- **Visual code source:** `a22863964e63684a52edee21b2bfb6030ef467c7` (code fix — filter chips, main/aside structure, search query fix, tree context text)
+- **Screenshot source deployment commit:** `e7a0b6713a16d6ce58bb36c451f5a751c1aaba21` (first merge of origin/main)
+- **Screenshot source unique preview:** `https://b703307f.lovetree3.pages.dev` (independently unverified — Cloudflare bot comment for `e7a0b67` showed this URL, but screenshots were captured via branch preview URL which always points to latest deployment at capture time)
+- **Evidence asset refresh commit:** `0335f068b19007a7840fb53415dcf27a0cdd6c20`
+- **Latest-main integration commit:** `82750ba8ed76c099423c98272f08c4c6a92164a8`
+- **Final branch validation source:** `82750ba8ed76c099423c98272f08c4c6a92164a8`
+- **Final branch validation preview:** `https://3a661307.lovetree3.pages.dev` (independently unverified — derived from Cloudflare bot comment)
+- **Branch preview (stable):** `https://style-media-search-visual-re.lovetree3.pages.dev/media/search-demo`
+
+**Captured from:** Cloudflare branch preview (NOT localhost)
+**Browser:** HeadlessChrome/150.0.0.0
+**Viewport DPR:** 1 (CSS)
 
 ---
 
-## Validation Checklist
+## Validation Checklist (Actual Browser on Cloudflare Branch Preview)
 
 ### Search Context
 - [x] Search query displayed ("무대 직캠 검색")
@@ -39,7 +44,6 @@
 - [x] Exactly 1 chip with `data-selected="true"` (무대)
 - [x] No button role, no tabIndex, no onClick on chips
 - [x] No hover/focus affordance, cursor: default
-- [x] Horizontal scroll on mobile, no clipping
 
 ### Result Cards
 - [x] 6 result cards rendered
@@ -54,11 +58,12 @@
 - [x] Tree name "MY_STARLINE" displayed
 
 ### Desktop Layout (1440x1000)
-- [x] Two-column layout: main (left, 1052px) + complementary/aside (right, 300px) at 1440px
-- [x] Sidebar sticky positioning confirmed (`position: sticky`)
+- [x] Two-column layout: main (left) + complementary/aside (right)
+- [x] Sidebar sticky positioning confirmed (position: sticky)
 - [x] Sidebar visible (display: block)
 - [x] No horizontal overflow (scrollWidth=1440 = viewportWidth=1440)
 - [x] Desktop filter inline in mainContent
+- [x] Mobile CTA hidden (display: none)
 
 ### Intermediate Layout (850x900)
 - [x] Single-column layout
@@ -69,7 +74,8 @@
 - [x] Single-column layout
 - [x] No horizontal overflow (scrollWidth=390 = viewportWidth=390)
 - [x] Mobile sidebar hidden (display: none)
-- [x] Filter bar positioned above CTA (z-index 25 > 20)
+- [x] CTA: position fixed
+- [x] Filter: position fixed
 - [x] CTA and filter visual overlap absent
 
 ### Presentation-only Contract
@@ -83,15 +89,15 @@
 ### Console/Network Errors
 - [x] Console errors: 0 (actual browser)
 - [x] Page errors: 0
-- [x] Failed requests: 0
+- [x] Failed requests: 0 (3/3 returned 200)
 
 ---
 
-## Test Results
+## Test Results (Local)
 
 | Metric | Value |
 |---|---|
-| Tests | 276/276 passed |
+| Tests | 280/280 passed |
 | Test files | 12 passed |
 | MediaSearchPage tests | 38/38 passed |
 | Lint | 0 errors |
