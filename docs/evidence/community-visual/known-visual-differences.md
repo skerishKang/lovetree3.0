@@ -46,10 +46,10 @@ This document describes the known visual differences between the reference image
 - **Viewport:** 390px (DPR 2)
 - **Expected PNG width:** 780px
 - **Actual PNG width:** 780px ✅
-- **Actual PNG height:** 8856px ✅
+- **Actual PNG height:** 8930px (Due to detailed tags list added to Featured and grid cards metadata spacing, the final mobile height is slightly above the 8500px target (8930px, ~5% increase), which is preferred to preserve information readability and visual detail rather than over-compressing text details).
 - **Horizontal overflow:** None ✅
-- **Visual Evidence SHA-256:** `d24a01793aab4d1cbfa0e71f395cf535923bea3ad5a173b85e5b21feee3d721e`
-- **Visual Evidence Git blob SHA:** `07121729e3719cec0dd5ebdeec3832a5152b6364`
+- **Visual Evidence SHA-256:** `75e2c3f7b419baae1ad633fef56ab5db89f76643d89a5db15998fcbcf53a4b6a`
+- **Visual Evidence Git blob SHA:** `279ff627005733aa62919b025e8ffcda93914b79`
 
 ### Desktop Specifics
 - **Viewport:** 1440px (DPR 1)
@@ -57,8 +57,8 @@ This document describes the known visual differences between the reference image
 - **Actual PNG width:** 1440px ✅
 - **Actual PNG height:** 2031px ✅
 - **Horizontal overflow:** None ✅
-- **Visual Evidence SHA-256:** `0fef853c2a0907113479bacc9b4f7981a621755c5bfd01963a1cf64a95e9410a`
-- **Visual Evidence Git blob SHA:** `84c11d863e77296769215756e010322526f02295`
+- **Visual Evidence SHA-256:** `e38f048ca85379209c9eb9ca5e9ab420ccfede185d6c8d24800b0693845debbc`
+- **Visual Evidence Git blob SHA:** `c1f79eeeb5bfa0f3fb53d36eefaf82b9f0cffc82`
 
 ## Known Differences
 
