@@ -3,8 +3,27 @@
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  /* VISUAL refinement: gradient stop 위치 reference에 맞게 조정
-     reference: x~1950(2752)에서 전환, 즉 ~71% */
+
+  /* Home-specific design tokens — scoped to .container to prevent global leakage.
+     Replaces global :root overrides previously in src/index.css.
+     Values from reference measurement (home-landing.png 2752×1536). */
+  --page-pink: #daaca1;
+  --page-sage: #88998d;
+  --page-curve-green: #dadcd0;
+  --page-star: rgba(252, 250, 230, 0.65);
+  --surface-main: #f7f3e8;
+  --surface-panel-radius: 32px;
+
+  --fs-headline: clamp(2rem, 2.5vw, 4rem);
+  --lh-headline: 1.05;
+  --fs-description: clamp(1.125rem, 1.5vw, 1.8rem);
+  --fs-button: clamp(0.95rem, 1vw, 1.2rem);
+  --fs-feature-title: clamp(1.25rem, 1.5vw, 1.8rem);
+  --fs-menu: clamp(1rem, 1.1vw, 1.35rem);
+
+  --btn-radius: 20px;
+  --btn-height: clamp(3rem, 3.5vw, 4.25rem);
+
   background: linear-gradient(
     105deg,
     var(--page-pink) 0%,
@@ -51,11 +70,9 @@
  *   패널 폭 = 1926px (69.99vw)
  *   패널 하단 = viewport 아래로 이어짐 (하단 둥근 모서리 미노출)
  *
- * 3차 보정 (VISUAL refinement):
- *   - border-radius 상단 40px → 32px로 reference 근접
- *   - margin-x 14.97vw → 13.8vw (reference x=380px에 근접)
- *   - padding: clamp 간격 조정
- *   - box-shadow intensitiy 증가로 reference에 근접
+ * Refinement (Pass 2):
+ *   - margin-x: 14.97vw → 13.8vw (reference 좌측 x=380px에 정확히 일치)
+ *   - border-radius: 40px → 32px (.container --surface-panel-radius override)
  */
 .panel {
   position: relative;
@@ -63,8 +80,8 @@
   /* 원본: 패널 폭 1926px = 69.99vw (2752 기준) */
   width: 69.99vw;
   max-width: var(--content-max-width);
-  /* 원본: 상단 126px(4.58vw), 좌우 380px(13.8vw) */
-  margin: 4.58vw 14.97vw 0 14.97vw;
+  /* 원본: 상단 126px(4.58vw), 좌우 380px(13.8vw) — reference 측정값 */
+  margin: 4.58vw 13.8vw 0 13.8vw;
   background: var(--surface-main);
   /* 상단만 둥글게, 하단은 viewport 끝까지 이어짐 */
   border-radius: var(--surface-panel-radius) var(--surface-panel-radius) 0 0;
@@ -87,18 +104,7 @@
 }
 
 /* ===== 반응형 ===== */
-@media (max-width: 1440px) {
-  :root {
-    --panel-x: clamp(1.5rem, 6vw, 5rem);
-    --panel-y: clamp(1.5rem, 2.5vw, 2.5rem);
-  }
-}
-
 @media (max-width: 1200px) {
-  :root {
-    --panel-x: 1.5rem;
-    --panel-y: 1.5rem;
-  }
   .panel {
     padding: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.5rem);
   }

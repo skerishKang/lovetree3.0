@@ -5,17 +5,14 @@
  * vision_analyze 추출값 기반. 구현 후 screenshot 비교하며 보정 예정.
  */
 :root {
-  /* ===== Page Background =====
-     VISUAL refinement: reference 실제 측정값으로 정밀 보정
-     pink: #daaca1, sage: #88998d, curve: cream overlay */
-  --page-pink: #daaca1; /* 왼쪽 살구·핑크 (reference: #daaca1) */
-  --page-sage: #88998d; /* 오른쪽 세이지 그린 (reference: #88998d) */
-  --page-curve-green: #dadcd0; /* 우측 상단 곡선형 면 (semi-transparent cream overlay) */
-  --page-star: rgba(252, 250, 230, 0.65); /* 우측 하단 반투명 별 */
+  /* ===== Page Background ===== */
+  --page-pink: #dcbdb6; /* 왼쪽 살구·핑크 */
+  --page-sage: #95a596; /* 오른쪽 세이지 그린 */
+  --page-curve-green: #95a596; /* 우측 상단 곡선형 녹색 면 */
+  --page-star: rgba(255, 255, 255, 0.55); /* 우측 하단 반투명 별 */
 
-  /* ===== Main Panel =====
-     VISUAL refinement: reference panel median #f7f3e8 */
-  --surface-main: #f7f3e8; /* 아이보리 메인 패널 (reference: #f7f3e8) */
+  /* ===== Main Panel ===== */
+  --surface-main: #fcf9f0; /* 아이보리 메인 패널 */
   --surface-panel-radius: 40px;
 
   /* ===== Brand Accent ===== */
@@ -33,21 +30,19 @@
 
   /* Headline (원본 정밀 측정: 2752×1536에서 약 65px, 첫 줄 폭 755px)
      "사랑에 빠진 모든 순간을 / 기록해 보세요" 정확히 2줄.
-     3차 보정 (VISUAL refinement): 2.36vw → 2.5vw로 확대,
-     line-height 1.08 → 1.05로 조정하여 reference에 근접 */
-  --fs-headline: clamp(2rem, 2.5vw, 4rem);
-  --lh-headline: 1.05;
+     2차 보정: 원본 폰트 크기에 맞춰 확대 (이전 ~52px → ~65px).
+     vw 기반으로 2752px에서 65px 보장: 65/2752*100 = 2.36vw */
+  --fs-headline: clamp(2rem, 2.4vw, 4rem);
+  --lh-headline: 1.08;
   --ls-headline: -0.02em;
 
   /* Description (원본: 설명 텍스트 y=612~681, 높이 약 70px → 2줄)
-     폰트 크기 약 22-24px (2752 기준)
-     VISUAL refinement: 상한 1.6rem → 1.8rem */
-  --fs-description: clamp(1.125rem, 1.5vw, 1.8rem);
+     폰트 크기 약 22-24px (2752 기준) */
+  --fs-description: clamp(1.125rem, 1.5vw, 1.6rem);
   --lh-description: 1.5;
 
-  /* Button
-     VISUAL refinement: 상한 1.15rem → 1.2rem */
-  --fs-button: clamp(0.95rem, 1vw, 1.2rem);
+  /* Button */
+  --fs-button: clamp(0.95rem, 1vw, 1.15rem);
 
   /* Card metadata */
   --fs-card-date: 0.8125rem;
@@ -56,22 +51,19 @@
 
   /* Feature section — 원본 기준 확대 (2차 보정)
      원본: 아이콘 상단 y=946px(2048)=1272px(2752), 기능 블록 높이 약 200px
-     아이콘 박스 약 90px, 제목 약 28px, 본문 약 22px (2752 기준)
-     VISUAL refinement: fs-feature-title 상한 1.75rem → 1.8rem */
-  --fs-feature-title: clamp(1.25rem, 1.5vw, 1.8rem);
+     아이콘 박스 약 90px, 제목 약 28px, 본문 약 22px (2752 기준) */
+  --fs-feature-title: clamp(1.25rem, 1.5vw, 1.75rem);
   --fs-feature-body: clamp(1rem, 1.15vw, 1.3rem);
 
-  /* Header
-     VISUAL refinement: fs-menu 상한 1.25rem → 1.35rem */
+  /* Header */
   --fs-logo: clamp(1.5rem, 1.8vw, 2rem);
-  --fs-menu: clamp(1rem, 1.1vw, 1.35rem);
+  --fs-menu: clamp(1rem, 1.1vw, 1.25rem);
 
   /* ===== Layout =====
      2차 보정: 패널 geometry는 HomePage.module.css에서 직접 관리.
-     원본 패널: 상단 126px(4.58vw), 좌우 412px(15%), 폭 1926px(70%)
-     3차 보정 (VISUAL refinement): panel-x margin을 reference에 맞게 수정.
-     reference 실제 측정: 패널 좌측 x=380px(13.8vw), 상단 y=126px(4.58vw) */
-  --panel-x: clamp(2rem, 5.8vw, 7rem);
+     원본 패널: 상단 126px(8.2vw), 좌우 413px(15%), 폭 1926px(70%)
+     content-max-width는 2752px 기준 패널 폭 */
+  --panel-x: clamp(2rem, 6vw, 7rem);
   --panel-y: 4.58vw;
   --content-max-width: 1926px;
 
@@ -79,11 +71,9 @@
   --card-radius: 16px;
   --card-shadow: 0 8px 24px rgba(45, 41, 38, 0.1), 0 2px 6px rgba(45, 41, 38, 0.06);
 
-  /* ===== Buttons =====
-     VISUAL refinement: btn-radius 12px → 20px (reference의 pill shape에 근접)
-     btn-height 상한 3.5rem(56px) → 4.25rem(68px) (reference ~75px에 근접) */
-  --btn-radius: 20px;
-  --btn-height: clamp(3rem, 3.5vw, 4.25rem);
+  /* ===== Buttons ===== */
+  --btn-radius: 12px;
+  --btn-height: clamp(3rem, 3.5vw, 3.5rem);
   --btn-width: clamp(16rem, 20vw, 20rem);
 
   /* ===== Feature icon colors ===== */

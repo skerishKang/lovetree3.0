@@ -8,9 +8,7 @@
   align-items: start;
   flex: 1;
   /* 원본: 제목 시작 y=509(2752). 헤더 끝 약 y=214.
-     509 - 214 = 295px 간격. 패널 내부 padding-top 별도.
-     3차 보정 (VISUAL refinement): padding 상한 15rem → 12rem,
-     copy gap 증가, preview translateY 감소 */
+     509 - 214 = 295px 간격. 패널 내부 padding-top 별도. */
   padding: clamp(2.5rem, 14.7vh, 15rem) 0 2rem;
 }
 
@@ -18,10 +16,9 @@
 .copy {
   display: flex;
   flex-direction: column;
-  /* 원본 세로 리듬: 제목(69px) → 34px 간격 → 설명(70px) → 49px → CTA
-     gap을 늘려 원본 세로 리듬 재현
-     VISUAL refinement: gap 상한 3.5rem → 4rem */
-  gap: clamp(1.5rem, 3vh, 3.5rem);
+  /* 원본 세로 리듬: 제목(69px) → 설명(70px) → CTA.
+     gap 조정으로 reference y 좌표에 근접 */
+  gap: clamp(1.25rem, 2.5vh, 3rem);
   padding-right: 0.5rem;
 }
 
@@ -124,11 +121,10 @@
   position: relative;
   width: 100%;
   height: clamp(420px, 34vh, 560px);
-  /* 트리를 제목 위로 이동 (원본: 트리 시작 y=304, 제목 y=509 → 205px 위)
-     카드들이 약 190px 아래에 있으므로 위로 이동.
-     grid item에서는 margin-top보다 transform이 확실하게 적용됨
-     VISUAL refinement: translateY 상한 12.37vh → 15vh, 하한 10rem → 13rem */
-  transform: translateY(clamp(-15rem, -12.37vh, -10rem));
+  /* 트리 미리보기를 제목 위로 이동 (음수 transform).
+     정밀 보정: 원본 트리 상단 y=304px, 제목 시작 y=509px → 205px 위.
+     2752px 기준: 205px/1536vh = 13.35vh */
+  transform: translateY(clamp(-16rem, -13.35vh, -11rem));
 }
 
 /* ===== 반응형 ===== */

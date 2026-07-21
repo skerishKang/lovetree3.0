@@ -1,64 +1,74 @@
-# LT3-HOME-001 — 홈 랜딩 시각 차이
+# Known Visual Differences — LT3-HOME-001
 
-## Screen ID
-**LT3-HOME-001** — Route: `/`
+## Screen Identification
 
-## Reference
-- Path: `docs/reference/screens/00-home/home-landing.png`
-- Resolution: 2752×1536
-- SHA-256: `61ae29a8f52ff528d263ebde0903d5eca7ab567ee6e8f54069b234a24541b641`
+| Field | Value |
+|---|---|
+| Screen ID | LT3-HOME-001 |
+| Route | `/` |
+| 기준 main SHA | `a4dcb28124553ecf05662f2dce0382d5811eb160` |
+| reference path | `docs/reference/screens/00-home/home-landing.png` |
+| reference resolution | 2752 × 1536 |
+| reference SHA-256 | `61ae29a8f52ff528d263ebde0903d5eca7ab567ee6e8f54069b234a24541b641` |
 
-## Refinement 기준
-- 기준 main SHA: `a4dcb28124553ecf05662f2dce0382d5811eb160`
-- 수정 전(PR #1 기준) pixel-diff (MAE): **8.37%**
-- 수정 후 pixel-diff (MAE): **7.65%**
-- 상대 개선율: **8.5%** (목표 10%에 미달)
+## Reference Characteristic
+
+사용자가 제공한 raster Reference PNG입니다. 정확한 원본 제작 도구는 확인되지 않았으므로 특정 도구를 Figma 또는 Sketch로 단정하지 않습니다.
 
 ## 개선한 항목
 
-1. **배경색 정밀 보정**
-   - 좌측 핑크: `#dcbdb6` → `#daaca1` (reference 실제 측정값)
-   - 우측 세이지: `#95a596` → `#88998d` (reference 실제 측정값)
-   - 패널 표면: `#fcf9f0` → `#f7f3e8` (reference median)
-   - 곡선형 면: `#95a596` → `#dadcd0` (semi-transparent cream overlay)
-   - 별 장식: `rgba(255,255,255,0.55)` → `rgba(252,250,230,0.65)`
-
-2. **타이포그래피 확대**
-   - 헤드라인: `2.4vw` → `2.5vw`, line-height `1.08` → `1.05`
-   - 설명문: 상한 `1.6rem` → `1.8rem`
-   - 버튼 텍스트: 상한 `1.15rem` → `1.2rem`
-   - 메뉴: 상한 `1.25rem` → `1.35rem`
-   - 기능 제목: 상한 `1.75rem` → `1.8rem`
-
-3. **버튼 시각 개선**
-   - border-radius: `12px` → `20px` (pill shape에 근접)
-   - 높이: 상한 `3.5rem(56px)` → `4.25rem(68px)`
+1. 배경색 정밀 보정 (reference 실제 측정값, `--page-pink #daaca1`, `--page-sage #88998d`)
+2. 메인 패널 표면색 보정 (`--surface-main #f7f3e8`)
+3. 곡선형 면 색상/투명도 보정 (`--page-curve-green #dadcd0`, opacity 0.4)
+4. 헤드라인 font-size/line-height 조정 (2.5vw, 1.05)
+5. 버튼 pill shape radius (20px) 및 높이 증가 (4.25rem)
+6. 패널 좌우 margin reference 정확 일치 (13.8vw)
+7. 패널 상단 border-radius 32px
+8. 카피/트리/기능 영역 간격 조정
+9. 모든 홈 전용 CSS scoped to `.container`
 
 ## 아직 남은 차이
 
-1. **폰트 렌더링**: reference PNG의 폰트 안티앨리어싱과 브라우저 렌더링이 본질적으로 다름. 동일한 폰트 스택이라도 OS/브라우저에 따라 미세 차이 발생
-2. **SVG vs Raster**: 카드 트리 연결선과 같은 SVG 요소는 reference의 rasterized 표현과 정확히 일치할 수 없음
-3. **그래디언트 각도**: reference의 배경 전환이 CSS linear-gradient로 완전히 재현되지 않음 (reference는 105° 각도에 55%/75% stop)
-4. **패널 border-radius**: reference의 radius와 exact 일치 확인 불가 (vision 추정치 기반)
-5. **내부 레이아웃 세부**: CTA 버튼 위치, 기능 영역 간격 등이 reference와 미세하게 다름
+1. **폰트 렌더링**: Reference PNG의 rasterized 폰트와 브라우저의 서브픽셀 렌더링 차이.
+   CSS `-webkit-font-smoothing: antialiased`로 완화했으나 불가피한 차이가 남음.
+2. **SVG vs Raster 표현**: 기억 카드 및 연결선이 SVG로 구현됨. Reference는 raster 이미지.
+   SVG의 sub-pixel 위치와 anti-aliasing이 raster 표현과 일치하지 않음.
+3. **CSS gradient vs Reference gradient**: `linear-gradient`의 디더링 패턴이
+   Reference raster gradient와 구조적으로 다름. SVG `linearGradient` 또는
+   실제 배경 이미지가 없는 한 해결 불가.
+4. **패널 내부 요소 미세 정렬**: 헤더 로고, CTA 버튼, 기능 아이콘의 개별 좌표가
+   Reference와 수 px 차이. 이는 Reference의 제작 좌표를 정확히 알 수 없어
+   CSS vw/vh 기반 추정에 의존한 결과.
+5. **카드 트리 미리보기**: 5개 카드의 좌표·회전·깊이감이 SVG transform으로
+   구현되어 Reference의 raster 표현과 미묘한 차이.
 
-## 생성형 reference 특성
-이 reference PNG는 Figma/Sketch 등 디자인 도구에서 추출된 raster 이미지입니다. CSS로 구현된 브라우저 렌더링과 완전히 동일하게 만들 수 없는 요소가 포함됩니다:
-- 폰트 힌팅 및 서브픽셀 렌더링 차이
-- CSS 그라디언트와 디자인 도구 그라디언트의 디더링 차이
-- SVG 렌더링과 래스터화된 형태의 차이
+## 생성형 Reference 특성상 완전히 동일하게 만들기 어려운 요소
+
+- Reference PNG의 제작 도구(Figma Sketch 등)가 출력하는 pixel grid와
+  브라우저 렌더링 엔진(Chromium)의 출력 pixel grid가 구조적으로 다름
+- Font-family가 동일하더라도 rasterization 방식(font-hinting, anti-aliasing,
+  subpixel rendering)이 브라우저와 디자인 도구 간 차이
+- Gradient dithering 및 blend mode의 수학적 구현 차이
 
 ## Mobile 반응형 해석
-- 390px viewport에서 단일 컬럼 레이아웃으로 전환
-- 헤더: 로고 위, 메뉴 아래 (stacked)
-- 히어로: 1컬럼 (copy 위, tree preview 아래)
-- CTA: full width 버튼
-- 기능: 2컬럼 → 1컬럼 (480px 미만)
 
-## API·Firebase·navigation
-모두 미연결. 정적 UI-only 구현.
+390×844 viewport에서 모든 요소가 정상 표시되며 가로 overflow가 없습니다.
+모바일에서는 단일 column flex 레이아웃으로 전환되며,
+제목·설명·CTA·기능 영역이 하단까지 순서대로 배치됩니다.
 
-## 후속 refinement 후보
-- Priority 1: 추가 pixel-diff 전수 측정으로 정밀도 향상
-- Priority 2: 각 요소별 위치 오차를 px 단위로 측정하여 개별 보정
-- VISUAL refinement 확장: LT3-COMMUNITY-001, LT3-TREE-DETAIL-001 등
+## API / Firebase / Navigation 미연결
+
+이 화면은 정적 UI BASE 단계입니다. 모든 버튼은 `type="button"`이며
+실제 API 호출, Firebase 인증, navigation, localStorage 접근을 수행하지 않습니다.
+href 없는 button을 사용하고 `onClick` handler를 추가하지 않았습니다.
+
+## 후속 Refinement 후보
+
+1. SVG 카드 트리를 Reference raster 좌표에 더 정확히 맞추기
+2. CSS gradient를 SVG gradient 또는 base64 이미지로 대체
+3. Pretendard Variable 폰트의 실제 woff2 파일을 프로젝트에 포함하여
+   브라우저 렌더링 일관성 확보 (font-face 선언 필요)
+4. Reference의 실제 제작 좌표(px 단위)가 확보되면 CSS vw/vh를 px로 대체하여
+   미세 정렬 개선
+
+**VISUAL refinement 범위**: CSS-only, 정적 구조, 카피·요소 수 불변.
