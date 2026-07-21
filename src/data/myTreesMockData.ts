@@ -7,7 +7,6 @@ export interface MyTreeCard {
   visibility: TreeVisibility;
   memoryCount: number;
   updatedAt: string;
-  thumbnailType: "image" | "gradient" | "text";
   thumbnailColorKey: "rose" | "amber" | "sage" | "lavender" | "sky" | "coral";
   views: number;
   likes: number;
@@ -60,7 +59,6 @@ export const MOCK_MY_TREES: MyTreesMockData = {
       visibility: "public",
       memoryCount: 108,
       updatedAt: "2025.03.12",
-      thumbnailType: "gradient",
       thumbnailColorKey: "rose",
       views: 1280,
       likes: 96,
@@ -73,7 +71,6 @@ export const MOCK_MY_TREES: MyTreesMockData = {
       visibility: "private",
       memoryCount: 49,
       updatedAt: "2025.03.05",
-      thumbnailType: "gradient",
       thumbnailColorKey: "amber",
       views: 0,
       likes: 0,
@@ -86,7 +83,6 @@ export const MOCK_MY_TREES: MyTreesMockData = {
       visibility: "private",
       memoryCount: 86,
       updatedAt: "2025.02.20",
-      thumbnailType: "gradient",
       thumbnailColorKey: "sage",
       views: 0,
       likes: 0,
@@ -99,7 +95,6 @@ export const MOCK_MY_TREES: MyTreesMockData = {
       visibility: "public",
       memoryCount: 293,
       updatedAt: "2025.02.08",
-      thumbnailType: "gradient",
       thumbnailColorKey: "lavender",
       views: 742,
       likes: 58,
@@ -112,7 +107,6 @@ export const MOCK_MY_TREES: MyTreesMockData = {
       visibility: "private",
       memoryCount: 66,
       updatedAt: "2025.01.30",
-      thumbnailType: "gradient",
       thumbnailColorKey: "sky",
       views: 0,
       likes: 0,
@@ -125,7 +119,6 @@ export const MOCK_MY_TREES: MyTreesMockData = {
       visibility: "private",
       memoryCount: 23,
       updatedAt: "2025.01.18",
-      thumbnailType: "gradient",
       thumbnailColorKey: "coral",
       views: 0,
       likes: 0,

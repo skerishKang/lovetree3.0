@@ -73,6 +73,7 @@ export default function MyTreesPage() {
                     className={`${styles.treeCard} ${isSelected ? styles.treeCardSelected : ""}`}
                     data-selected={isSelected ? "true" : "false"}
                     aria-current={isSelected ? "true" : undefined}
+                    aria-labelledby={`my-tree-title-${tree.id}`}
                   >
                     {/* 썸네일 영역 */}
                     <div
@@ -82,7 +83,12 @@ export default function MyTreesPage() {
                     {/* 카드 본문 */}
                     <div className={styles.cardBody}>
                       <div className={styles.cardHeader}>
-                        <h3 className={styles.treeTitle}>{tree.title}</h3>
+                        <h3
+                          id={`my-tree-title-${tree.id}`}
+                          className={styles.treeTitle}
+                        >
+                          {tree.title}
+                        </h3>
                         <span
                           className={`${styles.visibilityBadge} ${
                             tree.visibility === "public"
@@ -114,6 +120,7 @@ export default function MyTreesPage() {
                             />
                             <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
                           </svg>
+                          <span className={styles.visuallyHidden}>조회 </span>
                           <span>{tree.views}</span>
                         </span>
                         <span className={styles.statItem}>
@@ -125,6 +132,7 @@ export default function MyTreesPage() {
                               strokeLinejoin="round"
                             />
                           </svg>
+                          <span className={styles.visuallyHidden}>좋아요 </span>
                           <span>{tree.likes}</span>
                         </span>
                         <span className={styles.statItem}>
@@ -136,21 +144,38 @@ export default function MyTreesPage() {
                               strokeLinejoin="round"
                             />
                           </svg>
+                          <span className={styles.visuallyHidden}>댓글 </span>
                           <span>{tree.comments}</span>
                         </span>
                       </div>
                       {/* 카드 하단 액션 */}
                       <div className={styles.cardActions}>
-                        <button type="button" className={styles.cardActionButton}>
+                        <button
+                          type="button"
+                          className={styles.cardActionButton}
+                          aria-label={`${tree.title} 편집`}
+                        >
                           편집
                         </button>
-                        <button type="button" className={styles.cardActionButton}>
+                        <button
+                          type="button"
+                          className={styles.cardActionButton}
+                          aria-label={`${tree.title} 공유`}
+                        >
                           공유
                         </button>
-                        <button type="button" className={styles.cardActionButton}>
+                        <button
+                          type="button"
+                          className={styles.cardActionButton}
+                          aria-label={`${tree.title} 복제`}
+                        >
                           복제
                         </button>
-                        <button type="button" className={styles.cardActionButton}>
+                        <button
+                          type="button"
+                          className={styles.cardActionButton}
+                          aria-label={`${tree.title} 삭제`}
+                        >
                           삭제
                         </button>
                       </div>
