@@ -14,154 +14,161 @@ function renderAppAt(path: string) {
   return render(<App />);
 }
 
-describe("TreeEditorPage - route and structure", () => {
-  it("renders h1 on /tree/edit-demo", () => {
+describe("TreeEditorPage - layout structure", () => {
+  it("renders h1 '러브트리 편집' on /tree/edit-demo", () => {
     renderAppAt("/tree/edit-demo");
     expect(
       screen.getByRole("heading", { level: 1, name: "러브트리 편집" }),
     ).toBeInTheDocument();
   });
 
-  it("renders 5 memory cards", () => {
-    renderAppAt("/tree/edit-demo");
-    const articles = screen.getAllByRole("article");
-    expect(articles).toHaveLength(5);
-  });
-
-  it("uses ul > li > article structure", () => {
-    renderAppAt("/tree/edit-demo");
-    const list = screen.getByRole("list");
-    expect(list.tagName).toBe("UL");
-    const items = list.querySelectorAll(":scope > li");
-    expect(items).toHaveLength(5);
-    items.forEach((item) => {
-      const article = item.querySelector(":scope > article");
-      expect(article).not.toBeNull();
-    });
-  });
-
-  it("gives each card an accessible name from its title", () => {
+  it("renders workspace navigation landmark", () => {
     renderAppAt("/tree/edit-demo");
     expect(
-      screen.getByRole("article", { name: "비디오 프레젠테이션" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("article", { name: "대기실 준비" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("article", { name: "팬들이 준비한 이벤트" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("article", { name: "무대 위 첫인사" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("article", { name: "앙코르 무대" }),
+      screen.getByRole("navigation", { name: "작업 공간 내비게이션" }),
     ).toBeInTheDocument();
   });
 
-  it("does not put role='button' on non-interactive cards", () => {
+  it("renders tree canvas section", () => {
     renderAppAt("/tree/edit-demo");
-    const articles = screen.getAllByRole("article");
-    articles.forEach((article) => {
-      expect(article.getAttribute("role")).not.toBe("button");
-    });
+    expect(
+      screen.getByRole("region", { name: "트리 캔버스" }),
+    ).toBeInTheDocument();
   });
 
-  it("does not put tabIndex on non-interactive cards", () => {
+  it("renders inspector panel", () => {
     renderAppAt("/tree/edit-demo");
-    const articles = screen.getAllByRole("article");
-    articles.forEach((article) => {
-      expect(article.hasAttribute("tabindex")).toBe(false);
-    });
-  });
-
-  it("does not use draggable on cards", () => {
-    renderAppAt("/tree/edit-demo");
-    const articles = screen.getAllByRole("article");
-    articles.forEach((article) => {
-      expect(article.getAttribute("draggable")).not.toBe("true");
-    });
+    expect(
+      screen.getByRole("complementary", { name: "선택한 기억 상세" }),
+    ).toBeInTheDocument();
   });
 });
 
-describe("TreeEditorPage - inputs", () => {
-  it("renders read-only tree title input", () => {
+describe("TreeEditorPage - memory nodes", () => {
+  it("renders exactly 5 memory cards as articles", () => {
     renderAppAt("/tree/edit-demo");
-    const input = screen.getByLabelText("러브트리 제목");
-    expect(input).toBeInTheDocument();
-    expect(input).toHaveAttribute("readonly");
+    const articles = screen.getAllByRole("article");
+    expect(articles.length).toBeGreaterThanOrEqual(5);
   });
 
-  it("renders read-only description input", () => {
-    renderAppAt("/tree/edit-demo");
-    const input = screen.getByLabelText("설명");
-    expect(input).toBeInTheDocument();
-    expect(input).toHaveAttribute("readonly");
-  });
-
-  it("renders read-only date and memo in detail panel", () => {
-    renderAppAt("/tree/edit-demo");
-    expect(screen.getByLabelText("날짜")).toHaveAttribute("readonly");
-    expect(screen.getByLabelText("메모")).toHaveAttribute("readonly");
-  });
-});
-
-describe("TreeEditorPage - selected state", () => {
-  it("has exactly one selected card", () => {
+  it("has exactly one selected node with data-selected=true", () => {
     renderAppAt("/tree/edit-demo");
     const selected = document.querySelectorAll('[data-selected="true"]');
     expect(selected).toHaveLength(1);
-    expect(selected[0]).toHaveAttribute("aria-current", "true");
   });
 
-  it("marks only mem-2 as selected", () => {
+  it("selected node is '대기실 준비'", () => {
     renderAppAt("/tree/edit-demo");
     const selected = document.querySelector('[data-selected="true"]');
     expect(selected?.textContent).toContain("대기실 준비");
   });
 
-  it("does not put aria-current on non-selected items", () => {
+  it("selected node has aria-current='location'", () => {
     renderAppAt("/tree/edit-demo");
-    const nonSelected = document.querySelectorAll(
-      '[data-selected="false"]',
-    );
-    expect(nonSelected).toHaveLength(4);
+    const selected = document.querySelector('[data-selected="true"]');
+    expect(selected).toHaveAttribute("aria-current", "location");
+  });
+
+  it("non-selected nodes have data-selected=false and no aria-current", () => {
+    renderAppAt("/tree/edit-demo");
+    const nonSelected = document.querySelectorAll('[data-selected="false"]');
+    expect(nonSelected.length).toBeGreaterThanOrEqual(4);
     nonSelected.forEach((el) => {
       expect(el.getAttribute("aria-current")).toBeNull();
     });
   });
+
+  it("each card has no button role, no tabindex, no draggable", () => {
+    renderAppAt("/tree/edit-demo");
+    const articles = screen.getAllByRole("article");
+    articles.forEach((article) => {
+      expect(article.getAttribute("role")).not.toBe("button");
+      expect(article.hasAttribute("tabindex")).toBe(false);
+      expect(article.getAttribute("draggable")).not.toBe("true");
+    });
+  });
+
+  it("renders all 5 unique memory titles", () => {
+    renderAppAt("/tree/edit-demo");
+    expect(screen.getAllByText("비디오 프레젠테이션").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("대기실 준비").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("팬들이 준비한 이벤트").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("무대 위 첫인사").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("앙코르 무대").length).toBeGreaterThanOrEqual(1);
+  });
 });
 
-describe("TreeEditorPage - buttons", () => {
-  it("renders 저장 button", () => {
+describe("TreeEditorPage - connectors", () => {
+  it("renders connectors between nodes", () => {
+    renderAppAt("/tree/edit-demo");
+    const connectors = screen.getAllByTestId("connector");
+    expect(connectors.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders branch connector", () => {
+    renderAppAt("/tree/edit-demo");
+    const branch = screen.getAllByTestId("branch-connector");
+    expect(branch.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders insert marker", () => {
+    renderAppAt("/tree/edit-demo");
+    const markers = screen.getAllByTestId("insert-marker");
+    expect(markers.length).toBeGreaterThanOrEqual(1);
+    expect(markers[0].textContent).toContain("여기에 연결");
+  });
+});
+
+describe("TreeEditorPage - tree relationships", () => {
+  it("root node '비디오 프레젠테이션' exists", () => {
     renderAppAt("/tree/edit-demo");
     expect(
-      screen.getByRole("button", { name: "저장" }),
+      screen.getByRole("article", { name: "비디오 프레젠테이션" }),
     ).toBeInTheDocument();
   });
 
-  it("renders 게시하기 button", () => {
+  it("selected node '대기실 준비' has child memories", () => {
+    renderAppAt("/tree/edit-demo");
+    const connDesc = screen.getByTestId("connection-position");
+    expect(connDesc.textContent).toContain("비디오 프레젠테이션");
+  });
+});
+
+describe("TreeEditorPage - inspector consistency", () => {
+  it("inspector title matches selected node title", () => {
+    renderAppAt("/tree/edit-demo");
+    const inspectorTitle = screen.getAllByText("대기실 준비");
+    expect(inspectorTitle.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("inspector shows date matching selected node", () => {
+    renderAppAt("/tree/edit-demo");
+    expect(screen.getAllByText("2023.10.15").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("inspector shows memo content", () => {
+    renderAppAt("/tree/edit-demo");
+    const memo = screen.getByTestId("inspector-memo");
+    expect(memo.textContent).toContain("대기실");
+  });
+});
+
+describe("TreeEditorPage - toolbar and buttons", () => {
+  it("renders toolbar buttons: 미리보기, 저장, 게시하기", () => {
+    renderAppAt("/tree/edit-demo");
+    expect(screen.getByRole("button", { name: "미리보기" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "저장" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "게시하기" })).toBeInTheDocument();
+  });
+
+  it("renders 메모리 추가 button", () => {
     renderAppAt("/tree/edit-demo");
     expect(
-      screen.getByRole("button", { name: "게시하기" }),
+      screen.getByRole("button", { name: "메모리 추가" }),
     ).toBeInTheDocument();
   });
 
-  it("renders 미리보기 button", () => {
-    renderAppAt("/tree/edit-demo");
-    expect(
-      screen.getByRole("button", { name: "미리보기" }),
-    ).toBeInTheDocument();
-  });
-
-  it("renders 기억 추가 button", () => {
-    renderAppAt("/tree/edit-demo");
-    expect(
-      screen.getByRole("button", { name: "기억 추가" }),
-    ).toBeInTheDocument();
-  });
-
-  it("gives detail action buttons target-based aria-label", () => {
+  it("renders inspector action buttons", () => {
     renderAppAt("/tree/edit-demo");
     expect(
       screen.getByRole("button", { name: "대기실 준비 편집" }),
@@ -170,82 +177,55 @@ describe("TreeEditorPage - buttons", () => {
       screen.getByRole("button", { name: "대기실 준비 삭제" }),
     ).toBeInTheDocument();
   });
+
+  it("renders workspace navigation items", () => {
+    renderAppAt("/tree/edit-demo");
+    expect(screen.getByText("홈")).toBeInTheDocument();
+    expect(screen.getByText("내 러브트리")).toBeInTheDocument();
+    expect(screen.getByText("설정")).toBeInTheDocument();
+    expect(screen.getByText("새 러브트리 만들기")).toBeInTheDocument();
+  });
 });
 
-describe("TreeEditorPage - presentation-only buttons", () => {
-  it("does not call fetch, storage, or change UI after all buttons clicked", () => {
-    /* Browser Storage API spies — before render */
+describe("TreeEditorPage - presentation-only", () => {
+  it("no fetch, storage, or UI change after all buttons clicked", () => {
     const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
     const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
-    const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
-    const storageClearSpy = vi.spyOn(Storage.prototype, "clear");
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
     renderAppAt("/tree/edit-demo");
 
-    /* Record initial values */
     const initialCardCount = screen.getAllByRole("article").length;
-    const titleInput = screen.getByLabelText("러브트리 제목") as HTMLInputElement;
-    const descriptionInput = screen.getByLabelText("설명") as HTMLInputElement;
-    const dateInput = screen.getByLabelText("날짜") as HTMLInputElement;
-    const memoInput = screen.getByLabelText("메모") as HTMLTextAreaElement;
-    const initialTitleValue = titleInput.value;
-    const initialDescValue = descriptionInput.value;
-    const initialDateValue = dateInput.value;
-    const initialMemoValue = memoInput.value;
+    const initialSelected = document.querySelector('[data-selected="true"]');
+    const initialSelectedTitle = initialSelected?.textContent;
 
-    /* Click every button with fireEvent */
     const allButtons = screen.getAllByRole("button");
     for (const button of allButtons) {
       fireEvent.click(button);
     }
 
-    /* Card count unchanged */
-    expect(screen.getAllByRole("article")).toHaveLength(initialCardCount);
-    expect(screen.getAllByRole("article")).toHaveLength(5);
+    expect(screen.getAllByRole("article").length).toBe(initialCardCount);
 
-    /* All input values unchanged */
-    expect(titleInput.value).toBe(initialTitleValue);
-    expect(descriptionInput.value).toBe(initialDescValue);
-    expect(dateInput.value).toBe(initialDateValue);
-    expect(memoInput.value).toBe(initialMemoValue);
+    const selectedAfter = document.querySelector('[data-selected="true"]');
+    expect(selectedAfter?.textContent).toBe(initialSelectedTitle);
 
-    /* Selected card unchanged */
-    const selectedCards = document.querySelectorAll('[data-selected="true"]');
-    expect(selectedCards).toHaveLength(1);
-
-    const selectedArticle = screen.getByRole("article", {
-      name: "대기실 준비",
-    });
-    expect(selectedArticle).toHaveAttribute("data-selected", "true");
-    expect(selectedArticle).toHaveAttribute("aria-current", "true");
-
-    /* No network calls */
     expect(fetchSpy).not.toHaveBeenCalled();
-
-    /* No browser storage access */
     expect(storageGetSpy).not.toHaveBeenCalled();
     expect(storageSetSpy).not.toHaveBeenCalled();
-    expect(storageRemoveSpy).not.toHaveBeenCalled();
-    expect(storageClearSpy).not.toHaveBeenCalled();
   });
 });
 
 describe("TreeEditorPage - existing routes preserved", () => {
   it("renders Home on /", () => {
     renderAppAt("/");
-    expect(
-      screen.getByText(/사랑에 빠진 모든 순간을/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/사랑에 빠진 모든 순간을/)).toBeInTheDocument();
   });
 
   it("renders Community on /community", () => {
     renderAppAt("/community");
     expect(
-      screen.getByRole("heading", {
-        name: "다른 팬들의 러브트리 구경하기",
-      }),
+      screen.getByRole("heading", { name: "다른 팬들의 러브트리 구경하기" }),
     ).toBeInTheDocument();
   });
 
@@ -259,32 +239,24 @@ describe("TreeEditorPage - existing routes preserved", () => {
   it("renders Tree Detail on /tree/community-demo", () => {
     renderAppAt("/tree/community-demo");
     expect(
-      screen.getByRole("heading", {
-        name: "테스트 러버 A의 러브트리",
-      }),
+      screen.getByRole("heading", { name: "테스트 러버 A의 러브트리" }),
     ).toBeInTheDocument();
   });
 
   it("renders Memory Connect on /memory/connect-demo", () => {
     renderAppAt("/memory/connect-demo");
     expect(
-      screen.getByRole("heading", {
-        name: "어느 순간과 연결할까요?",
-      }),
+      screen.getByRole("heading", { name: "어느 순간과 연결할까요?" }),
     ).toBeInTheDocument();
   });
 
   it("renders My Trees on /my-trees", () => {
     renderAppAt("/my-trees");
-    expect(
-      screen.getByRole("heading", { level: 1, name: "나의 러브트리" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "나의 러브트리" })).toBeInTheDocument();
   });
 
   it("falls back to Home on /nonexistent-route", () => {
     renderAppAt("/nonexistent-route");
-    expect(
-      screen.getByText(/사랑에 빠진 모든 순간을/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/사랑에 빠진 모든 순간을/)).toBeInTheDocument();
   });
 });

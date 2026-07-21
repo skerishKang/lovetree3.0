@@ -1,153 +1,312 @@
 import { MOCK_TREE_EDITOR } from "../data/treeEditorMockData";
 import styles from "./TreeEditorPage.module.css";
 
+function TreeConnectorSvg({ highlighted }: { highlighted: boolean }) {
+  return (
+    <div className={styles.connectorBlock} aria-hidden="true" data-testid="connector">
+      <svg viewBox="0 0 40 48" className={styles.connectorSvg}>
+        <path
+          d="M 20 0 C 20 16, 20 32, 20 48"
+          fill="none"
+          stroke={highlighted ? "#5c4a3a" : "#c4b8a8"}
+          strokeWidth={highlighted ? 2.5 : 1.5}
+          strokeDasharray={highlighted ? "none" : "5 4"}
+          strokeLinecap="round"
+        />
+        <circle
+          cx="20" cy="0"
+          r="3"
+          fill={highlighted ? "#5c4a3a" : "#fff"}
+          stroke={highlighted ? "#5c4a3a" : "#c4b8a8"}
+          strokeWidth="1.5"
+        />
+      </svg>
+    </div>
+  );
+}
+
+function BranchConnector({ highlighted }: { highlighted: boolean }) {
+  return (
+    <div className={styles.branchConnector} aria-hidden="true" data-testid="branch-connector">
+      <svg viewBox="0 0 80 48" className={styles.branchSvg}>
+        <path
+          d="M 40 0 L 40 20 C 40 28, 20 28, 20 48"
+          fill="none"
+          stroke={highlighted ? "#5c4a3a" : "#c4b8a8"}
+          strokeWidth={highlighted ? 2.5 : 1.5}
+          strokeDasharray={highlighted ? "none" : "5 4"}
+          strokeLinecap="round"
+        />
+        <path
+          d="M 40 20 C 40 28, 60 28, 60 48"
+          fill="none"
+          stroke={highlighted ? "#5c4a3a" : "#c4b8a8"}
+          strokeWidth={highlighted ? 2.5 : 1.5}
+          strokeDasharray={highlighted ? "none" : "5 4"}
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
 export default function TreeEditorPage() {
   const data = MOCK_TREE_EDITOR;
   const selectedMemory = data.memories.find(
     (m) => m.id === data.selectedMemoryId,
   )!;
 
+  const memById = Object.fromEntries(data.memories.map((m) => [m.id, m]));
+  const rootMem = data.memories.find((m) => m.parentId === null)!;
+
   return (
     <div className={styles.page}>
-      {/* 상단 헤더 */}
-      <header className={styles.topBar}>
-        <button type="button" className={styles.iconButton} aria-label="뒤로 가기">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        <h1 className={styles.pageTitle}>{data.screenTitle}</h1>
-        <div className={styles.topBarRight}>
-          <button type="button" className={styles.secondaryButton}>미리보기</button>
-          <button type="button" className={styles.secondaryButton}>저장</button>
-          <button type="button" className={styles.primaryButton}>게시하기</button>
+      {/* Left workspace navigation */}
+      <nav className={styles.workspaceNav} aria-label="작업 공간 내비게이션">
+        <div className={styles.brandArea}>
+          <span className={styles.brandIcon} aria-hidden="true">🌿</span>
+          <span className={styles.brandName}>Relovetree</span>
         </div>
-      </header>
-
-      {/* 편집기 본문 */}
-      <div className={styles.editorContent}>
-        {/* 왼쪽: 캔버스 영역 */}
-        <section className={styles.canvasSection} aria-label="기억 캔버스">
-          {/* 트리 제목 */}
-          <div className={styles.treeTitleArea}>
-            <div className={styles.treeTitleInputWrapper}>
-              <label htmlFor="tree-title-input" className={styles.inputLabel}>러브트리 제목</label>
-              <input
-                id="tree-title-input"
-                className={styles.treeTitleInput}
-                defaultValue={data.treeTitle}
-                readOnly
-              />
-            </div>
-            <div className={styles.treeTitleInputWrapper}>
-              <label htmlFor="tree-desc-input" className={styles.inputLabel}>설명</label>
-              <input
-                id="tree-desc-input"
-                className={styles.treeDescInput}
-                defaultValue={data.treeDescription}
-                readOnly
-              />
-            </div>
-            <span className={`${styles.visibilityBadge} ${
-              data.visibility === "public" ? styles.visibilityPublic : styles.visibilityPrivate
-            }`}>
-              {data.visibility === "public" ? "공개" : "비공개"}
-            </span>
-          </div>
-
-          {/* 기억 카드 목록 */}
-          <div className={styles.canvasWrapper}>
-            <ul className={styles.canvasCardList}>
-              {data.memories.map((mem) => {
-                const isSelected = mem.id === data.selectedMemoryId;
-                return (
-                  <li key={mem.id} className={styles.canvasCardItem}>
-                    <article
-                      className={`${styles.memoryCard} ${isSelected ? styles.memoryCardSelected : ""}`}
-                      aria-labelledby={`editor-mem-title-${mem.id}`}
-                      data-selected={isSelected ? "true" : "false"}
-                      aria-current={isSelected ? "true" : undefined}
-                    >
-                      <div
-                        className={`${styles.memThumb} ${styles[`thumb_${mem.thumbnailColorKey}`]}`}
-                        aria-hidden="true"
-                      />
-                      <div className={styles.memBody}>
-                        <h3
-                          id={`editor-mem-title-${mem.id}`}
-                          className={styles.memTitle}
-                        >
-                          {mem.title}
-                        </h3>
-                        <span className={styles.memDate}>{mem.date}</span>
-                        <p className={styles.memDescription}>{mem.description}</p>
-                      </div>
-                    </article>
-                  </li>
-                );
-              })}
-            </ul>
-            <button type="button" className={styles.addMemoryButton}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <span>기억 추가</span>
-            </button>
-          </div>
-        </section>
-
-        {/* 오른쪽: 상세 패널 */}
-        <aside className={styles.detailPanel} aria-label="선택한 기억 상세">
-          <div className={styles.detailHeader}>
-            <h2 className={styles.detailTitle}>{selectedMemory.title}</h2>
-          </div>
-          <div
-            className={`${styles.detailThumb} ${styles[`thumb_${selectedMemory.thumbnailColorKey}`]}`}
-            aria-hidden="true"
+        <div className={styles.navSearch}>
+          <input
+            type="text"
+            className={styles.navSearchInput}
+            placeholder="검색"
+            readOnly
+            aria-label="검색"
           />
-          <div className={styles.detailInfo}>
-            <div className={styles.detailField}>
-              <label htmlFor="mem-date-input" className={styles.detailLabel}>날짜</label>
-              <input
-                id="mem-date-input"
-                className={styles.detailInput}
-                defaultValue={selectedMemory.date}
-                readOnly
-              />
-            </div>
-            <div className={styles.detailField}>
-              <label htmlFor="mem-memo-input" className={styles.detailLabel}>메모</label>
-              <textarea
-                id="mem-memo-input"
-                className={styles.detailTextarea}
-                defaultValue={selectedMemory.description}
-                readOnly
-              />
-            </div>
-            <div className={styles.detailTags}>
-              {selectedMemory.tags.map((tag, i) => (
-                <span key={i} className={styles.tag}>{tag}</span>
-              ))}
-            </div>
+        </div>
+        <ul className={styles.navMenu}>
+          <li className={styles.navItem}>
+            <span className={styles.navIcon} aria-hidden="true">🏠</span>
+            <span>홈</span>
+          </li>
+          <li className={`${styles.navItem} ${styles.navItemActive}`}>
+            <span className={styles.navIcon} aria-hidden="true">🌳</span>
+            <span>내 러브트리</span>
+          </li>
+          <li className={styles.navItem}>
+            <span className={styles.navIcon} aria-hidden="true">⚙️</span>
+            <span>설정</span>
+          </li>
+        </ul>
+        <button type="button" className={styles.newTreeButton}>
+          새 러브트리 만들기
+        </button>
+      </nav>
+
+      {/* Main editor area */}
+      <div className={styles.editorMain}>
+        {/* Top toolbar */}
+        <header className={styles.toolbar}>
+          <button type="button" className={styles.iconButton} aria-label="뒤로 가기">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <h1 className={styles.toolbarTitle}>{data.screenTitle}</h1>
+          <span className={styles.toolbarTreeName}>{data.treeTitle}</span>
+          <span className={`${styles.visibilityBadge} ${
+            data.visibility === "public" ? styles.visPublic : styles.visPrivate
+          }`}>
+            {data.visibility === "public" ? "공개" : "비공개"}
+          </span>
+          <span className={styles.saveStatus}>자동 저장됨</span>
+          <div className={styles.toolbarActions}>
+            <button type="button" className={styles.secBtn}>미리보기</button>
+            <button type="button" className={styles.secBtn}>저장</button>
+            <button type="button" className={styles.priBtn}>게시하기</button>
           </div>
-          <div className={styles.detailActions}>
-            <button
-              type="button"
-              className={styles.detailActionButton}
-              aria-label={`${selectedMemory.title} 편집`}
+        </header>
+
+        <div className={styles.editorBody}>
+          {/* Canvas area */}
+          <section className={styles.canvas} aria-label="트리 캔버스">
+            <div className={styles.canvasSearchBar}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" stroke="#8a7a6a" strokeWidth="2" />
+                <path d="M21 21l-4.35-4.35" stroke="#8a7a6a" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <input type="text" placeholder="메모리 검색..." readOnly className={styles.canvasSearchInput} aria-label="메모리 검색" />
+              <button type="button" className={styles.addMemBtn}>
+                <span aria-hidden="true">+</span> 메모리 추가
+              </button>
+            </div>
+
+            {/* Tree structure */}
+            <div className={styles.treeArea}>
+              {/* Row 1: Root */}
+              <div className={styles.treeRow}>
+                <MemoryNodeCard memory={rootMem} isSelected={false} />
+              </div>
+
+              <TreeConnectorSvg highlighted={false} />
+
+              {/* Row 2: Selected node */}
+              <div className={styles.treeRow}>
+                <MemoryNodeCard memory={selectedMemory} isSelected={true} />
+              </div>
+
+              {/* Insert marker after selected */}
+              <div className={styles.insertMarker} data-testid="insert-marker">
+                <span className={styles.insertLine} />
+                <span className={styles.insertLabel}>여기에 연결</span>
+                <span className={styles.insertLine} />
+              </div>
+
+              {/* Branch connectors */}
+              <BranchConnector highlighted={false} />
+
+              {/* Row 3: Children of selected */}
+              <div className={styles.treeRowBranch}>
+                <div className={styles.branchGroup} data-testid="branch-group">
+                  {selectedMemory.childIds.map((cid) => {
+                    const child = memById[cid];
+                    if (!child) return null;
+                    return <MemoryNodeCard key={child.id} memory={child} isSelected={false} />;
+                  })}
+                </div>
+              </div>
+
+              {/* Connector to leaf */}
+              {selectedMemory.childIds.some((cid) => memById[cid]?.childIds.length > 0) && (
+                <TreeConnectorSvg highlighted={false} />
+              )}
+
+              {/* Row 4: Grandchildren */}
+              {(() => {
+                const grandchildren = selectedMemory.childIds.flatMap((cid) => {
+                  const child = memById[cid];
+                  return child?.childIds.map((gcid) => memById[gcid]).filter(Boolean) ?? [];
+                });
+                if (grandchildren.length === 0) return null;
+                return (
+                  <div className={styles.treeRowBranch}>
+                    <div className={styles.branchGroup}>
+                      {grandchildren.map((gc) => (
+                        <MemoryNodeCard key={gc!.id} memory={gc!} isSelected={false} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </section>
+
+          {/* Inspector panel */}
+          <aside className={styles.inspector} aria-label="선택한 기억 상세">
+            <div className={styles.inspectorHeader}>
+              <button type="button" className={styles.iconButton} aria-label="뒤로 가기">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <h2 className={styles.inspectorTitle}>{selectedMemory.title}</h2>
+            </div>
+
+            {/* Media preview placeholder */}
+            <div
+              className={`${styles.mediaPreview} ${styles[`thumb_${selectedMemory.thumbnailColorKey}`]}`}
+              aria-label={`${selectedMemory.mediaFormat} 미디어 미리보기`}
             >
-              편집
-            </button>
-            <button
-              type="button"
-              className={styles.detailActionButton}
-              aria-label={`${selectedMemory.title} 삭제`}
-            >
-              삭제
-            </button>
-          </div>
-        </aside>
+              <div className={styles.playIcon} aria-hidden="true">▶</div>
+              <div className={styles.mediaControls}>
+                <span className={styles.mediaControlIcon}>▶</span>
+                <span className={styles.mediaControlIcon}>🔊</span>
+                <span className={styles.mediaControlIcon}>⚙️</span>
+              </div>
+            </div>
+
+            <div className={styles.inspectorFields}>
+              <div className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>날짜:</span>
+                <span className={styles.fieldValue}>{selectedMemory.date}</span>
+              </div>
+              <div className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>유형:</span>
+                <span className={styles.fieldValue}>{selectedMemory.typeLabel}</span>
+              </div>
+              <div className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>미디어:</span>
+                <span className={styles.fieldValue}>{selectedMemory.mediaFormat}</span>
+              </div>
+              <div className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>출처:</span>
+                <span className={styles.fieldValue}>{selectedMemory.source}</span>
+              </div>
+              <div className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>길이:</span>
+                <span className={styles.fieldValue}>{selectedMemory.duration}</span>
+              </div>
+              <div className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>태그:</span>
+                <div className={styles.tagList}>
+                  {selectedMemory.tags.map((tag) => (
+                    <span key={tag} className={styles.tag}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.fieldBlock}>
+                <span className={styles.fieldLabel}>메모:</span>
+                <p className={styles.memoText} data-testid="inspector-memo">{selectedMemory.description}</p>
+              </div>
+
+              {/* Connection context */}
+              <div className={styles.connectionContext}>
+                <h3 className={styles.connTitle}>연결 설정</h3>
+                <p className={styles.connDesc} data-testid="connection-position">
+                  {selectedMemory.parentId
+                    ? `"${data.memories.find((m) => m.id === selectedMemory.parentId)?.title}"에서 이어지는 기억입니다.`
+                    : "최상위 기억입니다."}
+                </p>
+                {selectedMemory.childIds.length > 0 && (
+                  <p className={styles.connChild}>
+                    이어지는 기억: {selectedMemory.childIds.map((cid) => {
+                      const child = data.memories.find((m) => m.id === cid);
+                      return child?.title;
+                    }).filter(Boolean).join(", ")}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.inspectorActions}>
+              <button type="button" className={styles.actionBtn} aria-label={`${selectedMemory.title} 편집`}>
+                편집
+              </button>
+              <button type="button" className={styles.actionBtn} aria-label={`${selectedMemory.title} 삭제`}>
+                삭제
+              </button>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
+  );
+}
+
+function MemoryNodeCard({ memory, isSelected }: { memory: { id: string; title: string; date: string; description: string; thumbnailColorKey: string; tags: string[]; typeLabel: string }; isSelected: boolean }) {
+  return (
+    <article
+      className={`${styles.memCard} ${isSelected ? styles.memCardSelected : ""}`}
+      aria-labelledby={`editor-mem-title-${memory.id}`}
+      data-selected={isSelected ? "true" : "false"}
+      aria-current={isSelected ? "location" : undefined}
+    >
+      <div className={`${styles.memThumb} ${styles[`thumb_${memory.thumbnailColorKey}`]}`} aria-hidden="true">
+        <span className={styles.memTypeBadge}>{memory.typeLabel}</span>
+      </div>
+      <div className={styles.memBody}>
+        <h3 id={`editor-mem-title-${memory.id}`} className={styles.memTitle}>{memory.title}</h3>
+        <time className={styles.memDate}>{memory.date}</time>
+        <p className={styles.memDesc}>{memory.description}</p>
+        <div className={styles.memTags}>
+          {memory.tags.slice(0, 2).map((tag) => (
+            <span key={tag} className={styles.memTag}>{tag}</span>
+          ))}
+        </div>
+      </div>
+      {isSelected && <span className={styles.selectedBadge} aria-hidden="true">선택됨</span>}
+    </article>
   );
 }
