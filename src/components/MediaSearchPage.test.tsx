@@ -1,5 +1,5 @@
 /**
- * LT3-MEDIA-001 — MediaSearchPage UI BASE 테스트
+ * LT3-MEDIA-001 — MediaSearchPage UI 테스트
  * 실제 App 기반 렌더링, presentation-only 검증
  */
 
@@ -37,6 +37,25 @@ describe("MediaSearchPage — /media/search-demo", () => {
     );
   });
 
+  it("검색 맥락에 source/scope 정보가 표시되어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    expect(screen.getByText("YouTube · 전체 채널")).toBeInTheDocument();
+  });
+
+  it("검색 맥락에 검색어와 결과 수가 표시되어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    expect(screen.getByText(/무대 직캠 상랑크 검색/)).toBeInTheDocument();
+    expect(screen.getByTestId("result-count")).toHaveTextContent("6건");
+  });
+
+  it("최근 검색 키워드가 표시되어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    expect(screen.getByText("컴백 무대")).toBeInTheDocument();
+    expect(screen.getByText("직캠 모음")).toBeInTheDocument();
+    expect(screen.getByText("콘서트 하이라이트")).toBeInTheDocument();
+    expect(screen.getByText("데뷔 무대")).toBeInTheDocument();
+  });
+
   it("카테고리 필터 4개가 표시되어야 한다", () => {
     renderAppAt("/media/search-demo");
     expect(
@@ -53,10 +72,10 @@ describe("MediaSearchPage — /media/search-demo", () => {
     ).toBeInTheDocument();
   });
 
-  it("검색 결과 카드가 정확히 5개여야 한다", () => {
+  it("검색 결과 카드가 정확히 6개여야 한다", () => {
     renderAppAt("/media/search-demo");
     const articles = screen.getAllByRole("article");
-    expect(articles).toHaveLength(5);
+    expect(articles).toHaveLength(6);
   });
 
   it("각 결과가 article로 노출되어야 한다", () => {
@@ -65,7 +84,7 @@ describe("MediaSearchPage — /media/search-demo", () => {
     expect(list).toBeInTheDocument();
     expect(list!.tagName).toBe("UL");
     const items = list!.querySelectorAll(":scope > li");
-    expect(items).toHaveLength(5);
+    expect(items).toHaveLength(6);
     items.forEach((li) => {
       const article = li.querySelector(":scope > article");
       expect(article).toBeInTheDocument();
@@ -89,6 +108,36 @@ describe("MediaSearchPage — /media/search-demo", () => {
     expect(
       screen.getByRole("article", { name: "뮤직뱅크 출근길" })
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("article", { name: "음악방송 1위 무대" })
+    ).toBeInTheDocument();
+  });
+
+  it("각 카드에 영상 길이 정보가 표시되어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    expect(screen.getByText("3:42")).toBeInTheDocument();
+    expect(screen.getByText("12:15")).toBeInTheDocument();
+    expect(screen.getByText("8:30")).toBeInTheDocument();
+    expect(screen.getByText("5:20")).toBeInTheDocument();
+    expect(screen.getByText("2:55")).toBeInTheDocument();
+    expect(screen.getByText("4:10")).toBeInTheDocument();
+  });
+
+  it("각 카드에 콘텐츠 유형 배지가 표시되어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const badges = screen.getAllByText("직캠");
+    expect(badges.length).toBeGreaterThanOrEqual(3);
+    expect(screen.getAllByText("컴백").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("콘서트").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("무대").length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("각 카드에 태그가 표시되어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    expect(screen.getByText("쇼케이스")).toBeInTheDocument();
+    expect(screen.getByText("하이라이트")).toBeInTheDocument();
+    expect(screen.getByText("앵콜")).toBeInTheDocument();
+    expect(screen.getByText("출근길")).toBeInTheDocument();
   });
 
   it("카드에 role='button'이 없어야 한다", () => {
@@ -132,6 +181,16 @@ describe("MediaSearchPage — /media/search-demo", () => {
     expect(
       screen.getByRole("button", { name: "뮤직뱅크 출근길 러브트리에 추가" })
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "음악방송 1위 무대 러브트리에 추가" })
+    ).toBeInTheDocument();
+  });
+
+  it("추가 대상 트리 맥락 정보가 표시되어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    expect(screen.getByTestId("tree-context")).toBeInTheDocument();
+    expect(screen.getAllByText(/MY_STARLINE/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/러브트리에 추가할 수 있습니다/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("모든 버튼 클릭 후 fetch가 0회여야 한다", () => {
@@ -179,7 +238,7 @@ describe("MediaSearchPage — /media/search-demo", () => {
 
     const articlesAfter = screen.getAllByRole("article");
     expect(articlesAfter).toHaveLength(articlesBefore);
-    expect(articlesAfter).toHaveLength(5);
+    expect(articlesAfter).toHaveLength(6);
   });
 
   it("모든 버튼 클릭 후 URL이 변하지 않아야 한다", () => {
@@ -262,6 +321,13 @@ describe("MediaSearchPage — /media/search-demo", () => {
       expect(btn).not.toHaveAttribute("aria-selected");
       expect(btn).not.toHaveAttribute("role", "tab");
     }
+  });
+
+  it("mobile CTA에 트리 맥락이 표시되어야 한다", () => {
+    renderAppAt("/media/search-demo");
+    const ctaContext = screen.getByTestId("cta-context-mobile");
+    expect(ctaContext).toBeInTheDocument();
+    expect(ctaContext.textContent).toContain("MY_STARLINE");
   });
 });
 
