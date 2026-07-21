@@ -31,8 +31,3 @@
 - **Reference**: Slightly different warm tone pills with specific color per tag
 - **Implementation**: Consistent warm-toned pills (`#f0e8de` background)
 - **Reason**: Minimal visual difference; follows project tag convention
-
-### 7. Scrollbar Hiding
-- **Reference**: No visible scrollbar in reference screenshots
-- **Implementation**: HTML scrollbar hidden via CSS (`scrollbar-width: none` + `::-webkit-scrollbar { display: none }`)
-- **Reason**: Ensures exact viewport-width screenshots; Windows overlay scrollbar behavior

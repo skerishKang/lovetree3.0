@@ -3,21 +3,23 @@
 ## Branch Preview URL
 
 - **Branch Preview**: `https://style-memory-detail-visual-r.lovetree3.pages.dev/memory/detail-demo`
-- **Deployment Preview**: `https://a22d48fa.lovetree3.pages.dev/memory/detail-demo`
+- **Deployment Preview**: `https://caa99363.lovetree3.pages.dev/memory/detail-demo`
 - **Production**: `https://lovetree3.pages.dev/memory/detail-demo`
 
-## Commits
+## Commits (Full SHA)
 
 | Item | SHA |
 |------|-----|
 | Current main | `8f9a24822f57b2a8174d08bbc97f0690f194ede3` |
-| Visual source (code) | `388bcf730d06a5c0de9dd980a4326da8d0d2f36a` |
-| Evidence (docs) | `034c2bcdce368a760fb06a599cb0c88027950f7e` |
+| Visual source (code) | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
+| Evidence (docs) | *(this file is part of the evidence commit, pending)* |
 | Merge-main commit | `d0908fe` |
 | Semantic test fix | `1955bf9` |
 | Desktop CSS fix | `cf56a3e` |
 | Scrollbar fix | `3652b52` |
-| Final branch head | `3652b52115160a44de85fbe8ed7dd62fce83c13f` |
+| Global scrollbar removal | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
+| Final branch head | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
+| Cloudflare deployed source | `591fa38ec65e28e95f2f3be7ebd14b51d26c2cab` |
 
 ## Browser / Version
 
@@ -33,10 +35,10 @@
 
 | Item | Value |
 |------|-------|
-| Viewport | 390 × 844 |
+| Requested viewport | 390 × 844 |
 | DPR | 1 |
-| PNG dimensions | 390 × 1523 |
-| PNG SHA-256 | `B47998CF9800EA3AA68C9C6061176FCE46595EA7B66E9F460A5D07B6B4A9AA17` |
+| Actual PNG dimensions | 375 × 1514 |
+| PNG SHA-256 | `5EBC3455FB75FBAF7811E533AA63950A8594CC0BBE7F65829B4B3E161A8CBC3C` |
 | Console errors | 0 |
 | Page errors | 0 |
 | Failed requests | 0 |
@@ -46,20 +48,24 @@
 | Tag clipping | None |
 | Related memory card clipping | None |
 
+**Note**: Actual PNG width is 375px (viewport 390px minus ~15px Windows scrollbar). This is expected browser behavior without global scrollbar overrides.
+
 ## Desktop 1440px
 
 | Item | Value |
 |------|-------|
-| Viewport | 1440 × 1000 |
+| Requested viewport | 1440 × 1000 |
 | DPR | 1 |
-| PNG dimensions | 1440 × 1736 |
-| PNG SHA-256 | `3400CCA398E878223EAA66A4CCAF7CB8D27586CC2BD70F1D2A3E4981DEBD6347` |
+| Actual PNG dimensions | 1425 × 1736 |
+| PNG SHA-256 | `1FBB5FFECC131C721080EB900FC5297C5F0A69B243A81764EF27705FCF3F5896` |
 | Console errors | 0 |
 | Page errors | 0 |
 | Failed requests | 0 |
 | Horizontal overflow | 0px |
 | Desktop 2-column layout | Yes — main area + 360px sidebar |
 | Fixed/sticky overlap | None |
+
+**Note**: Actual PNG width is 1425px (viewport 1440px minus ~15px Windows scrollbar). This is expected browser behavior without global scrollbar overrides.
 
 ## Unimplemented Interactions
 
@@ -79,4 +85,3 @@
 3. Reference shows a pen/write icon next to the Memo body; implementation omits this as non-functional.
 4. Related memory cards use vertical layout (thumbnail on top) on mobile matching the reference; desktop uses 2-column grid.
 5. Desktop layout: sidebar includes author info, reaction stats, and tree context — not present in the mobile-only reference.
-6. Scrollbar is hidden via CSS (`scrollbar-width: none` + `::-webkit-scrollbar { display: none }`) on the html element to ensure exact viewport-width screenshots.
