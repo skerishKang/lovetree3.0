@@ -56,7 +56,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
   {
     id: "ct-001",
     thumbnail:
-      "linear-gradient(135deg, #c9a0e0 0%, #f0c9d8 50%, #ffe0c2 100%)",
+      "linear-gradient(135deg, #c9a0e0 0%, #d4b3ea 25%, #f0c9d8 50%, #f5d8e5 75%, #ffe0c2 100%)",
     title: "BTS - Map of the Soul 7 Memories",
     author: { handle: "@HappyArmy", avatarColor: "#e6a8c8", initial: "H" },
     tags: ["#감동", "#설렘"],
@@ -66,7 +66,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
   {
     id: "ct-002",
     thumbnail:
-      "linear-gradient(135deg, #a8c8e6 0%, #c9d8f0 50%, #e0f0ff 100%)",
+      "linear-gradient(135deg, #a8c8e6 0%, #b8d4f0 25%, #c9d8f0 50%, #d5e4f8 75%, #e0f0ff 100%)",
     title: "My First Stray Kids Concert",
     author: { handle: "@StayGold", avatarColor: "#a8c8e6", initial: "S" },
     tags: ["#설렘"],
@@ -76,7 +76,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
   {
     id: "ct-003",
     thumbnail:
-      "linear-gradient(135deg, #e6c8a8 0%, #f0e0c9 50%, #fff0e0 100%)",
+      "linear-gradient(135deg, #e6c8a8 0%, #f0d4b8 25%, #f0e0c9 50%, #f5e8d5 75%, #fff0e0 100%)",
     title: "TWICE Comeback Cheer",
     author: { handle: "@ONCE_forever", avatarColor: "#f0c98a", initial: "O" },
     tags: ["#행복"],
@@ -86,7 +86,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
   {
     id: "ct-004",
     thumbnail:
-      "linear-gradient(135deg, #c8a8e6 0%, #d8c9f0 50%, #e8e0ff 100%)",
+      "linear-gradient(135deg, #c8a8e6 0%, #d4b8f0 25%, #d8c9f0 50%, #e0d5f8 75%, #e8e0ff 100%)",
     title: "ATEEZ Special Moments",
     author: { handle: "@ATINY_star", avatarColor: "#c8a8e6", initial: "A" },
     tags: ["#설렘"],
@@ -96,7 +96,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
   {
     id: "ct-005",
     thumbnail:
-      "linear-gradient(135deg, #a8e6c8 0%, #c9f0d8 50%, #e0ffe8 100%)",
+      "linear-gradient(135deg, #a8e6c8 0%, #b8f0d8 25%, #c9f0d8 50%, #d5f8e4 75%, #e0ffe8 100%)",
     title: "SEVENTEEN Fun Compilation",
     author: { handle: "@CARAT_love", avatarColor: "#a8e6c8", initial: "C" },
     tags: ["#웃음"],
@@ -106,7 +106,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
   {
     id: "ct-006",
     thumbnail:
-      "linear-gradient(135deg, #e6c8a8 0%, #f0d8c9 50%, #ffe8e0 100%)",
+      "linear-gradient(135deg, #e6c8a8 0%, #f0d4b8 25%, #f0d8c9 50%, #f5e0d5 75%, #ffe8e0 100%)",
     title: "NCT DREAM Debut Days",
     author: { handle: "@NCTzen_dream", avatarColor: "#e6b88a", initial: "N" },
     tags: ["#설렘"],
@@ -116,7 +116,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
   {
     id: "ct-007",
     thumbnail:
-      "linear-gradient(135deg, #e6a8a8 0%, #f0c9c9 50%, #ffe0e0 100%)",
+      "linear-gradient(135deg, #e6a8a8 0%, #f0b8b8 25%, #f0c9c9 50%, #f5d5d5 75%, #ffe0e0 100%)",
     title: "MONSTA X High Energy FanCam",
     author: { handle: "@Monbebe_X", avatarColor: "#e6a8a8", initial: "M" },
     tags: ["#박력"],
@@ -126,7 +126,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
   {
     id: "ct-008",
     thumbnail:
-      "linear-gradient(135deg, #a8e6e6 0%, #c9f0f0 50%, #e0ffff 100%)",
+      "linear-gradient(135deg, #a8e6e6 0%, #b8f0f0 25%, #c9f0f0 50%, #d5f8f8 75%, #e0ffff 100%)",
     title: "NewJeans 'Ditto' Vibes",
     author: { handle: "@Bunnies_love", avatarColor: "#a8e6e6", initial: "B" },
     tags: ["#설렘"],
@@ -142,5 +142,5 @@ export const featuredLoveTree: FeaturedLoveTree = {
   author: { handle: "@ReVeluv_Fan", avatarColor: "#b87a7a", initial: "R" },
   previewNote: "연결된 미니 트리 미리보기",
   thumbnail:
-    "linear-gradient(160deg, #5c3a3a 0%, #7a4a4a 50%, #9a5a5a 100%)",
+    "linear-gradient(160deg, #5c3a3a 0%, #6d4545 25%, #7a4a4a 50%, #8a5555 75%, #9a5a5a 100%)",
 };
