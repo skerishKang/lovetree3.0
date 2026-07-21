@@ -10,6 +10,7 @@ import MemoryDetailPage from "./components/MemoryDetailPage";
 import MediaSearchPage from "./components/MediaSearchPage";
 import VisibilitySettingsPage from "./components/VisibilitySettingsPage";
 import MyTreesEmptyPage from "./components/MyTreesEmptyPage";
+import EmptyTreeEditorPage from "./components/EmptyTreeEditorPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/memory/connect-demo" element={<MemoryConnectPage />} />
         <Route path="/my-trees" element={<MyTreesPage />} />
         <Route path="/tree/edit-demo" element={<TreeEditorPage />} />
+        <Route path="/tree/new-demo" element={<EmptyTreeEditorPage />} />
         <Route path="/memory/detail-demo" element={<MemoryDetailPage />} />
         <Route path="/media/search-demo" element={<MediaSearchPage />} />
         <Route path="/settings/visibility-demo" element={<VisibilitySettingsPage />} />
