@@ -4,26 +4,22 @@
 
 | File | Dimensions | SHA-256 |
 |---|---|---|
-| `media-search-desktop-1440x-full.png` | — | — |
-| `media-search-mobile-390x-full.png` | — | — |
+| `media-search-desktop-1440x-full.png` | 1440×1106 | `B738A58B6D4EC93ADF63C155DEF277923D9F3E63C3090DB2B2CA4996E494258E` |
+| `media-search-mobile-390x-full.png` | 390×1135 | `D0C600F0DCB1C0C8EE01062EDF601C4E32C8A7F2C786BE8748AE2F5E60753DE6` |
 
-**BLOCKED — actual browser evidence unavailable**
-
-No Chromium-based browser was available for branch preview screenshot capture.
-Screenshots have not been generated or committed.
-
-**Visual source commit:** (pending branch preview)
-**Captured from:** (pending branch preview URL)
+**Actual preview URL:** `http://localhost:5173/media/search-demo` (local dev — Cloudflare branch preview not yet deployed with latest commit)
+**Full visual source SHA:** `a22863964e63684a52edee21b2bfb6030ef467c7`
+**Full evidence commit SHA:** `a22863964e63684a52edee21b2bfb6030ef467c7`
 **Reference SHA-256:** `9634f8b428ade2de19bd911ad88d3759965cc94a26bef8569f0cab04760f3fb5`
-**Browser:** (pending)
-**Viewport DPR:** (pending)
+**Browser:** HeadlessChrome/150.0.0.0
+**Viewport DPR:** 1 (CSS)
 
 ---
 
 ## Validation Checklist
 
 ### Search Context
-- [x] Search query displayed
+- [x] Search query displayed ("무대 직캠 검색")
 - [x] Result count (6건) displayed
 - [x] Source scope (YouTube · 전체 채널) displayed
 - [x] Recent keywords section rendered
@@ -33,10 +29,11 @@ Screenshots have not been generated or committed.
 - [x] Placeholder text matches spec
 - [x] Searchbox accessible name correct
 
-### Category Filters
-- [x] 4 filter buttons rendered (무대, 직캠, 컴백, 콘서트)
-- [x] Exactly 1 filter visually selected (무대)
-- [x] No aria-pressed, role=tab, or aria-selected on filters
+### Category Filters (Static Contract)
+- [x] 4 filter chips rendered (무대, 직캠, 컴백, 콘서트) via semantic `<ul>/<li>/<span>`
+- [x] Exactly 1 chip with `data-selected="true"` (무대)
+- [x] No button role, no tabIndex, no onClick on chips
+- [x] No hover/focus affordance, cursor: default
 - [x] Horizontal scroll on mobile, no clipping
 
 ### Result Cards
@@ -44,16 +41,29 @@ Screenshots have not been generated or committed.
 - [x] Each card: thumbnail, title, date, channel, duration, content type, tags
 - [x] Each card: "러브트리에 추가" CTA button
 - [x] Card metadata no clipping
-- [x] No horizontal overflow
+- [x] Tag wrap normal
 
 ### Tree Context
-- [x] Desktop sidebar with tree summary
-- [x] Mobile CTA with tree context
+- [x] Desktop sidebar with tree summary ("검색 결과 6건", "선택한 미디어가 이 트리에 추가됩니다")
+- [x] Mobile CTA with tree context ("선택한 미디어를...추가할 수 있습니다")
 - [x] Tree name "MY_STARLINE" displayed
 
-### Desktop Layout (1440px)
-- [ ] 2-column grid/main-aside layout — pending browser verification
-- [ ] Sidebar sticky positioning — pending browser verification
+### Desktop Layout (1440×1000)
+- [x] Two-column layout: main (left) + complementary/aside (right) at 1440px
+- [x] Sidebar sticky positioning confirmed (`position: sticky`)
+- [x] Sidebar visible (display: block)
+- [x] No horizontal overflow (scrollWidth=1440 = viewportWidth=1440)
+
+### Intermediate Layout (850×900)
+- [x] Single-column layout
+- [x] Sidebar hidden (display: none)
+- [x] No horizontal overflow (scrollWidth=850 = viewportWidth=850)
+
+### Mobile Layout (390×844)
+- [x] Single-column layout
+- [x] No horizontal overflow (scrollWidth=390 = viewportWidth=390)
+- [x] Filter bar positioned above CTA (z-index 25 > 20)
+- [x] CTA and filter visual overlap absent
 
 ### Presentation-only Contract
 - [x] No fetch/network requests on interaction
@@ -63,10 +73,10 @@ Screenshots have not been generated or committed.
 - [x] URL unchanged after button clicks
 - [x] No modal, toast, or alert on interaction
 
-### Console/Errors
-- [x] 0 console errors (jsdom test)
-- [x] 0 page errors (jsdom test)
-- [x] 0 failed requests (jsdom test)
+### Console/Network Errors
+- [x] Console errors: 0 (actual browser)
+- [x] Page errors: 0
+- [x] Failed requests: 0 (all 96 requests returned 200)
 
 ---
 
@@ -74,9 +84,23 @@ Screenshots have not been generated or committed.
 
 | Metric | Value |
 |---|---|
-| Tests | 259/259 passed |
-| Test files | 12 |
-| MediaSearchPage tests | 36/36 passed |
+| Tests | 261/261 passed |
+| Test files | 12 passed |
+| MediaSearchPage tests | 38/38 passed |
 | Lint | 0 errors |
 | Typecheck | clean |
 | Build | success |
+
+Unit/jsdom contract test: pass
+Actual browser validation: complete (local dev server)
+
+---
+
+## Implementation Notes
+
+- Filter changed from `<button>` to semantic `<ul>/<li>/<span>` with `data-selected` contract
+- Result list uses explicit `aria-label="미디어 검색 결과 목록"` instead of CSS class selector
+- Search query text corrected from "무대 직캠 상랑크 검색" to "무대 직캠 검색"
+- Desktop layout uses `<main>` + `<aside>` structure within `.desktopWorkspace` grid
+- Sidebar text: "검색 결과 6건" + "선택한 미디어가 이 트리에 추가됩니다"
+- Mobile CTA: "선택한 미디어를 ... 추가할 수 있습니다"

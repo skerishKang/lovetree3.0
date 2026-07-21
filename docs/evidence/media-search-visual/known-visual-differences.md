@@ -24,13 +24,23 @@
 
 ### Filter Bar Position
 - **Reference:** Bottom-fixed with scrollable results
-- **Implementation:** Bottom-fixed on mobile, sticky inline on desktop
-- **Reason:** Adapted for desktop main/aside layout
+- **Implementation:** Bottom-fixed on mobile, inline after search context on desktop
+- **Reason:** Adapted for desktop main/aside layout; filter is non-interactive (static chip contract)
 
 ### Desktop Layout
 - **Reference:** Mobile-only mockup (2816 × 1536)
-- **Implementation:** 2-column grid at 1100px+ with tree sidebar
-- **Reason:** No desktop reference; layout follows MemoryConnectPage pattern
+- **Implementation:** 2-column main/aside at 1100px+ with sticky tree sidebar
+- **Reason:** No desktop reference; layout follows main/aside semantic structure
+
+### Search Query Text
+- **Reference:** "무대 직캠 상랑크 검색" (unclear origin text)
+- **Implementation:** "무대 직캠 검색" (meaningful, clear query)
+- **Reason:** Original text contained unclear "상랑크" term; corrected to meaningful search query
+
+### Sidebar Text
+- **Reference:** "미디어 6건이 이 트리에 추가됩니다" (asserts all results will be added)
+- **Implementation:** "검색 결과 6건" + "선택한 미디어가 이 트리에 추가됩니다" (selection-based)
+- **Reason:** User selects individual cards; avoids implying all results are auto-added
 
 ## Placeholder Image Usage
 All thumbnails are CSS gradient placeholders. No actual image assets are used.
