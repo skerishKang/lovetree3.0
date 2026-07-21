@@ -9,6 +9,7 @@ import TreeEditorPage from "./components/TreeEditorPage";
 import MemoryDetailPage from "./components/MemoryDetailPage";
 import MediaSearchPage from "./components/MediaSearchPage";
 import VisibilitySettingsPage from "./components/VisibilitySettingsPage";
+import MyTreesEmptyPage from "./components/MyTreesEmptyPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/memory/detail-demo" element={<MemoryDetailPage />} />
         <Route path="/media/search-demo" element={<MediaSearchPage />} />
         <Route path="/settings/visibility-demo" element={<VisibilitySettingsPage />} />
+        <Route path="/my-trees/empty-demo" element={<MyTreesEmptyPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
