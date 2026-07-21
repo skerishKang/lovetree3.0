@@ -200,7 +200,7 @@
 }
 
 .canvasCardItem {
-  display: contents;
+  min-width: 0;
 }
 
 .memoryCard {

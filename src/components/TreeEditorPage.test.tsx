@@ -1,9 +1,10 @@
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import App from "../App";
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
   vi.restoreAllMocks();
   window.history.pushState({}, "", "/");
 });
@@ -172,26 +173,62 @@ describe("TreeEditorPage - buttons", () => {
 });
 
 describe("TreeEditorPage - presentation-only buttons", () => {
-  it("does not change UI state after all buttons clicked", () => {
-    renderAppAt("/tree/edit-demo");
+  it("does not call fetch, storage, or change UI after all buttons clicked", () => {
+    /* Browser Storage API spies — before render */
+    const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
+    const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
+    const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
+    const storageClearSpy = vi.spyOn(Storage.prototype, "clear");
     const fetchSpy = vi.fn();
-    globalThis.fetch = fetchSpy;
+    vi.stubGlobal("fetch", fetchSpy);
 
-    const allButtons = screen.getAllByRole("button");
+    renderAppAt("/tree/edit-demo");
+
+    /* Record initial values */
     const initialCardCount = screen.getAllByRole("article").length;
-    const initialTitle = screen.getByLabelText("러브트리 제목");
-    const initialTitleValue = (initialTitle as HTMLInputElement).value;
+    const titleInput = screen.getByLabelText("러브트리 제목") as HTMLInputElement;
+    const descriptionInput = screen.getByLabelText("설명") as HTMLInputElement;
+    const dateInput = screen.getByLabelText("날짜") as HTMLInputElement;
+    const memoInput = screen.getByLabelText("메모") as HTMLTextAreaElement;
+    const initialTitleValue = titleInput.value;
+    const initialDescValue = descriptionInput.value;
+    const initialDateValue = dateInput.value;
+    const initialMemoValue = memoInput.value;
 
-    allButtons.forEach((btn) => btn.click());
+    /* Click every button with fireEvent */
+    const allButtons = screen.getAllByRole("button");
+    for (const button of allButtons) {
+      fireEvent.click(button);
+    }
 
+    /* Card count unchanged */
     expect(screen.getAllByRole("article")).toHaveLength(initialCardCount);
-    expect(
-      (screen.getByLabelText("러브트리 제목") as HTMLInputElement).value,
-    ).toBe(initialTitleValue);
-    expect(
-      document.querySelectorAll('[data-selected="true"]'),
-    ).toHaveLength(1);
+    expect(screen.getAllByRole("article")).toHaveLength(5);
+
+    /* All input values unchanged */
+    expect(titleInput.value).toBe(initialTitleValue);
+    expect(descriptionInput.value).toBe(initialDescValue);
+    expect(dateInput.value).toBe(initialDateValue);
+    expect(memoInput.value).toBe(initialMemoValue);
+
+    /* Selected card unchanged */
+    const selectedCards = document.querySelectorAll('[data-selected="true"]');
+    expect(selectedCards).toHaveLength(1);
+
+    const selectedArticle = screen.getByRole("article", {
+      name: "대기실 준비",
+    });
+    expect(selectedArticle).toHaveAttribute("data-selected", "true");
+    expect(selectedArticle).toHaveAttribute("aria-current", "true");
+
+    /* No network calls */
     expect(fetchSpy).not.toHaveBeenCalled();
+
+    /* No browser storage access */
+    expect(storageGetSpy).not.toHaveBeenCalled();
+    expect(storageSetSpy).not.toHaveBeenCalled();
+    expect(storageRemoveSpy).not.toHaveBeenCalled();
+    expect(storageClearSpy).not.toHaveBeenCalled();
   });
 });
 
