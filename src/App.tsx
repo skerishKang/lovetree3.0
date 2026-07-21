@@ -8,6 +8,7 @@ import MyTreesPage from "./components/MyTreesPage";
 import TreeEditorPage from "./components/TreeEditorPage";
 import MemoryDetailPage from "./components/MemoryDetailPage";
 import MediaSearchPage from "./components/MediaSearchPage";
+import VisibilitySettingsPage from "./components/VisibilitySettingsPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/tree/edit-demo" element={<TreeEditorPage />} />
         <Route path="/memory/detail-demo" element={<MemoryDetailPage />} />
         <Route path="/media/search-demo" element={<MediaSearchPage />} />
+        <Route path="/settings/visibility-demo" element={<VisibilitySettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
