@@ -4,8 +4,10 @@ import styles from "./AuthBrand.module.css";
 export default function AuthBrand() {
   return (
     <div className={styles.authBrand}>
-      <h1 className={styles.brandName}>{APP_BRAND}</h1>
-      <p className={styles.heading}>{LOGIN_HEADING}</p>
+      <div className={styles.brandContainer}>
+        <span className={styles.brandName}>{APP_BRAND}</span>
+      </div>
+      <h1 className={styles.heading}>{LOGIN_HEADING}</h1>
       <p className={styles.description}>{LOGIN_DESCRIPTION}</p>
     </div>
   );

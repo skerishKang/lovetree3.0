@@ -29,6 +29,31 @@
   background: #f5ede2;
 }
 
+.primary {
+  background: #3e2c1a;
+  color: #fff;
+  border-color: #3e2c1a;
+}
+
+.primary:hover {
+  background: #4a3728;
+  box-shadow: 0 2px 6px rgba(62, 44, 26, 0.2);
+}
+
+.primary:focus-visible {
+  outline: 2px solid #d4a88a;
+  outline-offset: 2px;
+}
+
+.primary:active {
+  background: #2e1f0d;
+}
+
+.secondary {
+  background: #fff;
+  color: #3e2c1a;
+}
+
 .btnIcon {
   font-size: 1.1rem;
   font-weight: 600;

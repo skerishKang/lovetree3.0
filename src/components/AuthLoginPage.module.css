@@ -12,3 +12,29 @@
   margin: 0 auto;
   padding: 0 0 2rem;
 }
+
+@media (min-width: 900px) {
+  .authCard {
+    max-width: 720px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem 0;
+  }
+
+  .authBrand {
+    text-align: left;
+  }
+
+  .brandContainer {
+    margin-bottom: 1rem;
+  }
+
+  .heading {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+  }
+
+  .description {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+  }
+}

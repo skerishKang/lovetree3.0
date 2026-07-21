@@ -284,7 +284,7 @@ describe("기존 App 경로 검증", () => {
   it("/login에서 AuthLoginPage가 렌더링되어야 한다", () => {
     renderAppAt("/login");
     expect(
-      screen.getByText("내 러브트리를 계속 이어가려면 로그인하세요")
+      screen.getByText("LoveTree에 계속 이어가려면 로그인하세요")
     ).toBeInTheDocument();
   });
 
