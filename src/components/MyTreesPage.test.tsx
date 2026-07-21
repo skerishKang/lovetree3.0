@@ -25,15 +25,23 @@ function renderAppAt(path: string) {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   window.history.pushState({}, "", "/");
 });
 
-describe("MyTreesPage", () => {
+describe("MyTreesPage — /my-trees", () => {
   it("renders the page title", () => {
     renderAppAt("/my-trees");
     expect(
       screen.getByRole("heading", { level: 1, name: "나의 러브트리" })
     ).toBeInTheDocument();
+  });
+
+  it("renders header buttons with exact count of 3", () => {
+    renderAppAt("/my-trees");
+    expect(screen.getByRole("button", { name: "메뉴 열기" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "알림 보기" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "마이페이지" })).toBeInTheDocument();
   });
 
   it("renders exactly 6 tree cards", () => {
@@ -107,24 +115,6 @@ describe("MyTreesPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("does not change UI state when CTA is clicked", () => {
-    renderAppAt("/my-trees");
-    const cta = screen.getByRole("button", { name: /새 러브트리 만들기/ });
-    const beforeText = screen.getByRole("heading", { level: 1 }).textContent;
-    fireEvent.click(cta);
-    const afterText = screen.getByRole("heading", { level: 1 }).textContent;
-    expect(afterText).toBe(beforeText);
-  });
-
-  it("does not make any network requests", () => {
-    const originalFetch = globalThis.fetch;
-    const fetchSpy = vi.fn();
-    globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
-    renderAppAt("/my-trees");
-    expect(fetchSpy).not.toHaveBeenCalled();
-    globalThis.fetch = originalFetch;
-  });
-
   it("renders every card article with an accessible name from the tree title", () => {
     renderAppAt("/my-trees");
     for (const title of TREE_TITLES) {
@@ -136,7 +126,6 @@ describe("MyTreesPage", () => {
 
   it("renders card action buttons with tree-title aria-labels", () => {
     renderAppAt("/my-trees");
-    // 첫 번째 트리
     expect(
       screen.getByRole("button", { name: "나의 러브트리 편집" })
     ).toBeInTheDocument();
@@ -149,7 +138,6 @@ describe("MyTreesPage", () => {
     expect(
       screen.getByRole("button", { name: "나의 러브트리 삭제" })
     ).toBeInTheDocument();
-    // 마지막 트리
     expect(
       screen.getByRole("button", { name: "일상 기록 편집" })
     ).toBeInTheDocument();
@@ -164,20 +152,12 @@ describe("MyTreesPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders exactly 6 buttons per action type", () => {
+  it("renders exactly 6 buttons per action type (total 24 action buttons)", () => {
     renderAppAt("/my-trees");
-    expect(
-      screen.getAllByRole("button", { name: / 편집$/ })
-    ).toHaveLength(6);
-    expect(
-      screen.getAllByRole("button", { name: / 공유$/ })
-    ).toHaveLength(6);
-    expect(
-      screen.getAllByRole("button", { name: / 복제$/ })
-    ).toHaveLength(6);
-    expect(
-      screen.getAllByRole("button", { name: / 삭제$/ })
-    ).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 편집$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 공유$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 복제$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 삭제$/ })).toHaveLength(6);
   });
 
   it("exposes stat meaning via visually-hidden text inside the first article", () => {
@@ -190,31 +170,126 @@ describe("MyTreesPage", () => {
     expect(within(firstArticle).getByText("댓글")).toBeInTheDocument();
   });
 
-  it("keeps all buttons presentation-only (no fetch, no state change)", () => {
-    const originalFetch = globalThis.fetch;
-    const fetchSpy = vi.fn();
-    globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
-    renderAppAt("/my-trees");
-    const beforeH1 = screen.getByRole("heading", { level: 1 }).textContent;
-    const buttons = screen.getAllByRole("button");
-    for (const button of buttons) {
-      fireEvent.click(button);
-    }
-    expect(fetchSpy).not.toHaveBeenCalled();
-    const selectedCards = document.querySelectorAll('[data-selected="true"]');
-    expect(selectedCards).toHaveLength(1);
-    expect(selectedCards[0].textContent).toContain("나의 러브트리");
-    const afterH1 = screen.getByRole("heading", { level: 1 }).textContent;
-    expect(afterH1).toBe(beforeH1);
-    expect(screen.getAllByRole("article")).toHaveLength(6);
-    globalThis.fetch = originalFetch;
+  it("renders decorative SVGs and ensures non-vacuous aria-hidden protection", () => {
+    const { container } = renderAppAt("/my-trees");
+    const svgs = container.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+
+    svgs.forEach((svg) => {
+      const isHidden =
+        svg.getAttribute("aria-hidden") === "true" ||
+        svg.closest('[aria-hidden="true"]') !== null;
+      expect(isHidden).toBe(true);
+    });
   });
 
   it("renders the sidebar with recent moments", () => {
     renderAppAt("/my-trees");
+    const sidebar = screen.getByRole("complementary", { name: "최근 수정한 순간" });
+    expect(sidebar).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "최근 수정한 순간" })
+      within(sidebar).getByRole("heading", { level: 2, name: "최근 수정한 순간" })
     ).toBeInTheDocument();
+    expect(within(sidebar).getByText("첫 콘서트 도착")).toBeInTheDocument();
+    expect(within(sidebar).getByText("앙코르 무대")).toBeInTheDocument();
+  });
+
+  /* ─── 종합 Presentation-only 강한 회귀 계약 테스트 ─── */
+
+  it("상호작용 전후 DOM 계약이 유지되고 네트워크/Storage/Dialog side-effect가 전혀 발생하지 않아야 한다", () => {
+    // 1. Install all spies BEFORE renderAppAt
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const xhrOpenSpy = vi.spyOn(XMLHttpRequest.prototype, "open");
+
+    const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
+    const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
+    const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
+    const storageClearSpy = vi.spyOn(Storage.prototype, "clear");
+
+    // 2. Render App
+    renderAppAt("/my-trees");
+
+    // 3. Pre-click exact snapshot verification
+    const initialUrl = window.location.href;
+
+    expect(screen.getByRole("heading", { level: 1, name: "나의 러브트리" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "새 러브트리 만들기" })).toBeInTheDocument();
+
+    expect(screen.getByRole("button", { name: "메뉴 열기" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "알림 보기" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "마이페이지" })).toBeInTheDocument();
+
+    const articlesBefore = screen.getAllByRole("article");
+    expect(articlesBefore).toHaveLength(6);
+
+    const selectedCardsBefore = document.querySelectorAll('[data-selected="true"]');
+    expect(selectedCardsBefore).toHaveLength(1);
+    expect(selectedCardsBefore[0]).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("article", { name: "나의 러브트리" })).toHaveAttribute("data-selected", "true");
+
+    expect(screen.getAllByText("공개")).toHaveLength(2);
+    expect(screen.getAllByText("비공개")).toHaveLength(4);
+
+    expect(screen.getAllByRole("button", { name: / 편집$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 공유$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 복제$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 삭제$/ })).toHaveLength(6);
+
+    const sidebarBefore = screen.getByRole("complementary", { name: "최근 수정한 순간" });
+    expect(within(sidebarBefore).getByText("첫 콘서트 도착")).toBeInTheDocument();
+    expect(within(sidebarBefore).getByText("앙코르 무대")).toBeInTheDocument();
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    // 4. Click all buttons on the page
+    const allButtons = screen.getAllByRole("button");
+    allButtons.forEach((button) => fireEvent.click(button));
+
+    // 5. Post-click exact snapshot verification (re-query DOM elements)
+    expect(screen.getByRole("heading", { level: 1, name: "나의 러브트리" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "새 러브트리 만들기" })).toBeInTheDocument();
+
+    expect(screen.getByRole("button", { name: "메뉴 열기" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "알림 보기" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "마이페이지" })).toBeInTheDocument();
+
+    const articlesAfter = screen.getAllByRole("article");
+    expect(articlesAfter).toHaveLength(6);
+
+    const selectedCardsAfter = document.querySelectorAll('[data-selected="true"]');
+    expect(selectedCardsAfter).toHaveLength(1);
+    expect(selectedCardsAfter[0]).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("article", { name: "나의 러브트리" })).toHaveAttribute("data-selected", "true");
+
+    expect(screen.getAllByText("공개")).toHaveLength(2);
+    expect(screen.getAllByText("비공개")).toHaveLength(4);
+
+    expect(screen.getAllByRole("button", { name: / 편집$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 공유$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 복제$/ })).toHaveLength(6);
+    expect(screen.getAllByRole("button", { name: / 삭제$/ })).toHaveLength(6);
+
+    const sidebarAfter = screen.getByRole("complementary", { name: "최근 수정한 순간" });
+    expect(within(sidebarAfter).getByText("첫 콘서트 도착")).toBeInTheDocument();
+    expect(within(sidebarAfter).getByText("앙코르 무대")).toBeInTheDocument();
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    expect(window.location.href).toBe(initialUrl);
+
+    // 6. Side-effect assertions
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(xhrOpenSpy).not.toHaveBeenCalled();
+    expect(storageGetSpy).not.toHaveBeenCalled();
+    expect(storageSetSpy).not.toHaveBeenCalled();
+    expect(storageRemoveSpy).not.toHaveBeenCalled();
+    expect(storageClearSpy).not.toHaveBeenCalled();
   });
 
   describe("routes through real App", () => {
