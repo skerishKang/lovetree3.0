@@ -3,7 +3,7 @@
 ## Commit Trace
 1. Visual Source: `71983cc28d5459f4eeb287e4781e8089146f2883` — `style: deepen my trees dashboard hierarchy`
 2. Evidence: `4e832717582ffb559d98e43e828ebb3b702d72ce` — `docs: add my trees branch-preview evidence`
-3. Metadata: this commit — `docs: record my trees evidence commit metadata`
+3. Metadata: `b7db764e6407b88f9529c624dd55fe79a461c720` — `docs: record my trees evidence commit metadata`
 
 ## Branch Preview
 - URL: `https://style-my-trees-dashboard-vis.lovetree3.pages.dev/my-trees`

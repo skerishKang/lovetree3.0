@@ -5,9 +5,11 @@
 
 ## Commit Metadata
 - Visual Source Commit: `71983cc28d5459f4eeb287e4781e8089146f2883`
+- Evidence Commit: `4e832717582ffb559d98e43e828ebb3b702d72ce`
+- Metadata Commit: `b7db764e6407b88f9529c624dd55fe79a461c720`
 - Branch: `style/my-trees-dashboard-visual-refinement`
 - Base (origin/main): `6199f475186fba6f2b966fb392eedf9bc32b50a6`
-- Cloudflare Deployment ID: `371d1a35-8c27-43f1-a353-10d9fe876223`
+- Cloudflare Deployment ID: `371d1a35-8c27-43f1-a353-10d9fe876223` (screenshot source)
 - Cloudflare Check run completed: `2026-07-21T19:17:29Z`
 
 ## Browser
