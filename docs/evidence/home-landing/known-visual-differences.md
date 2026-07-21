@@ -58,9 +58,12 @@
 
 ## API / Firebase / Navigation 미연결
 
-이 화면은 정적 UI BASE 단계입니다. 모든 버튼은 `type="button"`이며
-실제 API 호출, Firebase 인증, navigation, localStorage 접근을 수행하지 않습니다.
-href 없는 button을 사용하고 `onClick` handler를 추가하지 않았습니다.
+이 화면은 정적 UI BASE 단계입니다.
+
+- CTA controls는 `<button type="button">`을 사용합니다.
+- 헤더 메뉴 4개는 `<a href="#">`로 렌더링됩니다.
+- 헤더 anchor의 `onClick`에서 `preventDefault()`를 호출하므로 실제 route 이동이나 URL 변경은 발생하지 않습니다.
+- 실제 API 호출, Firebase 인증, localStorage 또는 sessionStorage 접근은 없습니다.
 
 ## 후속 Refinement 후보
 
