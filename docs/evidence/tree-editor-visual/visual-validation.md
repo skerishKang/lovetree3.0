@@ -10,6 +10,7 @@
 
 **Preview URL:** `https://413cdaa9.lovetree3.pages.dev/tree/edit-demo`
 **Visual source commit:** `495a9007f05b0c11db095cbb99be2b27b28968e1`
+**Evidence commit:** `7a433666f4cb808a3d821af7a8840ecdafc41e4e`
 **Reference SHA-256:** `c29ec6a5c2954999cd171dde8fa39a63a3644ce5fdaeac69c7fc8aacb7b9208b`
 **Browser:** Chromium 137.0 (Playwright headless)
 **Viewport DPR:** 1x (all viewports)
