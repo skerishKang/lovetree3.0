@@ -468,7 +468,7 @@
    ═══════════════════════════════════════════════════════ */
 @media (min-width: 960px) {
   .page {
-    padding: 2rem;
+    padding: 2rem 0;
     align-items: center;
   }
 
