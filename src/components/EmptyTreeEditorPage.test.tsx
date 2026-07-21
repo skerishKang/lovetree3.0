@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { cleanup, screen, fireEvent } from "@testing-library/react";
+import { cleanup, screen, fireEvent, within } from "@testing-library/react";
 import { render } from "@testing-library/react";
 import App from "../App";
 
@@ -51,22 +51,37 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
   it("사이드바에 '내 러브트리' 메뉴가 있어야 한다", () => {
     renderAppAt("/tree/new-demo");
     expect(
-      screen.getByRole("button", { name: "내 러브트리" })
+      screen.getByRole("button", { name: /내 러브트리/ })
     ).toBeInTheDocument();
   });
 
   it("사이드바에 '탐색' 메뉴가 있어야 한다", () => {
     renderAppAt("/tree/new-demo");
     expect(
-      screen.getByRole("button", { name: "탐색" })
+      screen.getByRole("button", { name: /탐색/ })
     ).toBeInTheDocument();
   });
 
   it("사이드바에 '설정' 메뉴가 있어야 한다", () => {
     renderAppAt("/tree/new-demo");
     expect(
-      screen.getByRole("button", { name: "설정" })
+      screen.getByRole("button", { name: /설정/ })
     ).toBeInTheDocument();
+  });
+
+  /* ─── 메뉴 및 활성 상태 검증 ─── */
+
+  it("사이드바 메뉴가 정확히 3개이고 '내 러브트리'가 활성 상태여야 한다", () => {
+    renderAppAt("/tree/new-demo");
+    const nav = screen.getByRole("navigation", { name: "에디터 메뉴" });
+    const menuButtons = within(nav).getAllByRole("button");
+    expect(menuButtons).toHaveLength(3);
+
+    const activeButtons = nav.querySelectorAll('[aria-current="page"]');
+    expect(activeButtons).toHaveLength(1);
+    expect(
+      within(nav).getByRole("button", { name: /내 러브트리/ })
+    ).toHaveAttribute("aria-current", "page");
   });
 
   /* ─── 접근성 구조 ─── */
@@ -83,19 +98,33 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
     expect(screen.getByRole("main")).toBeInTheDocument();
   });
 
-  it("메뉴가 ul > li > button 구조여야 한다", () => {
+  it("메뉴가 ul > li > button 구조여야 하며 정확히 3개 항목이어야 한다", () => {
     renderAppAt("/tree/new-demo");
     const nav = screen.getByRole("navigation", { name: "에디터 메뉴" });
     const list = nav.querySelector("ul");
     expect(list).toBeInTheDocument();
     const items = list!.querySelectorAll("li");
-    expect(items.length).toBeGreaterThanOrEqual(3);
+    expect(items.length).toBe(3);
     items.forEach((item) => {
       expect(item.querySelector("button")).toBeInTheDocument();
     });
   });
 
-  /* ─── 순간 카드 없음 ─── */
+  it("장식 SVG는 accessibility tree에서 숨겨져 있어야 한다", () => {
+    renderAppAt("/tree/new-demo");
+    const main = screen.getByRole("main");
+    const svgs = main.querySelectorAll("svg");
+    expect(svgs).toHaveLength(1);
+
+    svgs.forEach((svg) => {
+      const isHidden =
+        svg.getAttribute("aria-hidden") === "true" ||
+        svg.closest('[aria-hidden="true"]') !== null;
+      expect(isHidden).toBe(true);
+    });
+  });
+
+  /* ─── 순간 카드 및 미허용 버튼 없음 ─── */
 
   it("article(순간 카드)이 0개여야 한다", () => {
     renderAppAt("/tree/new-demo");
@@ -114,6 +143,99 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
       screen.queryByRole("button", { name: /게시하기/ })
     ).not.toBeInTheDocument();
   });
+
+  /* ─── 종합 Presentation-only regression 계약 테스트 ─── */
+
+  it("상호작용 전후 DOM 계약이 유지되고 네트워크/Storage/Dialog side-effect가 발생하지 않아야 한다", () => {
+    // 1. Spies installed BEFORE renderAppAt
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const xhrOpenSpy = vi.spyOn(XMLHttpRequest.prototype, "open");
+
+    const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
+    const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
+    const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
+    const storageClearSpy = vi.spyOn(Storage.prototype, "clear");
+
+    // 2. Render
+    renderAppAt("/tree/new-demo");
+
+    // 3. Exact count & state assertions BEFORE click
+    const initialUrl = window.location.href;
+
+    expect(screen.getByRole("heading", { level: 1, name: "새 러브트리" })).toBeInTheDocument();
+    expect(screen.getByText("첫 순간을 추가해 러브트리를 시작하세요")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "첫 순간 추가" })).toBeInTheDocument();
+
+    const nav = screen.getByRole("navigation", { name: "에디터 메뉴" });
+    const menuButtons = within(nav).getAllByRole("button");
+    expect(menuButtons).toHaveLength(3);
+
+    const activeButtons = nav.querySelectorAll('[aria-current="page"]');
+    expect(activeButtons).toHaveLength(1);
+    expect(
+      within(nav).getByRole("button", { name: /내 러브트리/ })
+    ).toHaveAttribute("aria-current", "page");
+
+    expect(screen.queryAllByRole("article")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: /기억 추가/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /저장/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /게시하기/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    // 4. Click all buttons
+    const allButtons = screen.getAllByRole("button");
+    allButtons.forEach((btn) => fireEvent.click(btn));
+
+    // 5. Re-query DOM post-click
+    expect(screen.getByRole("heading", { level: 1, name: "새 러브트리" })).toBeInTheDocument();
+    expect(screen.getByText("첫 순간을 추가해 러브트리를 시작하세요")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "첫 순간 추가" })).toBeInTheDocument();
+
+    const reNav = screen.getByRole("navigation", { name: "에디터 메뉴" });
+    expect(within(reNav).getAllByRole("button")).toHaveLength(3);
+
+    const reActive = reNav.querySelectorAll('[aria-current="page"]');
+    expect(reActive).toHaveLength(1);
+    expect(
+      within(reNav).getByRole("button", { name: /내 러브트리/ })
+    ).toHaveAttribute("aria-current", "page");
+
+    expect(screen.queryAllByRole("article")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: /기억 추가/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /저장/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /게시하기/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    expect(window.location.href).toBe(initialUrl);
+
+    // 6. Side-effect assertions
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(xhrOpenSpy).not.toHaveBeenCalled();
+    expect(storageGetSpy).not.toHaveBeenCalled();
+    expect(storageSetSpy).not.toHaveBeenCalled();
+    expect(storageRemoveSpy).not.toHaveBeenCalled();
+    expect(storageClearSpy).not.toHaveBeenCalled();
+  });
+
+  /* ─── 개별 상호작용 후 사이드 이펙트 없음 ─── */
+
+  it("모든 버튼 클릭 후 fetch가 0회여야 한다", () => {
+    renderAppAt("/tree/new-demo");
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const buttons = screen.getAllByRole("button");
+    buttons.forEach((btn) => fireEvent.click(btn));
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
 
   /* ─── 상호작용 후 사이드 이펙트 없음 ─── */
 
