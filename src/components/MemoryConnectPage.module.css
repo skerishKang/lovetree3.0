@@ -575,11 +575,13 @@
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    order: -1;
   }
 
   .treeColumn {
     flex: 1;
     min-width: 0;
+    order: 0;
   }
 
   .desktopCtaPanel {
