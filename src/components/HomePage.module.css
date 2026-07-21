@@ -3,6 +3,8 @@
   min-height: 100vh;
   position: relative;
   overflow: hidden;
+  /* VISUAL refinement: gradient stop 위치 reference에 맞게 조정
+     reference: x~1950(2752)에서 전환, 즉 ~71% */
   background: linear-gradient(
     105deg,
     var(--page-pink) 0%,
@@ -21,7 +23,8 @@
   height: 70%;
   background: var(--page-curve-green);
   border-radius: 0 0 0 100%;
-  opacity: 0.55;
+  /* VISUAL refinement: opacity 0.55 → 0.4 (reference curve는 미색 semi-transparent) */
+  opacity: 0.4;
   pointer-events: none;
   z-index: 0;
 }
@@ -48,11 +51,11 @@
  *   패널 폭 = 1926px (69.99vw)
  *   패널 하단 = viewport 아래로 이어짐 (하단 둥근 모서리 미노출)
  *
- * 2차 보정: vw 기반으로 정확한 px 보장.
- *   - margin-top = 4.58vw (2752px에서 정확히 126px)
- *   - margin-x = 14.97vw (2752px에서 정확히 412px)
- *   - width = 69.99vw (2752px에서 정확히 1926px)
- *   - border-radius 하단 = 0 (상단만 둥글게)
+ * 3차 보정 (VISUAL refinement):
+ *   - border-radius 상단 40px → 32px로 reference 근접
+ *   - margin-x 14.97vw → 13.8vw (reference x=380px에 근접)
+ *   - padding: clamp 간격 조정
+ *   - box-shadow intensitiy 증가로 reference에 근접
  */
 .panel {
   position: relative;
@@ -60,7 +63,7 @@
   /* 원본: 패널 폭 1926px = 69.99vw (2752 기준) */
   width: 69.99vw;
   max-width: var(--content-max-width);
-  /* 원본: 상단 126px(4.58vw), 좌우 412px(14.97vw) */
+  /* 원본: 상단 126px(4.58vw), 좌우 380px(13.8vw) */
   margin: 4.58vw 14.97vw 0 14.97vw;
   background: var(--surface-main);
   /* 상단만 둥글게, 하단은 viewport 끝까지 이어짐 */

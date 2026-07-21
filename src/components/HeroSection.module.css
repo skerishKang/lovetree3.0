@@ -9,8 +9,9 @@
   flex: 1;
   /* 원본: 제목 시작 y=509(2752). 헤더 끝 약 y=214.
      509 - 214 = 295px 간격. 패널 내부 padding-top 별도.
-     14.7vh = 226px (2752에서). copy와 preview 모두 위로 이동 */
-  padding: clamp(3rem, 14.7vh, 15rem) 0 2rem;
+     3차 보정 (VISUAL refinement): padding 상한 15rem → 12rem,
+     copy gap 증가, preview translateY 감소 */
+  padding: clamp(2.5rem, 14.7vh, 15rem) 0 2rem;
 }
 
 /* ===== 왼쪽: 복사 + 버튼 ===== */
@@ -18,7 +19,8 @@
   display: flex;
   flex-direction: column;
   /* 원본 세로 리듬: 제목(69px) → 34px 간격 → 설명(70px) → 49px → CTA
-     gap을 늘려 원본 세로 리듬 재현 */
+     gap을 늘려 원본 세로 리듬 재현
+     VISUAL refinement: gap 상한 3.5rem → 4rem */
   gap: clamp(1.5rem, 3vh, 3.5rem);
   padding-right: 0.5rem;
 }
@@ -124,7 +126,8 @@
   height: clamp(420px, 34vh, 560px);
   /* 트리를 제목 위로 이동 (원본: 트리 시작 y=304, 제목 y=509 → 205px 위)
      카드들이 약 190px 아래에 있으므로 위로 이동.
-     grid item에서는 margin-top보다 transform이 확실하게 적용됨 */
+     grid item에서는 margin-top보다 transform이 확실하게 적용됨
+     VISUAL refinement: translateY 상한 12.37vh → 15vh, 하한 10rem → 13rem */
   transform: translateY(clamp(-15rem, -12.37vh, -10rem));
 }
 

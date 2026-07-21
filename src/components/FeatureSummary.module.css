@@ -1,13 +1,15 @@
 .summary {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  /* 2차 보정: 원본 간격. 4컬럼, 패널 폭 1926px(2752) 기준 */
-  gap: clamp(1.5rem, 4vw, 4rem);
-  /* 원본: 아이콘 상단 y=1272(2752), 패널 내에서 충분한 상단 여백 */
-  padding: clamp(3rem, 8vh, 6rem) 0 1rem;
+  /* 2차 보정: 원본 간격. 4컬럼, 패널 폭 1926px(2752) 기준
+     VISUAL refinement: gap 상한 4vw → 2vw, padding 조정 */
+  gap: clamp(1rem, 2vw, 2.5rem);
+  /* 원본: 아이콘 상단 y=1272(2752), 패널 내에서 충분한 상단 여백
+     VISUAL refinement: padding-top 8vh → 5vh */
+  padding: clamp(2rem, 5vh, 4rem) 0 1rem;
   /* 원본: divider가 거의 보이지 않음. 매우 약하게 */
   border-top: 1px solid rgba(45, 41, 38, 0.04);
-  margin-top: clamp(2rem, 5vh, 4rem);
+  margin-top: clamp(1.5rem, 3vh, 2.5rem);
 }
 
 .item {
