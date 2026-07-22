@@ -9,9 +9,11 @@
 | Item | Value |
 |---|---|
 | Base SHA | `562cb177379d4b61d664f7a0d8bcba1428602805` |
-| Final audit head | `PENDING` (filled in metadata-finalization commit) |
-| Deployed SHA | `PENDING` |
-| Preview URL | `https://audit-ui-integration-12-scre.lovetree3.pages.dev` |
+| Audit content head | `b32ce090ffa2481daa37f9ca2d627edf786de41a` |
+| Deployed SHA (audit UI verified) | `b32ce090ffa2481daa37f9ca2d627edf786de41a` |
+| Cloudflare deployment | `d26417db-88ed-4dac-ae44-f0df34d395cb` |
+| Preview URL | `https://d26417db.lovetree3.pages.dev` |
+| Branch preview URL | `https://audit-ui-integration-12-scre.lovetree3.pages.dev` |
 | Routes audited | 12 |
 | Captures | 36 (12 routes × 3 viewports) + 3 contact sheets |
 | Browser | Google Chrome 145.0.7632.116 (system), Playwright 1.61.0, DPR 1, full-page |

@@ -1,8 +1,17 @@
 {
   "base": "https://audit-ui-integration-12-scre.lovetree3.pages.dev",
-  "commitSha": "e257eff952926215f6731e9888593112ece387ed",
+  "baseSha": "562cb177379d4b61d664f7a0d8bcba1428602805",
+  "captureDeployedSha": "e257eff952926215f6731e9888593112ece387ed",
+  "finalAuditHead": "b32ce090ffa2481daa37f9ca2d627edf786de41a",
+  "deployedSha": "b32ce090ffa2481daa37f9ca2d627edf786de41a",
+  "cloudflareDeploymentId": "d26417db-88ed-4dac-ae44-f0df34d395cb",
+  "previewUrl": "https://d26417db.lovetree3.pages.dev",
+  "branchPreviewUrl": "https://audit-ui-integration-12-scre.lovetree3.pages.dev",
+  "chromeVersion": "Google Chrome 145.0.7632.116",
+  "playwrightVersion": "1.61.0",
   "browser": "Google Chrome (system)",
   "generatedAt": "2026-07-22T23:15:26.740Z",
+  "note": "Captures were taken against the branch preview serving e257eff (captureDeployedSha). The audit-content commit b32ce09 and this metadata commit differ from e257eff by docs-only changes under docs/audits/ui-integration-12-screen/**; application code is identical to base 562cb17 across all three, so the captured UI matches the final deployed UI.",
   "viewportCount": 3,
   "routeCount": 12,
   "entryCount": 36,
@@ -14,6 +23,7 @@
     "consoleErrors": [],
     "pageErrors": []
   },
+  "commitSha": "e257eff952926215f6731e9888593112ece387ed",
   "entries": [
     {
       "route": "/",
