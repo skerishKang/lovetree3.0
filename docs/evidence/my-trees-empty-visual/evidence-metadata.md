@@ -2,16 +2,17 @@
 
 ## Commit Trace
 1. Base main: `d82344f13d6cebf265870e22aaf7efc58e0b5c8c`
-2. Visual Source: `3bc1ac210eec87f208ea68510c8c344ddcd1ddf2` — `style: deepen LT3-MY-TREES-002 empty-state onboarding`
-3. Evidence: `f2b1615363496207b563b7e952eab8b28e02c650` — `docs: add verified LT3-MY-TREES-002 visual evidence`
-4. Metadata: recorded in PR #53 body and final report — `docs: finalize LT3-MY-TREES-002 evidence metadata`
+2. Visual Source (original): `3bc1ac210eec87f208ea68510c8c344ddcd1ddf2` — `style: deepen LT3-MY-TREES-002 empty-state onboarding`
+3. Intermediate-width fix: `802957b34f8af47d8b1a8e66813e81dfa5e8edbc` — `fix: preserve quick-start readability at intermediate width`
+4. Evidence (re-capture): `PENDING` — `docs: replace LT3-MY-TREES-002 visual evidence after intermediate-width fix`
+5. Metadata: recorded in PR #53 body and final report — `docs: finalize LT3-MY-TREES-002 evidence metadata (re-capture)`
 
 ## Branch Preview
 - URL: `https://style-my-trees-empty-visual.lovetree3.pages.dev/my-trees/empty-demo`
-- Commit-hash URL: `https://fb546a69.lovetree3.pages.dev`
+- Commit-hash URL: `https://fea0b0da.lovetree3.pages.dev`
 - Branch: `style/my-trees-empty-visual-refinement`
-- Cloudflare deployment ID: `fb546a69-1ed0-4434-b3e1-f4db3c1c3106`
-- Cloudflare deployed commit: `3bc1ac210eec87f208ea68510c8c344ddcd1ddf2`
+- Cloudflare deployment ID: `fea0b0da-e82f-477c-9717-d513f2e386f8`
+- Cloudflare deployed commit: `802957b34f8af47d8b1a8e66813e81dfa5e8edbc`
 - PR: #53 (OPEN/DRAFT)
 - Issue: #52 (OPEN)
 
@@ -22,14 +23,14 @@
 - DPR: 1 (all viewports)
 
 ## Screenshot Hashes
-- `my-trees-empty-desktop-1440x-full.png` (1440×1016 px, 61,206 bytes):
-  `973e208af3950355422c0c9ddaff57ad0a3093e56f8b638aadf5616dc289bf33`
-- `my-trees-empty-intermediate-900x-full.png` (900×916 px, 57,386 bytes):
-  `9d64b1ff72b5a32e013e4019cb18611a0198433a85192872afe43e381830e1a0`
-- `my-trees-empty-mobile-390x-full.png` (390×901 px, 48,333 bytes):
-  `dd914f8074c0f5ccd911326b3f48c3a25b7439f46efc698f3a287e95d337a92e`
+- `my-trees-empty-desktop-1440x-full.png` (1440×1016 px, 60,418 bytes):
+  `c260bfd9c22011dc2996ec82c1528c66f41d451ed67ea9b6ed370877e40bd02e`
+- `my-trees-empty-intermediate-900x-full.png` (900×916 px, 59,047 bytes):
+  `6ba0733f836f5a13a1aea52b909cdff66f7cc147757db189c3d802a9f0b080af`
+- `my-trees-empty-mobile-390x-full.png` (390×901 px, 48,335 bytes):
+  `078c8cbfb27d1522ba12f6a2747e7e258a4932065eeecc27b3f53c564ea15e19`
 
-## Tests (at Visual Source Commit `3bc1ac2`)
+## Tests (at Intermediate-width Fix Commit `802957b`)
 - Focused: `MyTreesEmptyPage.test.tsx` — 29/29 passed
 - Full repository: 13 files, 336 tests — all passed
 - Lint: 0 warnings, 0 errors

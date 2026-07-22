@@ -1,8 +1,11 @@
 # My Trees Empty State — Visual Validation
 
 Capture URL: `https://style-my-trees-empty-visual.lovetree3.pages.dev/my-trees/empty-demo`
-Deployed commit: `3bc1ac210eec87f208ea68510c8c344ddcd1ddf2`
+Deployed commit: `802957b34f8af47d8b1a8e66813e81dfa5e8edbc`
 Browser: Google Chrome 145.0.7632.116 (headless) · DPR 1 · Playwright
+
+This capture replaces the earlier `3bc1ac2` evidence after the intermediate-width
+readability fix (`fix: preserve quick-start readability at intermediate width`).
 
 ---
 
@@ -12,8 +15,8 @@ Browser: Google Chrome 145.0.7632.116 (headless) · DPR 1 · Playwright
 |---|---|
 | Screenshot | `my-trees-empty-desktop-1440x-full.png` |
 | PNG dimensions | 1440×1016 px |
-| Bytes | 61,206 |
-| SHA-256 | `973e208af3950355422c0c9ddaff57ad0a3093e56f8b638aadf5616dc289bf33` |
+| Bytes | 60,418 |
+| SHA-256 | `c260bfd9c22011dc2996ec82c1528c66f41d451ed67ea9b6ed370877e40bd02e` |
 | scrollWidth | 1440 |
 | clientWidth | 1440 |
 | Horizontal overflow | 0 px — PASS |
@@ -22,7 +25,10 @@ Browser: Google Chrome 145.0.7632.116 (headless) · DPR 1 · Playwright
 | Failed requests | none |
 | Primary CTA | 161×48 px · bg `rgb(217,107,143)` (dusty rose) |
 | Secondary CTA | 154×44 px · transparent bg |
-| Quick-start button heights | 44, 54, 54 px — all ≥ 44px PASS |
+| Quick-start button heights | 44, 44, 44 px — all ≥ 44px PASS |
+| Quick-start layout | 3 cards in ONE row (`distinctItemRows: 1`) — PASS |
+| Quick-start item widths | 178 / 178 / 178 px (evenly spaced at x=650/842/1034) |
+| Quick-start title overflow | none (scrollWidth == clientWidth for all 3) — PASS |
 | Decorative SVGs | 4 |
 | Clipping / overlap | none detected |
 
@@ -30,8 +36,8 @@ Visible hierarchy:
 - H1: `아직 러브트리가 없어요`
 - H2: `어떤 순간부터 시작할까요?`
 - Brand ("Relovetree") appears exactly once
-- Quick-start items: 3 (each with title + description)
-- Layout: balanced two-area composition (visual panel + action panel)
+- Quick-start items: 3 (each with title + description), balanced single row
+- Layout: two-area composition (visual panel + action panel); quick-start 3-column active (≥1200px breakpoint)
 
 ---
 
@@ -41,8 +47,8 @@ Visible hierarchy:
 |---|---|
 | Screenshot | `my-trees-empty-intermediate-900x-full.png` |
 | PNG dimensions | 900×916 px |
-| Bytes | 57,386 |
-| SHA-256 | `9d64b1ff72b5a32e013e4019cb18611a0198433a85192872afe43e381830e1a0` |
+| Bytes | 59,047 |
+| SHA-256 | `6ba0733f836f5a13a1aea52b909cdff66f7cc147757db189c3d802a9f0b080af` |
 | scrollWidth | 900 |
 | clientWidth | 900 |
 | Horizontal overflow | 0 px — PASS |
@@ -51,7 +57,10 @@ Visible hierarchy:
 | Failed requests | none |
 | Primary CTA | 161×48 px · bg `rgb(217,107,143)` |
 | Secondary CTA | 154×44 px · transparent bg |
-| Quick-start button heights | 54, 70, 54 px — all ≥ 44px PASS |
+| Quick-start button heights | 44, 44, 44 px — all ≥ 44px PASS |
+| Quick-start layout | single column, stacked (`distinctItemRows: 3`) — PASS |
+| Quick-start item widths | 454 / 454 / 454 px (natural readable width) |
+| Quick-start title overflow | none (scrollWidth == clientWidth == 418 for all 3) — PASS |
 | Decorative SVGs | 4 |
 | Clipping / overlap | none detected |
 
@@ -59,8 +68,9 @@ Visible hierarchy:
 - H1: `아직 러브트리가 없어요`
 - H2: `어떤 순간부터 시작할까요?`
 - Brand ("Relovetree") appears exactly once
-- Quick-start items: 3 (each with title + description)
-- Layout: two-area grid at 900px breakpoint, no overlap
+- Quick-start items: 3 (each with title + description), stacked full-width cards
+- Layout: two-area grid preserved at 900px (action panel at x=398); quick-start stays single column below the 1200px breakpoint
+- Titles `입덕`, `첫 콘서트`, `최애 무대` render on one line — no character-level fragmentation
 
 ---
 
@@ -70,8 +80,8 @@ Visible hierarchy:
 |---|---|
 | Screenshot | `my-trees-empty-mobile-390x-full.png` |
 | PNG dimensions | 390×901 px (full-page; page height 901 > viewport 844) |
-| Bytes | 48,333 |
-| SHA-256 | `dd914f8074c0f5ccd911326b3f48c3a25b7439f46efc698f3a287e95d337a92e` |
+| Bytes | 48,335 |
+| SHA-256 | `078c8cbfb27d1522ba12f6a2747e7e258a4932065eeecc27b3f53c564ea15e19` |
 | scrollWidth | 390 |
 | clientWidth | 390 |
 | Horizontal overflow | 0 px — PASS |
@@ -81,6 +91,9 @@ Visible hierarchy:
 | Primary CTA | 300×48 px · bg `rgb(217,107,143)` |
 | Secondary CTA | 154×44 px · transparent bg |
 | Quick-start button heights | 44, 44, 44 px — all ≥ 44px PASS |
+| Quick-start layout | single column, stacked (`distinctItemRows: 3`) — PASS |
+| Quick-start item widths | 342 / 342 / 342 px |
+| Quick-start title overflow | none — PASS |
 | Decorative SVGs | 4 |
 | Clipping / overlap | none detected |
 
@@ -111,4 +124,7 @@ Visible hierarchy:
 | No failed requests | PASS | PASS | PASS |
 | Mobile single-column layout | n/a | n/a | PASS |
 | Desktop two-area composition | PASS | n/a | n/a |
+| Desktop quick-start 3-in-a-row (balanced) | PASS | n/a | n/a |
+| Intermediate quick-start single column | n/a | PASS | n/a |
+| Intermediate no character-level title fragmentation | n/a | PASS | n/a |
 | Intermediate no overlap at 900px | n/a | PASS | n/a |
