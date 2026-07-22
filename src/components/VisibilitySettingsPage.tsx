@@ -8,13 +8,14 @@ import styles from "./VisibilitySettingsPage.module.css";
 export default function VisibilitySettingsPage() {
   return (
     <div className={styles.page}>
-      {/* 화면 제목 */}
       <header className={styles.topBar}>
         <h1 className={styles.screenTitle}>공개 범위 설정</h1>
+        <p className={styles.screenDescription}>
+          LoveTree의 공개 범위와 참여 설정을 관리합니다.
+        </p>
       </header>
 
       <main className={styles.content}>
-        {/* 공개 범위 선택 */}
         <fieldset className={styles.visibilityFieldset}>
           <legend className={styles.fieldsetLegend}>공개 범위</legend>
           <div className={styles.radioGroup} role="radiogroup" aria-label="공개 범위">
@@ -56,7 +57,6 @@ export default function VisibilitySettingsPage() {
           </div>
         </fieldset>
 
-        {/* 공유 링크 표시 */}
         <section className={styles.shareLinkSection} aria-label="공유 링크">
           <h2 className={styles.sectionLabel}>공유 링크</h2>
           <div className={styles.linkDisplay}>
@@ -73,7 +73,6 @@ export default function VisibilitySettingsPage() {
           </div>
         </section>
 
-        {/* 추가 설정 */}
         <fieldset className={styles.settingsFieldset}>
           <legend className={styles.fieldsetLegend}>추가 설정</legend>
           <div className={styles.checkboxGroup}>
@@ -93,7 +92,6 @@ export default function VisibilitySettingsPage() {
           </div>
         </fieldset>
 
-        {/* 저장 버튼 */}
         <div className={styles.actions}>
           <button type="button" className={styles.saveButton} aria-label="공개 범위 저장">
             저장
