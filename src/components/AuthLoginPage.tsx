@@ -2,6 +2,7 @@ import AuthBrand from "./AuthBrand";
 import LoginPanel from "./LoginPanel";
 import AuthLegalNotice from "./AuthLegalNotice";
 import styles from "./AuthLoginPage.module.css";
+import { TRUST_CONTEXT } from "../data/authMockData";
 
 export default function AuthLoginPage() {
   return (
@@ -19,6 +20,10 @@ export default function AuthLoginPage() {
           <AuthLegalNotice />
         </div>
       </div>
+      <section className={styles.trustContext} aria-labelledby="auth-trust-title">
+        <h2 id="auth-trust-title">{TRUST_CONTEXT.title}</h2>
+        <p>{TRUST_CONTEXT.description}</p>
+      </section>
     </div>
   );
 }

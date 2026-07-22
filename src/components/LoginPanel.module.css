@@ -50,6 +50,104 @@
 .previewBadge {
   font-size: 0.65rem;
   color: #c0a88a;
+  border: 1px solid #e0d0c0;
+  border-radius: 8px;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+}
+
+.featureList {
+  background: #fef8f0;
+  border: 1px solid #ece0d0;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.featureTitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4a3728;
+  margin: 0 0 0.25rem;
+}
+
+.featureItems {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 0.75rem;
+}
+
+.featureItem {
+  font-size: 0.8rem;
+  color: #6a5a4a;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.featureItemIcon {
+  font-size: 0.85rem;
+}
+
+.featureLabel {
+  font-weight: 600;
+  color: #3e2c1a;
+}
+
+.featureDescription {
+  font-size: 0.72rem;
+  color: #8a7a6a;
+  margin-top: 0.15rem;
+}
+
+
+.profilePreview {
+  background: #fef8f0;
+  border: 1px solid #ece0d0;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8c9b0, #d4a88a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.previewInfo {
+  flex: 1;
+}
+
+.previewLabel {
+  font-size: 0.72rem;
+  color: #b0a090;
+  margin: 0 0 0.15rem;
+}
+
+.previewName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #3e2c1a;
+  margin: 0;
+}
+
+.previewBadge {
+  font-size: 0.65rem;
+  color: #c0a88a;
   border: 1px solid #e0d4c0;
   border-radius: 8px;
   padding: 0.2rem 0.5rem;

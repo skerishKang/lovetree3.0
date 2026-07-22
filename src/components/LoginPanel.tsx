@@ -25,7 +25,12 @@ export default function LoginPanel() {
     <div className={styles.loginPanel}>
       {/* Login buttons */}
       {LOGIN_BUTTONS.map((btn) => (
-        <SocialLoginButton key={btn.id} icon={btn.icon} label={btn.label} />
+        <SocialLoginButton
+          key={btn.id}
+          icon={btn.icon}
+          label={btn.label}
+          variant={btn.variant}
+        />
       ))}
 
       {/* Profile preview */}
@@ -47,7 +52,10 @@ export default function LoginPanel() {
               <span className={styles.featureItemIcon}>
                 <FeatureIcon />
               </span>
-              {f.label}
+              <div>
+                <p className={styles.featureLabel}>{f.label}</p>
+                <p className={styles.featureDescription}>{f.description}</p>
+              </div>
             </span>
           ))}
         </div>
