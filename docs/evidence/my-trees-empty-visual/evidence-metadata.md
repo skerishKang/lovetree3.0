@@ -3,8 +3,8 @@
 ## Commit Trace
 1. Base main: `d82344f13d6cebf265870e22aaf7efc58e0b5c8c`
 2. Visual Source: `3bc1ac210eec87f208ea68510c8c344ddcd1ddf2` — `style: deepen LT3-MY-TREES-002 empty-state onboarding`
-3. Evidence: `PENDING` — `docs: add verified LT3-MY-TREES-002 visual evidence`
-4. Metadata: `PENDING` — `docs: finalize LT3-MY-TREES-002 evidence metadata`
+3. Evidence: `f2b1615363496207b563b7e952eab8b28e02c650` — `docs: add verified LT3-MY-TREES-002 visual evidence`
+4. Metadata: recorded in PR #53 body and final report — `docs: finalize LT3-MY-TREES-002 evidence metadata`
 
 ## Branch Preview
 - URL: `https://style-my-trees-empty-visual.lovetree3.pages.dev/my-trees/empty-demo`
