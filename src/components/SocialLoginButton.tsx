@@ -4,9 +4,10 @@ import styles from "./SocialLoginButton.module.css";
 interface Props {
   icon: string;
   label: string;
+  variant: "primary" | "secondary";
 }
 
-export default function SocialLoginButton({ icon, label }: Props) {
+export default function SocialLoginButton({ icon, label, variant }: Props) {
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     /* No authentication — BASE placeholder only */
@@ -15,7 +16,7 @@ export default function SocialLoginButton({ icon, label }: Props) {
   return (
     <button
       type="button"
-      className={styles.socialBtn}
+      className={`${styles.socialBtn} ${styles[variant]}`}
       onClick={handleClick}
       aria-label={label}
     >

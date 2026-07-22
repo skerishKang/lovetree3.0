@@ -1,7 +1,15 @@
 .legalNotice {
   text-align: center;
-  padding: 1.5rem 1.25rem 2rem;
+  padding: 1rem 0;
 }
+
+.legalText {
+  font-size: 0.72rem;
+  color: #8a7a6a;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
 
 .legalText {
   font-size: 0.72rem;

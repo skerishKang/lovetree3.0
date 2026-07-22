@@ -50,7 +50,7 @@
 .previewBadge {
   font-size: 0.65rem;
   color: #c0a88a;
-  border: 1px solid #e0d4c0;
+  border: 1px solid #e0d0c0;
   border-radius: 8px;
   padding: 0.2rem 0.5rem;
   white-space: nowrap;
@@ -75,18 +75,34 @@
 
 .featureItems {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4rem 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
 }
 
 .featureItem {
   font-size: 0.8rem;
   color: #6a5a4a;
   display: flex;
-  align-items: center;
-  gap: 0.35rem;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
 .featureItemIcon {
   font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.featureLabel {
+  font-weight: 600;
+  color: #3e2c1a;
+  margin: 0;
+}
+
+.featureDescription {
+  font-size: 0.72rem;
+  color: #8a7a6a;
+  margin: 2px 0 0;
+  line-height: 1.4;
 }

@@ -1,14 +1,66 @@
 .authPage {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fdf8f0 0%, #faf0e4 100%);
   display: flex;
   flex-direction: column;
+  background: linear-gradient(180deg, #fdf8f0 0%, #faf0e4 100%);
 }
 
 .authCard {
-  flex: 1;
-  max-width: 420px;
   width: 100%;
+  max-width: 440px;
   margin: 0 auto;
-  padding: 0 0 2rem;
+  padding: 24px 16px 32px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+.brandColumn,
+.loginColumn,
+.legalRow {
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .authCard {
+    max-width: 1040px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+    align-items: center;
+    gap: 48px;
+    padding: 56px 48px 40px;
+  }
+
+  .brandColumn {
+    grid-column: 1;
+  }
+
+  .loginColumn {
+    grid-column: 2;
+  }
+
+  .legalRow {
+    grid-column: 1 / -1;
+  }
+}
+
+.trustContext {
+  padding: 2rem 1rem;
+  background-color: #fef8f0;
+  text-align: center;
+}
+
+.trustContext h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #4a3728;
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+}
+
+.trustContext p {
+  font-size: 0.95rem;
+  color: #8a7a6a;
+  margin: 0;
+  line-height: 1.5;
 }

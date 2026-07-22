@@ -1,16 +1,20 @@
-.authBrand {
-  text-align: center;
-  padding: 2rem 1rem 1rem;
+.brandMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 0;
 }
 
 .brandName {
   font-size: clamp(1.5rem, 5vw, 2rem);
   font-weight: 700;
   color: #3e2c1a;
-  margin: 0 0 0.75rem;
+  margin: 0;
 }
 
 .heading {
+  text-align: center;
   font-size: clamp(1.05rem, 3.5vw, 1.35rem);
   font-weight: 600;
   color: #4a3728;
@@ -20,6 +24,7 @@
 }
 
 .description {
+  text-align: center;
   font-size: clamp(0.82rem, 2.5vw, 0.95rem);
   color: #8a7a6a;
   margin: 0;
