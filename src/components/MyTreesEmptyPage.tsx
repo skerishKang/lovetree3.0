@@ -1,149 +1,103 @@
-import {
-  EMPTY_STATE,
-  QUICK_START_TAGS,
-} from "../data/myTreesEmptyMockData";
+import { EMPTY_STATE, QUICK_START_IDEAS } from "../data/myTreesEmptyMockData";
 import styles from "./MyTreesEmptyPage.module.css";
 
 export default function MyTreesEmptyPage() {
   return (
     <div className={styles.page}>
-      {/* 상단 헤더 */}
-      <header className={styles.topBar}>
-        <span className={styles.logo}>LoveTree</span>
-        <button
-          type="button"
-          className={styles.profileButton}
-          aria-label="마이페이지"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2" />
-            <path
-              d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
+      <header className={styles.brandBar}>
+        <span className={styles.brandName}>Relovetree</span>
+        <button type="button" className={styles.profileButton} aria-label="마이페이지">
+          <span className={styles.profileIcon} aria-hidden="true" />
         </button>
       </header>
 
-      {/* 본문 */}
-      <main className={styles.content}>
-        {/* 중앙 일러스트레이션 영역 */}
-        <div className={styles.illustration} aria-hidden="true">
-          {/* 새싹과 떠 있는 카드 — 장식용 SVG */}
+      <main className={styles.layout}>
+        <div className={styles.visualPanel} aria-hidden="true">
           <svg
-            width="160"
-            height="140"
-            viewBox="0 0 160 140"
+            className={styles.sproutSvg}
+            width="220"
+            height="200"
+            viewBox="0 0 220 200"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
           >
-            {/* 흙더미 */}
-            <ellipse cx="80" cy="125" rx="50" ry="12" fill="#e8d5c4" />
-            {/* 줄기 */}
-            <path
-              d="M80 125V80"
-              stroke="#9bd4ae"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-            {/* 잎 (좌) */}
-            <path
-              d="M80 85C70 75 60 78 55 85C50 92 60 100 80 90"
-              fill="#b8e6c9"
-            />
-            {/* 잎 (우) */}
-            <path
-              d="M80 75C90 65 100 68 105 75C110 82 100 90 80 80"
-              fill="#7bc99b"
-            />
-            {/* 떠 있는 카드 1 */}
-            <rect x="20" y="20" width="30" height="36" rx="4" fill="#ffd6e0" opacity="0.9" />
-            <line x1="26" y1="30" x2="44" y2="30" stroke="#ff9eb5" strokeWidth="2" strokeLinecap="round" />
-            <line x1="26" y1="38" x2="40" y2="38" stroke="#ff9eb5" strokeWidth="2" strokeLinecap="round" />
-            <line x1="26" y1="46" x2="36" y2="46" stroke="#ff9eb5" strokeWidth="2" strokeLinecap="round" />
-            {/* 떠 있는 카드 2 */}
-            <rect x="110" y="10" width="30" height="36" rx="4" fill="#d6ecff" opacity="0.9" />
-            <line x1="116" y1="20" x2="134" y2="20" stroke="#87b8ff" strokeWidth="2" strokeLinecap="round" />
-            <line x1="116" y1="28" x2="130" y2="28" stroke="#87b8ff" strokeWidth="2" strokeLinecap="round" />
-            <line x1="116" y1="36" x2="126" y2="36" stroke="#87b8ff" strokeWidth="2" strokeLinecap="round" />
-            {/* 떠 있는 카드 3 */}
-            <rect x="100" y="55" width="30" height="36" rx="4" fill="#d8f0e0" opacity="0.9" />
-            <line x1="106" y1="65" x2="124" y2="65" stroke="#9bd4ae" strokeWidth="2" strokeLinecap="round" />
-            <line x1="106" y1="73" x2="120" y2="73" stroke="#9bd4ae" strokeWidth="2" strokeLinecap="round" />
-            <line x1="106" y1="81" x2="116" y2="81" stroke="#9bd4ae" strokeWidth="2" strokeLinecap="round" />
-            {/* 연결선 */}
-            <path
-              d="M45 35L70 70"
-              stroke="#e0d5c8"
-              strokeWidth="1"
-              strokeDasharray="3 3"
-            />
-            <path
-              d="M110 30L90 65"
-              stroke="#e0d5c8"
-              strokeWidth="1"
-              strokeDasharray="3 3"
-            />
+            <ellipse cx="110" cy="178" rx="60" ry="14" fill="#e8d5c4" />
+            <path d="M110 178V110" stroke="#9bd4ae" strokeWidth="3.5" strokeLinecap="round" />
+            <path d="M110 120C96 106 82 110 76 120C70 130 82 140 110 126" fill="#b8e6c9" />
+            <path d="M110 106C124 92 138 96 144 106C150 116 138 126 110 112" fill="#7bc99b" />
+            <path d="M110 96C100 82 88 84 84 92C80 100 90 106 110 98" fill="#d4edda" />
+            <rect x="28" y="24" width="34" height="42" rx="5" fill="#ffd6e0" opacity="0.9" />
+            <line x1="35" y1="36" x2="55" y2="36" stroke="#ff9eb5" strokeWidth="2" strokeLinecap="round" />
+            <line x1="35" y1="45" x2="51" y2="45" stroke="#ff9eb5" strokeWidth="2" strokeLinecap="round" />
+            <line x1="35" y1="54" x2="47" y2="54" stroke="#ff9eb5" strokeWidth="2" strokeLinecap="round" />
+            <rect x="158" y="14" width="34" height="42" rx="5" fill="#d6ecff" opacity="0.9" />
+            <line x1="165" y1="26" x2="185" y2="26" stroke="#87b8ff" strokeWidth="2" strokeLinecap="round" />
+            <line x1="165" y1="35" x2="181" y2="35" stroke="#87b8ff" strokeWidth="2" strokeLinecap="round" />
+            <line x1="165" y1="44" x2="177" y2="44" stroke="#87b8ff" strokeWidth="2" strokeLinecap="round" />
+            <rect x="148" y="68" width="34" height="42" rx="5" fill="#d8f0e0" opacity="0.9" />
+            <line x1="155" y1="80" x2="175" y2="80" stroke="#9bd4ae" strokeWidth="2" strokeLinecap="round" />
+            <line x1="155" y1="89" x2="171" y2="89" stroke="#9bd4ae" strokeWidth="2" strokeLinecap="round" />
+            <line x1="155" y1="98" x2="167" y2="98" stroke="#9bd4ae" strokeWidth="2" strokeLinecap="round" />
+            <path d="M55 42L90 90" stroke="#e0d5c8" strokeWidth="1" strokeDasharray="3 3" />
+            <path d="M158 36L130 80" stroke="#e0d5c8" strokeWidth="1" strokeDasharray="3 3" />
+            <path d="M148 88L125 100" stroke="#e0d5c8" strokeWidth="1" strokeDasharray="3 3" />
           </svg>
+          <p className={styles.visualCaption}>첫 기억을 심기 전의 조용한 시작점</p>
         </div>
 
-        {/* 제목 + 안내 */}
-        <h1 className={styles.pageTitle}>{EMPTY_STATE.pageTitle}</h1>
-        <p className={styles.pageDescription}>
-          {EMPTY_STATE.pageDescription}
-        </p>
+        <div className={styles.actionPanel}>
+          <h1 className={styles.pageTitle}>{EMPTY_STATE.pageTitle}</h1>
+          <p className={styles.pageDescription}>{EMPTY_STATE.pageDescription}</p>
 
-        {/* 주요 CTA */}
-        <button type="button" className={styles.primaryCta}>
-          {EMPTY_STATE.primaryCtaLabel}
-        </button>
+          <div className={styles.ctaGroup}>
+            <button type="button" className={styles.primaryCta}>
+              {EMPTY_STATE.primaryCtaLabel}
+            </button>
+            <button type="button" className={styles.secondaryCta}>
+              {EMPTY_STATE.secondaryCtaLabel}
+            </button>
+          </div>
 
-        {/* 보조 CTA */}
-        <button type="button" className={styles.secondaryCta}>
-          {EMPTY_STATE.secondaryCtaLabel}
-        </button>
-
-        {/* 빠른 시작 태그 */}
-        <section
-          className={styles.quickStartSection}
-          aria-labelledby="quick-start-heading"
-        >
-          <h2 id="quick-start-heading" className={styles.quickStartHeading}>
-            {EMPTY_STATE.quickStartHeading}
-          </h2>
-          <ul className={styles.tagList}>
-            {QUICK_START_TAGS.map((tag) => (
-              <li key={tag.id}>
-                <button type="button" className={styles.tagButton}>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
+          <section className={styles.quickStartSection} aria-labelledby="quick-start-heading">
+            <h2 id="quick-start-heading" className={styles.quickStartHeading}>
+              {EMPTY_STATE.quickStartHeading}
+            </h2>
+            <ul className={styles.quickStartList} aria-label="빠르게 시작할 수 있는 첫 기억 아이디어">
+              {QUICK_START_IDEAS.map((idea) => (
+                <li key={idea.id} data-testid="quick-start-item" className={styles.quickStartItem}>
+                  <button
+                    type="button"
+                    className={`${styles.quickStartButton} ${styles[idea.variant]}`}
                   >
-                    <path
-                      d="M7 1v12M1 7h12"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M4 4l6 6M10 4l-6 6"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      opacity="0.5"
-                    />
-                  </svg>
-                  {tag.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
+                    {idea.variant === "rose" && (
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                        <path d="M8 14s-5.5-3.5-5.5-7A3 3 0 0 1 8 4.5 3 3 0 0 1 13.5 7c0 3.5-5.5 7-5.5 7z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                    {idea.variant === "sage" && (
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                        <rect x="2" y="4" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+                        <path d="M2 7h12" stroke="currentColor" strokeWidth="1.4" />
+                        <circle cx="5" cy="9.5" r="0.8" fill="currentColor" />
+                      </svg>
+                    )}
+                    {idea.variant === "cream" && (
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                        <path d="M8 1.5l1.8 3.7 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L2.2 5.8l4-.6L8 1.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                    <span>{idea.title}</span>
+                  </button>
+                  <p data-testid="quick-start-description" className={styles.quickStartDescription}>
+                    {idea.description}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
       </main>
     </div>
   );
