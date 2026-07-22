@@ -32,7 +32,6 @@ export const AUTH_FEATURES: AuthFeature[] = [
   { id: "save", icon: "💾", label: "기록 저장" },
   { id: "share", icon: "🔗", label: "공유 관리" },
   { id: "alarm", icon: "🔔", label: "댓글 알림" },
-  { id: "sync", icon: "🔄", label: "내 트리 동기화" },
 ];
 
 export const LEGAL_NOTICE =

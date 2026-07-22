@@ -6,6 +6,20 @@ import {
 import SocialLoginButton from "./SocialLoginButton";
 import styles from "./LoginPanel.module.css";
 
+const FeatureIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <rect width="16" height="16" rx="4" fill="#d4a88a" />
+  </svg>
+);
+
 export default function LoginPanel() {
   return (
     <div className={styles.loginPanel}>
@@ -30,7 +44,9 @@ export default function LoginPanel() {
         <div className={styles.featureItems}>
           {AUTH_FEATURES.map((f) => (
             <span key={f.id} className={styles.featureItem}>
-              <span className={styles.featureItemIcon}>{f.icon}</span>
+              <span className={styles.featureItemIcon}>
+                <FeatureIcon />
+              </span>
               {f.label}
             </span>
           ))}

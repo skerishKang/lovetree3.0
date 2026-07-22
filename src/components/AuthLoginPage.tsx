@@ -7,9 +7,17 @@ export default function AuthLoginPage() {
   return (
     <div className={styles.authPage}>
       <div className={styles.authCard}>
-        <AuthBrand />
-        <LoginPanel />
-        <AuthLegalNotice />
+        <section className={styles.brandColumn}>
+          <AuthBrand />
+        </section>
+
+        <section className={styles.loginColumn}>
+          <LoginPanel />
+        </section>
+
+        <div className={styles.legalRow}>
+          <AuthLegalNotice />
+        </div>
       </div>
     </div>
   );

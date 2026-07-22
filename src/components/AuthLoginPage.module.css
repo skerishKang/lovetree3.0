@@ -5,10 +5,51 @@
   flex-direction: column;
 }
 
+.authPage {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fdf8f0 0%, #faf0e4 100%);
+  display: flex;
+  flex-direction: column;
+}
+
 .authCard {
   flex: 1;
-  max-width: 420px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 0 2rem;
+  padding: 0 1.5rem;
 }
+
+.brandColumn {
+  grid-column: 1;
+  padding: 2rem 0;
+}
+
+.loginColumn {
+  grid-column: 2;
+  padding: 2rem 0;
+}
+
+.legalRow {
+  grid-column: 1 / -1;
+  padding: 1rem 0;
+}
+
+
+.brandColumn {
+  grid-column: 1;
+}
+
+.loginColumn {
+  grid-column: 2;
+}
+
+.legalRow {
+  grid-column: 1 / -1;
+}
+
