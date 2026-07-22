@@ -2,8 +2,8 @@
 
 ## Commit Trace
 1. Visual Source: `18f1b88cf65eccaaddd24a3fa2a2b2055ff3c8e3` — `fix: finalize LT3-AUTH-001 accessibility and button states`
-2. Evidence: `PENDING` — `docs: add verified LT3-AUTH-001 visual evidence`
-3. Metadata: `PENDING` — `docs: finalize LT3-AUTH-001 evidence metadata`
+2. Evidence: `f0489a6256d5347ba706ba82c17c509f1d1c2f15` — `docs: add verified LT3-AUTH-001 visual evidence`
+3. Metadata: recorded in PR #51 body and final report — `docs: finalize LT3-AUTH-001 evidence metadata`
 
 ## Branch Preview
 - URL: `https://fix-auth-login-acceptance-46.lovetree3.pages.dev/login`
