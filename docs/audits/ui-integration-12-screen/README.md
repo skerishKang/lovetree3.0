@@ -1,54 +1,64 @@
 # LoveTree 3.0 — 12-Screen UI Integration Audit
 
-**Status:** IN PROGRESS (scaffold) — results pending
 **Audit type:** audit-only (no application source changes)
-**Issue:** #54
+**Issue:** #54 · **PR:** #55 (OPEN / DRAFT)
 **Branch:** `audit/ui-integration-12-screen`
+
+## Summary
+
+| Item | Value |
+|---|---|
+| Base SHA | `562cb177379d4b61d664f7a0d8bcba1428602805` |
+| Final audit head | `PENDING` (filled in metadata-finalization commit) |
+| Deployed SHA | `PENDING` |
+| Preview URL | `https://audit-ui-integration-12-scre.lovetree3.pages.dev` |
+| Routes audited | 12 |
+| Captures | 36 (12 routes × 3 viewports) + 3 contact sheets |
+| Browser | Google Chrome 145.0.7632.116 (system), Playwright 1.61.0, DPR 1, full-page |
+| P0 | 0 |
+| P1 | 0 |
+| P2 | 3 |
+| P3 | 4 |
+| **Overall verdict** | **UI INTEGRATION PASS WITH FOLLOW-UP ISSUES** |
 
 ## Purpose
 
-Treat the 12 implemented LoveTree 3.0 screens as a single product and verify that
-the following are consistent and stable across them:
+Treat the 12 implemented LoveTree 3.0 screens as a single product and verify that brand,
+header/navigation, typography, CTA hierarchy, card/surface treatment, responsive
+transitions, basic accessibility contracts, horizontal overflow, clipping/overlap, runtime
+errors, and cross-screen visual connectivity are consistent and stable.
 
-- Brand notation and color
-- Header and navigation
-- Typography
-- Button and CTA hierarchy
-- Card / surface / border / shadow
-- Responsive transitions
-- Basic accessibility contracts
-- Horizontal overflow
-- Clipping and overlap
-- Runtime errors
-- Visual connectivity between screens
+Findings are recorded in `defect-register.md`; fixes are split into follow-up Issues. This
+branch does **not** modify application code.
 
-Findings are recorded in `defect-register.md`. Actual fixes are split into separate
-follow-up Issues; this branch does **not** modify application code.
+## Method
 
-## Base SHA
-
-`562cb177379d4b61d664f7a0d8bcba1428602805` (`origin/main` at audit start)
+Independent Playwright + system Chrome (no Kimi WebBridge). Capture scripts and temporary
+data live outside the repository (`/tmp/lovetree3-ui-audit/`). This audit environment cannot
+render images for human-style review, so consistency/defect judgements are derived from
+computed styles, DOM geometry, and programmatic pixel analysis (blank detection, background
+sampling); the 36 screenshots and 3 contact sheets are provided for the CTO's visual review.
 
 ## Audit target routes (exactly 12)
 
 Read from `src/App.tsx` at the base SHA:
 
-| # | Route | Component |
-|---|---|---|
-| 1 | `/` | `HomePage` |
-| 2 | `/community` | `CommunityPage` |
-| 3 | `/login` | `AuthLoginPage` |
-| 4 | `/tree/community-demo` | `TreeDetailPage` |
-| 5 | `/memory/connect-demo` | `MemoryConnectPage` |
-| 6 | `/my-trees` | `MyTreesPage` |
-| 7 | `/tree/edit-demo` | `TreeEditorPage` |
-| 8 | `/tree/new-demo` | `EmptyTreeEditorPage` |
-| 9 | `/memory/detail-demo` | `MemoryDetailPage` |
-| 10 | `/media/search-demo` | `MediaSearchPage` |
-| 11 | `/settings/visibility-demo` | `VisibilitySettingsPage` |
-| 12 | `/my-trees/empty-demo` | `MyTreesEmptyPage` |
+| # | Route | Component | Verdict |
+|---|---|---|---|
+| 1 | `/` | `HomePage` | PASS_WITH_NOTES |
+| 2 | `/community` | `CommunityPage` | PASS_WITH_NOTES |
+| 3 | `/login` | `AuthLoginPage` | PASS |
+| 4 | `/tree/community-demo` | `TreeDetailPage` | PASS_WITH_NOTES |
+| 5 | `/memory/connect-demo` | `MemoryConnectPage` | PASS_WITH_NOTES |
+| 6 | `/my-trees` | `MyTreesPage` | PASS_WITH_NOTES |
+| 7 | `/tree/edit-demo` | `TreeEditorPage` | PASS_WITH_NOTES |
+| 8 | `/tree/new-demo` | `EmptyTreeEditorPage` | PASS_WITH_NOTES |
+| 9 | `/memory/detail-demo` | `MemoryDetailPage` | PASS_WITH_NOTES |
+| 10 | `/media/search-demo` | `MediaSearchPage` | PASS |
+| 11 | `/settings/visibility-demo` | `VisibilitySettingsPage` | PASS_WITH_NOTES |
+| 12 | `/my-trees/empty-demo` | `MyTreesEmptyPage` | PASS |
 
-Additional smoke check: `/__ui-audit-missing-route__` must fall back to `/`.
+Unknown route `/__ui-audit-missing-route__` → falls back to `/` (HTTP 200, 0 errors). **PASS**
 
 ## Viewports (3)
 
@@ -58,26 +68,50 @@ Additional smoke check: `/__ui-audit-missing-route__` must fall back to `/`.
 | Intermediate | 900×900 | 1 |
 | Mobile | 390×844 | 1 |
 
-Total captures: **12 routes × 3 viewports = 36 PNG** + 3 contact sheets.
+## Headline results
 
-## Constraints
+- **Runtime:** all 36 captures HTTP 200; 0 console errors, 0 page errors, 0 failed requests;
+  0/36 blank screens; no redirect loop.
+- **Responsive:** horizontal overflow = 0 on all 36; no content clipping; no content overlap.
+- **Accessibility smoke:** exactly one h1 per screen; 0 icon-only buttons missing accessible
+  names; no missing img alt; no modal on load.
+- **Brand/color:** cohesive warm ivory/rose palette; no generic-SaaS white screen; brand
+  notation inconsistency recorded as P2.
 
-- **No application source changes.** Forbidden: `src/**`, `package.json`,
-  `package-lock.json`, `vite.config.*`, `tsconfig*`, `.github/**`, `public/**`,
-  `docs/reference/**`, `docs/evidence/**`, `artifacts/**`.
-- Allowed change scope: `docs/audits/ui-integration-12-screen/**` only.
-- Captures use independent Playwright + system Chrome (no Kimi WebBridge).
+## Defects (P0–P3)
 
-## Documents (to be completed)
+| ID | Severity | Title |
+|---|---|---|
+| D-01 | P2 | Brand / object notation inconsistency ("Relovetree" / "LoveTree" / "러브트리") |
+| D-02 | P2 | Interactive targets below 44px (min 13px inline like buttons) |
+| D-03 | P2 | Inconsistent decorative-SVG `aria-hidden` coverage |
+| D-04 | P3 | Line-clamped card text without ellipsis |
+| D-05 | P3 | h1 size/weight not tokenized |
+| D-06 | P3 | Header height/background/position drift |
+| D-07 | P3 | Inconsistent SVG `focusable="false"` |
 
-- `route-matrix.md`
-- `visual-consistency.md`
-- `responsive-audit.md`
-- `accessibility-smoke.md`
-- `defect-register.md`
-- `capture-metadata.json`
+No P0/P1 defects → verdict is **UI INTEGRATION PASS WITH FOLLOW-UP ISSUES**.
+
+## Follow-up Issue candidates
+
+1. `fix: unify LoveTree brand and object notation across screens` (D-01)
+2. `fix: enforce 44px minimum touch targets for primary controls` (D-02)
+3. `fix: mark decorative SVGs aria-hidden consistently across screens` (D-03, + D-07)
+4. `fix: add ellipsis to clamped card text` (D-04)
+5. `chore: tokenize heading sizes and weights` (D-05)
+6. `chore: standardize app header height and background tokens` (D-06)
+
+## Documents
+
+- `route-matrix.md` — per-route verdicts
+- `visual-consistency.md` — brand / header / typography / color / CTA / iconography / density
+- `responsive-audit.md` — route × viewport overflow / clipping / overlap / breakpoints
+- `accessibility-smoke.md` — auto-collected vs manual judgement
+- `defect-register.md` — P0 → P3 register
+- `capture-metadata.json` — 36 capture entries + unknown-route fallback
 - `contact-sheet-desktop.png` / `contact-sheet-intermediate.png` / `contact-sheet-mobile.png`
 
-## Results
+## Constraints honoured
 
-**PENDING** — captures and analysis not yet performed.
+- No application source changes (diff limited to `docs/audits/ui-integration-12-screen/**`).
+- Issue #54 OPEN; PR #55 OPEN/DRAFT; not merged; not marked Ready; branch retained.
