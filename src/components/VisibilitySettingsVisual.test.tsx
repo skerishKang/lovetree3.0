@@ -154,7 +154,7 @@ describe("VisibilitySettingsPage — Visual Contracts", () => {
 
   it("XHR 호출 0회", () => {
     const xhrSpy = vi.fn();
-    const originalXMLHttpRequest = global.XMLHttpRequest;
+    const originalXMLHttpRequest = globalThis.XMLHttpRequest;
     vi.stubGlobal("XMLHttpRequest", class {
       open = xhrSpy;
       send = vi.fn();

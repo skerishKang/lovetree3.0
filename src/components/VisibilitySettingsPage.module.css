@@ -94,8 +94,7 @@
   outline-offset: 2px;
 }
 
-.optionCard[aria-checked="true"],
-.optionCard[data-selected="true"] {
+.optionCard:has(.visRadio:checked) {
   border-color: #3d3229;
   box-shadow: 0 2px 12px rgba(61, 50, 41, 0.08);
 }
