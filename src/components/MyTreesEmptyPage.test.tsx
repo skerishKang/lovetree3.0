@@ -96,6 +96,41 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     });
   });
 
+  /* ─── 빠른 시작 설명 ─── */
+
+  it("빠른 시작 항목이 정확히 3개여야 한다 (data-testid)", () => {
+    renderAppAt("/my-trees/empty-demo");
+    const items = screen.getAllByTestId("quick-start-item");
+    expect(items).toHaveLength(3);
+  });
+
+  it("각 빠른 시작 항목에 설명이 있어야 한다", () => {
+    renderAppAt("/my-trees/empty-demo");
+    const descriptions = screen.getAllByTestId("quick-start-description");
+    expect(descriptions).toHaveLength(3);
+    descriptions.forEach((desc) => {
+      expect(desc.textContent!.length).toBeGreaterThan(0);
+    });
+  });
+
+  /* ─── decorative SVG 계약 ─── */
+
+  it("decorative SVG가 정확히 4개여야 한다", () => {
+    renderAppAt("/my-trees/empty-demo");
+    const svgs = document.querySelectorAll('svg[aria-hidden="true"]');
+    expect(svgs).toHaveLength(4);
+  });
+
+  it("모든 decorative SVG에 aria-hidden='true'와 focusable='false'가 있어야 한다", () => {
+    renderAppAt("/my-trees/empty-demo");
+    const svgs = document.querySelectorAll('svg[aria-hidden="true"]');
+    expect(svgs.length).toBe(4);
+    for (const svg of svgs) {
+      expect(svg).toHaveAttribute("aria-hidden", "true");
+      expect(svg).toHaveAttribute("focusable", "false");
+    }
+  });
+
   /* ─── 상호작용 후 사이드 이펙트 없음 ─── */
 
   it("모든 버튼 클릭 후 fetch가 0회여야 한다", () => {
@@ -175,6 +210,77 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  /* ─── render 전 설치 side-effect spy ─── */
+
+  it("render 전 spy 설치: 모든 버튼 5개 클릭 후 side-effect 0회", () => {
+    const fetchSpy = vi.fn();
+    const xhrOpenSpy = vi.fn();
+    const storageGetSpy = vi.fn(() => null);
+    const storageSetSpy = vi.fn();
+    const storageRemoveSpy = vi.fn();
+    const storageClearSpy = vi.fn();
+    const windowOpenSpy = vi.fn();
+    const pushStateSpy = vi.spyOn(window.history, "pushState");
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+    vi.stubGlobal("fetch", fetchSpy);
+    vi.stubGlobal("XMLHttpRequest", class {
+      open = xhrOpenSpy;
+      send = vi.fn();
+      setRequestHeader = vi.fn();
+    });
+    vi.stubGlobal("localStorage", {
+      getItem: storageGetSpy,
+      setItem: storageSetSpy,
+      removeItem: storageRemoveSpy,
+      clear: storageClearSpy,
+      length: 0,
+      key: vi.fn(),
+    });
+    vi.stubGlobal("sessionStorage", {
+      getItem: storageGetSpy,
+      setItem: storageSetSpy,
+      removeItem: storageRemoveSpy,
+      clear: storageClearSpy,
+      length: 0,
+      key: vi.fn(),
+    });
+    vi.stubGlobal("open", windowOpenSpy);
+
+    renderAppAt("/my-trees/empty-demo");
+    pushStateSpy.mockClear();
+    replaceStateSpy.mockClear();
+
+    const urlBefore = window.location.href;
+    const h1Before = screen.getByRole("heading", { level: 1 }).textContent;
+    const primaryCount = screen.getAllByRole("button", { name: "첫 순간 기록하기" }).length;
+    const secondaryCount = screen.getAllByRole("button", { name: "예시 러브트리 보기" }).length;
+    const quickStartCount = screen.getAllByTestId("quick-start-item").length;
+
+    const allButtons = screen.getAllByRole("button");
+    expect(allButtons.length).toBeGreaterThanOrEqual(5);
+    allButtons.forEach((btn) => fireEvent.click(btn));
+
+    expect(window.location.href).toBe(urlBefore);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(h1Before);
+    expect(screen.getAllByRole("button", { name: "첫 순간 기록하기" }).length).toBe(primaryCount);
+    expect(screen.getAllByRole("button", { name: "예시 러브트리 보기" }).length).toBe(secondaryCount);
+    expect(screen.getAllByTestId("quick-start-item").length).toBe(quickStartCount);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(xhrOpenSpy).not.toHaveBeenCalled();
+    expect(storageGetSpy).not.toHaveBeenCalled();
+    expect(storageSetSpy).not.toHaveBeenCalled();
+    expect(storageRemoveSpy).not.toHaveBeenCalled();
+    expect(storageClearSpy).not.toHaveBeenCalled();
+    expect(windowOpenSpy).not.toHaveBeenCalled();
+    expect(pushStateSpy).not.toHaveBeenCalled();
+    expect(replaceStateSpy).not.toHaveBeenCalled();
   });
 
   /* ─── 기존 /my-trees 화면 유지 ─── */
