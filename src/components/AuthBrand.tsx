@@ -18,9 +18,7 @@ export default function AuthBrand() {
         </svg>
         <span className={styles.brandName}>{APP_BRAND}</span>
       </div>
-      <h1 className={styles.heading} aria-label="Relovetree">
-        {LOGIN_HEADING}
-      </h1>
+      <h1 className={styles.heading}>{LOGIN_HEADING}</h1>
       <p className={styles.description}>{LOGIN_DESCRIPTION}</p>
     </>
   );

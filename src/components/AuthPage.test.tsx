@@ -45,6 +45,12 @@ describe("Auth 로그인 화면 검증 (LT3-AUTH-001)", () => {
     expect(headings).toHaveLength(1);
     expect(headings[0]).toHaveTextContent(LOGIN_HEADING);
     expect(headings[0].textContent).toBe(LOGIN_HEADING);
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: LOGIN_HEADING,
+      })
+    ).toBeInTheDocument();
 
     // Description exact 1
     const descriptions = screen.getAllByText(LOGIN_DESCRIPTION);

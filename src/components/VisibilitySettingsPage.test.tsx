@@ -302,7 +302,7 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     it("/login 경로가 정상 렌더링되어야 한다", () => {
       renderAppAt("/login");
       expect(
-        screen.getByRole("heading", { level: 1, name: "Relovetree" })
+        screen.getByRole("heading", { level: 1, name: "내 러브트리를 계속 이어가려면 로그인하세요" })
       ).toBeInTheDocument();
     });
 
