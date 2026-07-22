@@ -3,8 +3,10 @@
 ## Screen: LT3-SETTINGS-001 (`/settings/visibility-demo`)
 
 **Evidence captured from:** `http://localhost:5173/settings/visibility-demo`  
-**Branch head:** `4f0a1f3c5e8d9a2b3c4d5e6f7a8b9c0d1e2f3a4b`  
-**Captured:** 2026-07-22
+**Code commit SHA:** `3d8c332904242857c90356339d79fef88206dcfe`  
+**Captured:** 2026-07-23
+
+**Note:** Cloudflare Pages deployment failed. Screenshots captured from localhost development server.
 
 ---
 

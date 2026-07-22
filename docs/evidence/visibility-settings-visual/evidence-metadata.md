@@ -12,9 +12,9 @@
 |---|---|
 | Branch | `style/visibility-settings-visual-refinement` |
 | Base SHA | `9a03d8cd8c1420f25f1281e889746669f3f8e73d` |
-| Code commit SHA | `4f0a1f3c5e8d9a2b3c4d5e6f7a8b9c0d1e2f3a4b` |
-| Screenshot commit SHA | `4f0a1f3c5e8d9a2b3c4d5e6f7a8b9c0d1e2f3a4b` |
-| Preview URL | `https://style-visibility-settings-visual-ref.lovetree3.pages.dev/settings/visibility-demo` |
+| Final SHA | `3d8c332904242857c90356339d79fef88206dcfe` |
+| Screenshot source | localhost (Cloudflare deployment BLOCKED) |
+| Build verification | GitHub Actions SUCCESS |
 
 ## Screenshot Details
 
@@ -107,5 +107,5 @@ See `known-visual-differences.md` for detailed analysis of intentional differenc
 
 1. **Background**: Changed to gradient (LoveTree 3.0 visual language)
 2. **Description**: Added paragraph below title for context
-3. **Selection indicator**: Enhanced visual feedback for selected radio
+3. **Selection indicator**: Enhanced visual feedback for selected radio (CSS :has() selector)
 4. **Share link input**: Distinct background to indicate read-only state

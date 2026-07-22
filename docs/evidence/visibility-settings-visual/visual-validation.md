@@ -9,9 +9,11 @@
 | `visibility-settings-mobile-390x-full.png` | 390 × 963 | `cdd77a8279e90125847e4bbf012893d9dc5c516898c8221162d272af5d34ae03` |
 
 **Captured from:** `http://localhost:5173/settings/visibility-demo`  
-**Branch head:** `4f0a1f3c5e8d9a2b3c4d5e6f7a8b9c0d1e2f3a4b`  
+**Code commit SHA:** `3d8c332904242857c90356339d79fef88206dcfe`  
 **Browser:** Chromium (Playwright headless)  
-**Viewport DPR:** 1x (all viewports)  
+**Viewport DPR:** 1x (all viewports)
+
+**Note:** Cloudflare Pages deployment failed. Screenshots captured from localhost development server.  
 
 ---
 
