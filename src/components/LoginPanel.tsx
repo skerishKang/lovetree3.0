@@ -48,7 +48,11 @@ export default function LoginPanel() {
         <p className={styles.featureTitle}>로그인하면 이용할 수 있는 기능</p>
         <div className={styles.featureItems}>
           {AUTH_FEATURES.map((f) => (
-            <span key={f.id} className={styles.featureItem}>
+            <div
+              key={f.id}
+              className={styles.featureItem}
+              data-testid="auth-value-item"
+            >
               <span className={styles.featureItemIcon}>
                 <FeatureIcon />
               </span>
@@ -56,7 +60,7 @@ export default function LoginPanel() {
                 <p className={styles.featureLabel}>{f.label}</p>
                 <p className={styles.featureDescription}>{f.description}</p>
               </div>
-            </span>
+            </div>
           ))}
         </div>
       </div>

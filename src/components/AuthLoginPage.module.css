@@ -1,13 +1,7 @@
 .authPage {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fdf8f0 0%, #faf0e4 100%);
   display: flex;
   flex-direction: column;
-}
-
-.authPage {
-  min-height: 100vh;
-  display: flex;
   background: linear-gradient(180deg, #fdf8f0 0%, #faf0e4 100%);
 }
 
@@ -37,6 +31,14 @@
     padding: 56px 48px 40px;
   }
 
+  .brandColumn {
+    grid-column: 1;
+  }
+
+  .loginColumn {
+    grid-column: 2;
+  }
+
   .legalRow {
     grid-column: 1 / -1;
   }
@@ -62,17 +64,3 @@
   margin: 0;
   line-height: 1.5;
 }
-
-
-.brandColumn {
-  grid-column: 1;
-}
-
-.loginColumn {
-  grid-column: 2;
-}
-
-.legalRow {
-  grid-column: 1 / -1;
-}
-

@@ -5,14 +5,18 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./HomePage";
 import CommunityPage from "./CommunityPage";
 import AuthLoginPage from "./AuthLoginPage";
+import {
+  APP_BRAND,
+  LOGIN_HEADING,
+  LOGIN_DESCRIPTION,
+  TRUST_CONTEXT,
+  LEGAL_NOTICE,
+  AUTH_FEATURES,
+} from "../data/authMockData";
 
-const renderWithRouter = (
-  initialPath: string,
-  { routeOptions = {} }: { routeOptions?: { initialEntries?: string[] } } = {}
-) => {
-  const { initialEntries = [initialPath], ...options } = routeOptions;
+function renderWithRouter(initialPath: string) {
   return render(
-    <MemoryRouter initialEntries={initialEntries} {...options}>
+    <MemoryRouter initialEntries={[initialPath]}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/community" element={<CommunityPage />} />
@@ -21,7 +25,7 @@ const renderWithRouter = (
       </Routes>
     </MemoryRouter>
   );
-};
+}
 
 describe("Auth 로그인 화면 검증 (LT3-AUTH-001)", () => {
   afterEach(() => {
@@ -29,76 +33,140 @@ describe("Auth 로그인 화면 검증 (LT3-AUTH-001)", () => {
     vi.restoreAllMocks();
   });
 
-  it("1. 필수 DOM 요소들이 정확히 렌더링된다", () => {
-    render(<AuthLoginPage />);
+  it("1. /login 실제 route가 정상 렌더링된다", () => {
+    renderWithRouter("/login");
 
-    // Brand and heading
-    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
-    expect(screen.getByText("Relovetree")).toBeInTheDocument();
-    expect(screen.getByText(/기록한 순간을 안전하게 저장하고/)).toBeInTheDocument();
+    // Brand text exact 1
+    const brandElements = screen.getAllByText(APP_BRAND);
+    expect(brandElements).toHaveLength(1);
 
-    // Buttons
-    expect(screen.getByRole("button", { name: "구글 계정으로 계속하기" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "이메일로 로그인" })).toBeInTheDocument();
+    // Heading h1 exact 1 and text matches LOGIN_HEADING
+    const headings = screen.getAllByRole("heading", { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(LOGIN_HEADING);
+    expect(headings[0].textContent).toBe(LOGIN_HEADING);
 
-    // Legal notice
-    expect(screen.getByText(/서비스 이용약관과 개인정보 처리방침에 동의하게 됩니다/)).toBeInTheDocument();
-
-    // Trust context
-    expect(screen.getByRole("heading", { level: 2, name: "기록은 개인 공간에서 시작됩니다" })).toBeInTheDocument();
-    expect(screen.getByText(/로그인한 뒤 나만의 기록을 이어가고/)).toBeInTheDocument();
-
-    // Value items (3)
-    expect(screen.getAllByText(/기록 저장|공유 관리|댓글 알림/)).toHaveLength(3);
+    // Description exact 1
+    const descriptions = screen.getAllByText(LOGIN_DESCRIPTION);
+    expect(descriptions).toHaveLength(1);
   });
 
-  it("2. 모든 decorative SVG는 aria-hidden=\"true\" 이고 focusable=false이다", () => {
-    const { container } = render(<AuthLoginPage />);
-    const decorativeSvgs = container.querySelectorAll(
-      'svg[aria-hidden="true"]'
-    );
+  it("2. exact DOM contract를 준수한다", () => {
+    const { container } = renderWithRouter("/login");
+
+    // Google & Email buttons exact 1
+    const googleBtn = screen.getByRole("button", { name: "구글 계정으로 계속하기" });
+    const emailBtn = screen.getByRole("button", { name: "이메일로 로그인" });
+    expect(googleBtn).toBeInTheDocument();
+    expect(emailBtn).toBeInTheDocument();
+    expect(screen.getAllByRole("button")).toHaveLength(2);
+
+    // Trust section exact 1
+    const trustTitle = screen.getByRole("heading", { level: 2, name: TRUST_CONTEXT.title });
+    expect(trustTitle).toBeInTheDocument();
+    expect(screen.getByText(TRUST_CONTEXT.description)).toBeInTheDocument();
+
+    // Value items, labels, descriptions exact 3
+    const valueItems = screen.getAllByTestId("auth-value-item");
+    expect(valueItems).toHaveLength(3);
+
+    AUTH_FEATURES.forEach((feature) => {
+      expect(screen.getByText(feature.label)).toBeInTheDocument();
+      expect(screen.getByText(feature.description)).toBeInTheDocument();
+    });
+
+    // Legal notice exact 1
+    expect(screen.getByText(LEGAL_NOTICE)).toBeInTheDocument();
+
+    // Dialog/alertdialog/alert count 0
+    expect(container.querySelectorAll('[role="dialog"]')).toHaveLength(0);
+    expect(container.querySelectorAll('[role="alertdialog"]')).toHaveLength(0);
+    expect(container.querySelectorAll('[role="alert"]')).toHaveLength(0);
+  });
+
+  it("3. decorative SVG contract를 준수한다", () => {
+    const { container } = renderWithRouter("/login");
+
+    const decorativeSvgs = container.querySelectorAll('svg[aria-hidden="true"]');
     expect(decorativeSvgs).toHaveLength(4);
 
-    decorativeSvgs.forEach((svg) => {
+    for (const svg of decorativeSvgs) {
       expect(svg).toHaveAttribute("aria-hidden", "true");
       expect(svg).toHaveAttribute("focusable", "false");
-    });
+    }
   });
 
-  it("3. 로그인 버튼 클릭 시 side-effect가 발생하지 않는다", async () => {
+  it("4. presentation-only side-effect contract를 준수한다", async () => {
+    // Install side-effect spies BEFORE render
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const xhrOpenSpy = vi.spyOn(XMLHttpRequest.prototype, "open");
+    const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
+    const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
+    const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
+    const storageClearSpy = vi.spyOn(Storage.prototype, "clear");
+    const windowOpenSpy = vi.spyOn(window, "open");
+
+    const { container } = renderWithRouter("/login");
+
+    // Capture initial DOM state & URL
+    const initialUrl = window.location.href;
+    const initialH1s = screen.getAllByRole("heading", { level: 1 });
+    const initialH1Text = initialH1s[0].textContent;
+    const initialGoogleBtnCount = screen.getAllByRole("button", { name: "구글 계정으로 계속하기" }).length;
+    const initialEmailBtnCount = screen.getAllByRole("button", { name: "이메일로 로그인" }).length;
+    const initialValueItemCount = screen.getAllByTestId("auth-value-item").length;
+    const initialLegalNoticeCount = screen.getAllByText(LEGAL_NOTICE).length;
+
     const user = userEvent.setup();
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(() => Promise.resolve(new Response()));
-    const openSpy = vi.spyOn(window, "open").mockImplementation(() => window);
-    const pushStateSpy = vi.spyOn(window.history, "pushState");
-
-    render(<AuthLoginPage />);
-
     const googleBtn = screen.getByRole("button", { name: "구글 계정으로 계속하기" });
+    const emailBtn = screen.getByRole("button", { name: "이메일로 로그인" });
+
+    // Click both buttons
     await user.click(googleBtn);
+    await user.click(emailBtn);
 
+    // Verify side-effect call counts are exactly 0
     expect(fetchSpy).not.toHaveBeenCalled();
-    expect(openSpy).not.toHaveBeenCalled();
-    expect(pushStateSpy).not.toHaveBeenCalled();
+    expect(xhrOpenSpy).not.toHaveBeenCalled();
+    expect(storageGetSpy).not.toHaveBeenCalled();
+    expect(storageSetSpy).not.toHaveBeenCalled();
+    expect(storageRemoveSpy).not.toHaveBeenCalled();
+    expect(storageClearSpy).not.toHaveBeenCalled();
+    expect(windowOpenSpy).not.toHaveBeenCalled();
 
-    // Check that the UI remains the same
-    expect(screen.getByRole("button", { name: "구글 계정으로 계속하기" })).toBeInTheDocument();
+    // Verify DOM and URL contracts remain unchanged
+    expect(window.location.href).toBe(initialUrl);
+    const postH1s = screen.getAllByRole("heading", { level: 1 });
+    expect(postH1s).toHaveLength(initialH1s.length);
+    expect(postH1s[0].textContent).toBe(initialH1Text);
+    expect(screen.getAllByRole("button", { name: "구글 계정으로 계속하기" })).toHaveLength(initialGoogleBtnCount);
+    expect(screen.getAllByRole("button", { name: "이메일로 로그인" })).toHaveLength(initialEmailBtnCount);
+    expect(screen.getAllByTestId("auth-value-item")).toHaveLength(initialValueItemCount);
+    expect(screen.getAllByText(LEGAL_NOTICE)).toHaveLength(initialLegalNoticeCount);
+
+    expect(container.querySelectorAll('[role="dialog"]')).toHaveLength(0);
+    expect(container.querySelectorAll('[role="alertdialog"]')).toHaveLength(0);
+    expect(container.querySelectorAll('[role="alert"]')).toHaveLength(0);
   });
 
-  it("4. 라우팅 회귀 테스트", () => {
+  it("5. /는 HomePage를 유지한다", () => {
     renderWithRouter("/");
-    expect(screen.getByRole("heading", { name: "사랑에 빠진 모든 순간을 기록해 보세요" })).toBeInTheDocument();
-    cleanup();
-
-    renderWithRouter("/community");
-    expect(screen.getByRole("heading", { name: "다른 팬들의 러브트리 구경하기" })).toBeInTheDocument();
-    cleanup();
-
-    renderWithRouter("/login");
-    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "사랑에 빠진 모든 순간을 기록해 보세요" })
+    ).toBeInTheDocument();
   });
 
-  it("5. 미존재 경로는 fallback된다", () => {
+  it("6. /community는 CommunityPage를 유지한다", () => {
+    renderWithRouter("/community");
+    expect(
+      screen.getByRole("heading", { name: "다른 팬들의 러브트리 구경하기" })
+    ).toBeInTheDocument();
+  });
+
+  it("7. 미존재 경로는 fallback된다", () => {
     renderWithRouter("/unknown-path");
-    expect(screen.getByRole("heading", { name: "사랑에 빠진 모든 순간을 기록해 보세요" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "사랑에 빠진 모든 순간을 기록해 보세요" })
+    ).toBeInTheDocument();
   });
 });
