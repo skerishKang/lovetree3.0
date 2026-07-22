@@ -13,7 +13,7 @@
 | Branch | `fix/visibility-settings-acceptance-48` |
 | Base main SHA | `67c680ec9d14f1b948f992f376b4f258de0010b9` |
 | Screenshot source SHA | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
-| Evidence commit SHA | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
+| Evidence commit SHA | `df8a54a85df37f080a1ce65aff2122ae244da19b` |
 | Cloudflare deployed commit | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
 | Actual capture URL | `https://fix-visibility-settings-acce.lovetree3.pages.dev/settings/visibility-demo` |
 | Build verification | GitHub Actions SUCCESS |
@@ -25,7 +25,7 @@
 |---|---|
 | Base main SHA | `67c680ec9d14f1b948f992f376b4f258de0010b9` |
 | Screenshot source SHA | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
-| Evidence commit SHA | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
+| Evidence commit SHA | `df8a54a85df37f080a1ce65aff2122ae244da19b` |
 | Cloudflare deployed commit | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
 
 ## Screenshot Details
