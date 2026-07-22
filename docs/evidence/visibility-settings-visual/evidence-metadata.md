@@ -10,12 +10,23 @@
 
 | Field | Value |
 |---|---|
-| Branch | `style/visibility-settings-visual-refinement` |
-| Base SHA | `9a03d8cd8c1420f25f1281e889746669f3f8e73d` |
-| Final SHA | `b10281c6f320719ed8bcfee5e77a17daa2832273` |
-| Screenshot source | `https://style-visibility-settings-vi.lovetree3.pages.dev/settings/visibility-demo` (Cloudflare branch preview) |
+| Branch | `fix/visibility-settings-acceptance-48` |
+| Base main SHA | `67c680ec9d14f1b948f992f376b4f258de0010b9` |
+| Screenshot source SHA | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
+| Evidence commit SHA | `df8a54a85df37f080a1ce65aff2122ae244da19b` |
+| Cloudflare deployed commit | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
+| Actual capture URL | `https://fix-visibility-settings-acce.lovetree3.pages.dev/settings/visibility-demo` |
 | Build verification | GitHub Actions SUCCESS |
-| Cloudflare deployment | SUCCESS (deployed commit `b10281c`) |
+| Cloudflare deployment | SUCCESS (deployed commit `e652909`) |
+
+## SHA Record (separate)
+
+| SHA Type | Value |
+|---|---|
+| Base main SHA | `67c680ec9d14f1b948f992f376b4f258de0010b9` |
+| Screenshot source SHA | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
+| Evidence commit SHA | `df8a54a85df37f080a1ce65aff2122ae244da19b` |
+| Cloudflare deployed commit | `e652909ab7ebc00174d536d18f11d20f744f22ac` |
 
 ## Screenshot Details
 
@@ -24,24 +35,24 @@
 | Property | Value |
 |---|---|
 | Dimensions | 1440 × 1231px |
-| File size | 286,681 bytes |
-| SHA-256 | `107cead645491c5cdc1f94f3980fb57a715460a32b54311ac21fc6ea46866bbf` |
+| File size | 287,718 bytes |
+| SHA-256 | `b04db55a2f44dfc714db1f4d877451a209418c2827f206ab9030361c3a1c3ecc` |
 
 ### Intermediate 900x-full.png
 
 | Property | Value |
 |---|---|
 | Dimensions | 900 × 1210px |
-| File size | 194,859 bytes |
-| SHA-256 | `9241401843d4d4573f84c311b6281452e0c0452dd789f5f7bbcbf045c9d23666` |
+| File size | 195,070 bytes |
+| SHA-256 | `e782b4840ce7355b9dda9e279efb67e32841eb323e68c97c701a847fe73475dc` |
 
 ### Mobile 390x-full.png
 
 | Property | Value |
 |---|---|
-| Dimensions | 390 × 963px |
-| File size | 103,475 bytes |
-| SHA-256 | `aaa5b79c9c39b846333ac43e386cf4bc090a381e8eb43f6c92d34738834f3d19` |
+| Dimensions | 390 × 970px |
+| File size | 103,670 bytes |
+| SHA-256 | `149b4705cab469a23ad9dfa2d083e8d7837ad7b31db8369d80f219dd97685854` |
 
 ## Capture Environment
 
@@ -91,7 +102,7 @@
 |---|---|---|---|
 | Copy button | Desktop 1440px | 105 × 49px | ✅ |
 | Copy button | Intermediate 900px | 105 × 49px | ✅ |
-| Copy button | Mobile 390px | 80 × 37px | ⚠️ Below 44px |
+| Copy button | Mobile 390px | 80 × 44px | ✅ |
 | Save button | Desktop 1440px | 560 × 62px | ✅ |
 | Save button | Intermediate 900px | 560 × 62px | ✅ |
 | Save button | Mobile 390px | 366 × 49px | ✅ |
@@ -114,7 +125,6 @@
 | alertdialog | 0 |
 
 ## Known Differences from Reference
-
 See `known-visual-differences.md` for detailed analysis of intentional differences from the reference image.
 
 ### Key Differences
@@ -123,4 +133,5 @@ See `known-visual-differences.md` for detailed analysis of intentional differenc
 2. **Description**: Added paragraph below title for context
 3. **Selection indicator**: Enhanced visual feedback for selected radio (CSS :has() selector)
 4. **Share link input**: Distinct background to indicate read-only state
-5. **Desktop layout**: Content left-aligned within centered page container (max-width 560px at 900px+)
+5. **Desktop layout**: Content centered within page container (max-width 560px at 900px+)
+6. **Copy button**: min-height 44px for WCAG touch target compliance at mobile

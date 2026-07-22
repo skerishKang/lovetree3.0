@@ -188,6 +188,7 @@
 .copyButton {
   flex-shrink: 0;
   padding: 10px 14px;
+  min-height: 44px;
   font-size: clamp(0.75rem, 1vw, 0.85rem);
   font-family: inherit;
   font-weight: 600;
@@ -363,7 +364,7 @@
     max-width: 1440px;
     margin: 0 auto;
     padding: clamp(48px, 10vw, 80px) clamp(32px, 6vw, 64px) clamp(60px, 12vw, 100px);
-    align-items: flex-start;
+    align-items: center;
   }
 
   .topBar {

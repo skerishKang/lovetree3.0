@@ -4,16 +4,18 @@
 
 | File | Dimensions | SHA-256 |
 |---|---|---|
-| `visibility-settings-desktop-1440x-full.png` | 1440 × 1231 | `107cead645491c5cdc1f94f3980fb57a715460a32b54311ac21fc6ea46866bbf` |
-| `visibility-settings-intermediate-900x-full.png` | 900 × 1210 | `9241401843d4d4573f84c311b6281452e0c0452dd789f5f7bbcbf045c9d23666` |
-| `visibility-settings-mobile-390x-full.png` | 390 × 963 | `aaa5b79c9c39b846333ac43e386cf4bc090a381e8eb43f6c92d34738834f3d19` |
+| `visibility-settings-desktop-1440x-full.png` | 1440 × 1231 | `b04db55a2f44dfc714db1f4d877451a209418c2827f206ab9030361c3a1c3ecc` |
+| `visibility-settings-intermediate-900x-full.png` | 900 × 1210 | `e782b4840ce7355b9dda9e279efb67e32841eb323e68c97c701a847fe73475dc` |
+| `visibility-settings-mobile-390x-full.png` | 390 × 970 | `149b4705cab469a23ad9dfa2d083e8d7837ad7b31db8369d80f219dd97685854` |
 
-**Captured from:** `https://style-visibility-settings-vi.lovetree3.pages.dev/settings/visibility-demo`  
-**Code commit SHA:** `b10281c6f320719ed8bcfee5e77a17daa2832273`  
+**Captured from:** `https://fix-visibility-settings-acce.lovetree3.pages.dev/settings/visibility-demo`  
+**Code commit SHA:** `e652909ab7ebc00174d536d18f11d20f744f22ac`  
+**Base main SHA:** `67c680ec9d14f1b948f992f376b4f258de0010b9`  
+**Cloudflare deployed commit:** `e652909ab7ebc00174d536d18f11d20f744f22ac`  
 **Browser:** Chromium (Playwright headless)  
 **Viewport DPR:** 1x (all viewports)
 
-**Note:** Cloudflare Pages deployment successful (deployed commit `b10281c`). Screenshots captured from branch preview URL.  
+**Note:** Cloudflare Pages deployment successful (deployed commit `e652909`). Screenshots captured from branch preview URL.
 
 ---
 
@@ -22,8 +24,8 @@
 ### Layout
 
 - [x] Mobile 390px: single column, no horizontal overflow
-- [x] Desktop 1440px: left-aligned content within centered page, max-width 560px
-- [x] Intermediate 900px: left-aligned content within centered page, max-width 560px
+- [x] Desktop 1440px: centered content within page container, max-width 560px
+- [x] Intermediate 900px: centered content within page container, max-width 560px
 - [x] Save button does not overlap or cover content
 
 ### Top Area
@@ -83,7 +85,7 @@
 - [x] Save button: 366×49px (mobile), 560×62px (desktop) — ≥44px
 - [x] Option card: ~336×72px+ — ≥44px
 - [x] Setting row: ~336×72px+ — ≥44px
-- [ ] Copy button: 80×37px (mobile) — **below 44px**; 105×49px (desktop) — ≥44px
+- [x] Copy button: 80×44px (mobile) — ≥44px; 105×49px (desktop) — ≥44px
 
 ---
 
@@ -95,4 +97,4 @@
 | Test files | 1 |
 | Lint | 0 errors |
 | Typecheck | clean |
-| Build | success |
+| Build | success
