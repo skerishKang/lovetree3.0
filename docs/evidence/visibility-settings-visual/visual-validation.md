@@ -4,16 +4,16 @@
 
 | File | Dimensions | SHA-256 |
 |---|---|---|
-| `visibility-settings-desktop-1440x-full.png` | 1440 × 1230 | `eeb8282beb115cab7f35f621083b725408f4af3816d597d6addf857162e088b8` |
-| `visibility-settings-intermediate-900x-full.png` | 900 × 1209 | `22f6095d6614e73da7b03e1c9300b9b1d52925b6a0cd4f136095c89c934bd1db` |
-| `visibility-settings-mobile-390x-full.png` | 390 × 963 | `cdd77a8279e90125847e4bbf012893d9dc5c516898c8221162d272af5d34ae03` |
+| `visibility-settings-desktop-1440x-full.png` | 1440 × 1231 | `107cead645491c5cdc1f94f3980fb57a715460a32b54311ac21fc6ea46866bbf` |
+| `visibility-settings-intermediate-900x-full.png` | 900 × 1210 | `9241401843d4d4573f84c311b6281452e0c0452dd789f5f7bbcbf045c9d23666` |
+| `visibility-settings-mobile-390x-full.png` | 390 × 963 | `aaa5b79c9c39b846333ac43e386cf4bc090a381e8eb43f6c92d34738834f3d19` |
 
-**Captured from:** `http://localhost:5173/settings/visibility-demo`  
-**Code commit SHA:** `3d8c332904242857c90356339d79fef88206dcfe`  
+**Captured from:** `https://style-visibility-settings-vi.lovetree3.pages.dev/settings/visibility-demo`  
+**Code commit SHA:** `b10281c6f320719ed8bcfee5e77a17daa2832273`  
 **Browser:** Chromium (Playwright headless)  
 **Viewport DPR:** 1x (all viewports)
 
-**Note:** Cloudflare Pages deployment failed. Screenshots captured from localhost development server.  
+**Note:** Cloudflare Pages deployment successful (deployed commit `b10281c`). Screenshots captured from branch preview URL.  
 
 ---
 
@@ -22,8 +22,8 @@
 ### Layout
 
 - [x] Mobile 390px: single column, no horizontal overflow
-- [x] Desktop 1440px: centered workspace with max-width 560px
-- [x] Intermediate 900px: centered workspace with max-width 560px
+- [x] Desktop 1440px: left-aligned content within centered page, max-width 560px
+- [x] Intermediate 900px: left-aligned content within centered page, max-width 560px
 - [x] Save button does not overlap or cover content
 
 ### Top Area
@@ -77,6 +77,13 @@
 - [x] 0 console errors
 - [x] 0 page errors
 - [x] 0 failed requests
+
+### Touch Targets
+
+- [x] Save button: 366×49px (mobile), 560×62px (desktop) — ≥44px
+- [x] Option card: ~336×72px+ — ≥44px
+- [x] Setting row: ~336×72px+ — ≥44px
+- [ ] Copy button: 80×37px (mobile) — **below 44px**; 105×49px (desktop) — ≥44px
 
 ---
 

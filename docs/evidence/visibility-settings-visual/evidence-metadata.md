@@ -12,9 +12,10 @@
 |---|---|
 | Branch | `style/visibility-settings-visual-refinement` |
 | Base SHA | `9a03d8cd8c1420f25f1281e889746669f3f8e73d` |
-| Final SHA | `3d8c332904242857c90356339d79fef88206dcfe` |
-| Screenshot source | localhost (Cloudflare deployment BLOCKED) |
+| Final SHA | `b10281c6f320719ed8bcfee5e77a17daa2832273` |
+| Screenshot source | `https://style-visibility-settings-vi.lovetree3.pages.dev/settings/visibility-demo` (Cloudflare branch preview) |
 | Build verification | GitHub Actions SUCCESS |
+| Cloudflare deployment | SUCCESS (deployed commit `b10281c`) |
 
 ## Screenshot Details
 
@@ -22,25 +23,25 @@
 
 | Property | Value |
 |---|---|
-| Dimensions | 1440 × 1230px |
-| File size | 283,895 bytes |
-| SHA-256 | `eeb8282beb115cab7f35f621083b725408f4af3816d597d6addf857162e088b8` |
+| Dimensions | 1440 × 1231px |
+| File size | 286,681 bytes |
+| SHA-256 | `107cead645491c5cdc1f94f3980fb57a715460a32b54311ac21fc6ea46866bbf` |
 
 ### Intermediate 900x-full.png
 
 | Property | Value |
 |---|---|
-| Dimensions | 900 × 1209px |
-| File size | 193,218 bytes |
-| SHA-256 | `22f6095d6614e73da7b03e1c9300b9b1d52925b6a0cd4f136095c89c934bd1db` |
+| Dimensions | 900 × 1210px |
+| File size | 194,859 bytes |
+| SHA-256 | `9241401843d4d4573f84c311b6281452e0c0452dd789f5f7bbcbf045c9d23666` |
 
 ### Mobile 390x-full.png
 
 | Property | Value |
 |---|---|
 | Dimensions | 390 × 963px |
-| File size | 102,327 bytes |
-| SHA-256 | `cdd77a8279e90125847e4bbf012893d9dc5c516898c8221162d272af5d34ae03` |
+| File size | 103,475 bytes |
+| SHA-256 | `aaa5b79c9c39b846333ac43e386cf4bc090a381e8eb43f6c92d34738834f3d19` |
 
 ## Capture Environment
 
@@ -84,6 +85,19 @@
 | Copy button exactly 1 | ✅ PASS |
 | Save button exactly 1 | ✅ PASS |
 
+### Touch Target Verification
+
+| Element | Viewport | Size (W × H) | ≥44px |
+|---|---|---|---|
+| Copy button | Desktop 1440px | 105 × 49px | ✅ |
+| Copy button | Intermediate 900px | 105 × 49px | ✅ |
+| Copy button | Mobile 390px | 80 × 37px | ⚠️ Below 44px |
+| Save button | Desktop 1440px | 560 × 62px | ✅ |
+| Save button | Intermediate 900px | 560 × 62px | ✅ |
+| Save button | Mobile 390px | 366 × 49px | ✅ |
+| Option card | All | ~336 × 72px+ | ✅ |
+| Setting row | All | ~336 × 72px+ | ✅ |
+
 ### Side-effect Verification
 
 | API | Calls |
@@ -109,3 +123,4 @@ See `known-visual-differences.md` for detailed analysis of intentional differenc
 2. **Description**: Added paragraph below title for context
 3. **Selection indicator**: Enhanced visual feedback for selected radio (CSS :has() selector)
 4. **Share link input**: Distinct background to indicate read-only state
+5. **Desktop layout**: Content left-aligned within centered page container (max-width 560px at 900px+)

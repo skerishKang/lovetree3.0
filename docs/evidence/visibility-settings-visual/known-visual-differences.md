@@ -2,11 +2,11 @@
 
 ## Screen: LT3-SETTINGS-001 (`/settings/visibility-demo`)
 
-**Evidence captured from:** `http://localhost:5173/settings/visibility-demo`  
-**Code commit SHA:** `3d8c332904242857c90356339d79fef88206dcfe`  
+**Evidence captured from:** `https://style-visibility-settings-vi.lovetree3.pages.dev/settings/visibility-demo`  
+**Code commit SHA:** `b10281c6f320719ed8bcfee5e77a17daa2832273`  
 **Captured:** 2026-07-23
 
-**Note:** Cloudflare Pages deployment failed. Screenshots captured from localhost development server.
+**Note:** Cloudflare Pages deployment successful. Screenshots captured from branch preview URL.
 
 ---
 
@@ -32,7 +32,7 @@
 - Mobile-first single column layout
 - Intermediate and Desktop responsive layouts
 - No horizontal overflow at any viewport
-- All touch targets 44px or larger
+- Touch targets 44px or larger (except copy button at mobile: 37px)
 - 0 side effects (fetch, storage, clipboard, navigation)
 - 0 console errors or failed requests
 
@@ -43,8 +43,8 @@
 | Viewport | Behavior |
 |---|---|
 | Mobile 390px | Single column, content flows naturally |
-| Intermediate 900px | Centered workspace, max-width 560px |
-| Desktop 1440px | Centered workspace, max-width 560px, larger typography |
+| Intermediate 900px | Left-aligned content within centered page, max-width 560px |
+| Desktop 1440px | Left-aligned content within centered page, max-width 560px, larger typography |
 
 ---
 
