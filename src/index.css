@@ -44,6 +44,19 @@
   --heading-compact-weight: 700;
   --heading-compact-line-height: 1.5;
 
+  /* App header chrome (UI-AUDIT-D-06): shared tokens for app-screen bars.
+     Marketing screens keep SiteHeader; hero-style page headers
+     (media search, visibility settings) are documented exceptions
+     in docs/audits/ui-remediation-batch/header-tokens.md. */
+  --app-header-bg: #ffffff;
+  --app-header-bg-ivory: #f8f5f0;
+  --app-header-bg-translucent: rgba(248, 245, 240, 0.92);
+  --app-header-border-color: #ede6dc;
+  --app-header-z-index: 10;
+  --app-bar-padding-y: 12px;
+  --app-bar-height: 52px;
+  --app-bar-height-mobile: 44px;
+
   /* Headline (원본 정밀 측정: 2752×1536에서 약 65px, 첫 줄 폭 755px)
      "사랑에 빠진 모든 순간을 / 기록해 보세요" 정확히 2줄.
      2차 보정: 원본 폰트 크기에 맞춰 확대 (이전 ~52px → ~65px).

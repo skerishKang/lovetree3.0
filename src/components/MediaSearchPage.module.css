@@ -14,10 +14,10 @@
   align-items: center;
   justify-content: center;
   padding: 52px 16px 12px;
-  background: #f8f5f0;
+  background: var(--app-header-bg-ivory);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: var(--app-header-z-index);
 }
 
 .screenTitle {

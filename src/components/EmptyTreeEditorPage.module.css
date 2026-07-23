@@ -162,10 +162,10 @@
 /* 맥락 헤더 */
 
 .contextHeader {
-  height: 52px;
+  height: var(--app-bar-height);
   padding: 0 28px;
-  background: #ffffff;
-  border-bottom: 1px solid #e8e0d8;
+  background: var(--app-header-bg);
+  border-bottom: 1px solid var(--app-header-border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -420,7 +420,7 @@
   }
 
   .contextHeader {
-    height: 44px;
+    height: var(--app-bar-height-mobile);
     padding: 0 16px;
   }
 

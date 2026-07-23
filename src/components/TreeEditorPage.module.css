@@ -122,12 +122,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 20px;
-  background: #ffffff;
-  border-bottom: 1px solid #e8e0d8;
+  padding: var(--app-bar-padding-y) 20px;
+  background: var(--app-header-bg);
+  border-bottom: 1px solid var(--app-header-border-color);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: var(--app-header-z-index);
 }
 
 .iconButton {
