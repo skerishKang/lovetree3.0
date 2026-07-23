@@ -44,6 +44,8 @@ Non-owner access to private resources returns **404** (not 403) to prevent exist
 | `public` | Visible in community/browse | Anyone can read; social writes allowed |
 | `private` | Owner-only | Only owner can read/write; requires Plus tier |
 
+**UI/Backend mismatch (post-PR #57):** LoveTree 3.0 visibility settings UI presents 3 options (`private`, `link`, `community`) but the backend `visibility` column supports only 2 values (`public`, `private`). The "link" option has no backend contract. Status: **NOT_IMPLEMENTED** (backend), **CONFIRMED** (UI mock). See open-questions.md Q19b.
+
 ### Memory Visibility
 
 | Value | Meaning | Access |

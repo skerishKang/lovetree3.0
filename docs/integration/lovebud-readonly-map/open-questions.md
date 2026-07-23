@@ -42,6 +42,7 @@ LoveBud pinned at `b1f977fa9aec559597cf2afbadf0600f090f41e7`.
 | Q17 | Will multi-platform media support be added? (only YouTube) | Media connect | Phase 13 |
 | Q18 | Is there a plan for bulk visibility update? (currently per-tree PUT) | Settings page performance | Phase 12 |
 | Q19 | Will a default visibility preference endpoint be added? | Settings UX | Phase 12 |
+| Q19b | UI has 3 visibility options (private/link/community) but backend supports only 2 (public/private). Should "link" visibility be implemented backend-side, or mapped to public with access-control layer? | Visibility settings contract | Phase 12 |
 
 ---
 

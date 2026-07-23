@@ -8,7 +8,7 @@ This directory contains structured documentation mapping LoveBud's existing API 
 data models, and infrastructure to LoveTree 3.0's 12 UI screens.
 
 **LoveBud analysis pinned to:** `b1f977fa9aec559597cf2afbadf0600f090f41e7`
-**LoveTree 3.0 base:** `562cb177379d4b61d664f7a0d8bcba1428602805`
+**LoveTree 3.0 base:** `f321d9933ce5b470958f46e4ff2ccbcab314b11e` (includes merged PR #57 UI remediation)
 
 ## Status Legend
 

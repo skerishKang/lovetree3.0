@@ -239,13 +239,13 @@ LoveBud pinned at `b1f977fa9aec559597cf2afbadf0600f090f41e7`.
 
 | Aspect | Detail |
 |---|---|
-| Current mock source | `src/data/mockVisibilitySettings.ts` |
+| Current mock source | `src/data/visibilitySettingsMockData.ts` |
 | Auth requirement | Bearer |
 | Required API | GET /api/trees (list), PUT /api/trees/:id (update visibility) |
 | Confirmed available | YES |
-| Missing API/field | Bulk visibility update (must update per-tree), default visibility preference (no endpoint) |
+| Missing API/field | Bulk visibility update (must update per-tree), default visibility preference (no endpoint), **"link" visibility option** (UI has 3 options: private/link/community; backend supports only public/private) |
 | Request sequence | 1) GET /api/trees 2) User toggles 3) PUT /api/trees/:id {visibility} per tree |
-| DTO transform | NormalizedTree → VisibilitySettings (defaultVisibility, perTreeOverrides) |
+| DTO transform | NormalizedTree → VisibilitySettings (defaultVisibility, perTreeOverrides); UI 3-option → backend 2-option mapping required |
 | Loading | Toggle spinner per tree |
 | Empty | "No trees to configure" |
 | 401 | Redirect to login |
@@ -254,7 +254,7 @@ LoveBud pinned at `b1f977fa9aec559597cf2afbadf0600f090f41e7`.
 | 409 | N/A |
 | Network failure | Revert toggle + "Update failed" |
 | Implementation phase | Phase 12 (visibility settings) |
-| Risk | LOW-MEDIUM — Plus tier UX, per-tree updates |
+| Risk | MEDIUM — Plus tier UX, per-tree updates, **3-option UI vs 2-option backend mismatch** |
 
 ---
 
