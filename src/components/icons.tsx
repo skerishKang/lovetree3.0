@@ -12,6 +12,8 @@ export function PlayIcon(props: SVGProps<SVGSVGElement>) {
       viewBox="0 0 24 24"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
       {...props}
     >
       <path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.78-6.86c.62-.39.62-1.29 0-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z" />
@@ -26,6 +28,8 @@ export function DotsMenuIcon(props: SVGProps<SVGSVGElement>) {
       viewBox="0 0 24 24"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
       {...props}
     >
       <circle cx="12" cy="5" r="1.8" />
@@ -46,6 +50,8 @@ export function RecordIcon(props: SVGProps<SVGSVGElement>) {
       strokeLinecap="round"
       strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
       {...props}
     >
       <path d="M12 20h9" />
@@ -65,6 +71,8 @@ export function ConnectIcon(props: SVGProps<SVGSVGElement>) {
       strokeLinecap="round"
       strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
       {...props}
     >
       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -84,6 +92,8 @@ export function ReplayIcon(props: SVGProps<SVGSVGElement>) {
       strokeLinecap="round"
       strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
       {...props}
     >
       <polygon points="23 7 16 12 23 17 23 7" />
@@ -103,6 +113,8 @@ export function ShareIcon(props: SVGProps<SVGSVGElement>) {
       strokeLinecap="round"
       strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
       {...props}
     >
       <circle cx="18" cy="5" r="3" />
@@ -121,6 +133,8 @@ export function StarDecoration(props: SVGProps<SVGSVGElement>) {
       viewBox="0 0 100 100"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
       {...props}
     >
       <path d="M50 0 C 52 38 62 48 100 50 C 62 52 52 62 50 100 C 48 62 38 52 0 50 C 38 48 48 38 50 0 Z" />

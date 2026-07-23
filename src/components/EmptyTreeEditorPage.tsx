@@ -73,6 +73,8 @@ export default function EmptyTreeEditorPage() {
                 viewBox="0 0 220 130"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                focusable="false"
               >
                 {/* 캔버스 그리드 안내선 */}
                 <line

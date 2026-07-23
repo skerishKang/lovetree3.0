@@ -291,6 +291,15 @@ describe("MyTreesPage — /my-trees", () => {
     });
   });
 
+  it("모든 SVG에 focusable='false'가 있어야 한다", () => {
+    const { container } = renderAppAt("/my-trees");
+    const svgs = container.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute("focusable", "false");
+    });
+  });
+
   it("renders the sidebar with recent moments", () => {
     renderAppAt("/my-trees");
     const sidebar = screen.getByRole("complementary", { name: "최근 수정한 순간" });

@@ -292,7 +292,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
   it("트리 이름이 표시되어야 한다", () => {
     renderAppAt("/memory/detail-demo");
-    expect(screen.getAllByText("민지의 Love Tree").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("민지의 러브트리").length).toBeGreaterThanOrEqual(1);
   });
 
   it("각 관련 기억에 유형이 표시되어야 한다", () => {
@@ -333,6 +333,26 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     vi.stubGlobal("XMLHttpRequest", vi.fn(() => ({ open: openSpy })));
     renderAppAt("/memory/detail-demo");
     expect(openSpy).not.toHaveBeenCalled();
+  });
+
+  it("모든 SVG는 aria-hidden이거나 aria-hidden 조상 안에 있어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    const svgs = document.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+    svgs.forEach((svg) => {
+      const hidden =
+        svg.getAttribute("aria-hidden") === "true" ||
+        svg.closest('[aria-hidden="true"]') !== null;
+      expect(hidden).toBe(true);
+    });
+  });
+
+  it("모든 SVG에 focusable='false'가 있어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    const svgs = document.querySelectorAll("svg");
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute("focusable", "false");
+    });
   });
 
   it("navigation 링크가 없어야 한다", () => {

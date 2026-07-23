@@ -11,7 +11,7 @@ export default function VisibilitySettingsPage() {
       <header className={styles.topBar}>
         <h1 className={styles.screenTitle}>공개 범위 설정</h1>
         <p className={styles.screenDescription}>
-          LoveTree의 공개 범위와 참여 설정을 관리합니다.
+          러브트리의 공개 범위와 참여 설정을 관리합니다.
         </p>
       </header>
 
@@ -29,19 +29,19 @@ export default function VisibilitySettingsPage() {
                 />
                 <div className={styles.optionIcon} aria-hidden="true">
                   {opt.iconType === "private" && (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
                       <rect x="5" y="11" width="14" height="10" rx="2" stroke="#3d3229" strokeWidth="1.5"/>
                       <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#3d3229" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
                   )}
                   {opt.iconType === "link" && (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="#3d3229" strokeWidth="1.5" strokeLinecap="round"/>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="#3d3229" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
                   )}
                   {opt.iconType === "community" && (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
                       <circle cx="12" cy="8" r="4" stroke="#3d3229" strokeWidth="1.5"/>
                       <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="#3d3229" strokeWidth="1.5" strokeLinecap="round"/>
                       <path d="M17 7l-2 2m0 0l-2-2m2 2V3" stroke="#3d3229" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

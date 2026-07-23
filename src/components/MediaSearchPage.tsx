@@ -26,6 +26,7 @@ export default function MediaSearchPage() {
                 viewBox="0 0 24 24"
                 fill="none"
                 aria-hidden="true"
+                focusable="false"
               >
                 <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
                 <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -97,6 +98,7 @@ export default function MediaSearchPage() {
                         viewBox="0 0 24 24"
                         fill="currentColor"
                         aria-hidden="true"
+                        focusable="false"
                       >
                         <path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.78-6.86c.62-.39.62-1.29 0-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z" />
                       </svg>

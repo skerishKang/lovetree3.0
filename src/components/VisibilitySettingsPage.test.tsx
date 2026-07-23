@@ -46,17 +46,17 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     renderAppAt("/settings/visibility-demo");
     expect(
       screen.getByRole("radio", {
-        name: "나만 보기 본인만 LoveTree를 볼 수 있습니다.",
+        name: "나만 보기 본인만 러브트리를 볼 수 있습니다.",
       })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("radio", {
-        name: "링크를 가진 사람만 링크를 알고 있는 사람에게만 LoveTree가 공개됩니다.",
+        name: "링크를 가진 사람만 링크를 알고 있는 사람에게만 러브트리가 공개됩니다.",
       })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("radio", {
-        name: "커뮤니티에 공개 모든 Relovetree 사용자가 커뮤니티에서 LoveTree를 검색하고 볼 수 있습니다.",
+        name: "커뮤니티에 공개 모든 Relovetree 사용자가 커뮤니티에서 러브트리를 검색하고 볼 수 있습니다.",
       })
     ).toBeInTheDocument();
   });
@@ -71,7 +71,7 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
   it("초기 선택된 radio는 '나만 보기'여야 한다", () => {
     renderAppAt("/settings/visibility-demo");
     const radio = screen.getByRole("radio", {
-      name: "나만 보기 본인만 LoveTree를 볼 수 있습니다.",
+      name: "나만 보기 본인만 러브트리를 볼 수 있습니다.",
     });
     expect(radio).toBeChecked();
   });
@@ -88,17 +88,17 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     renderAppAt("/settings/visibility-demo");
     expect(
       screen.getByRole("checkbox", {
-        name: "댓글 허용 내 LoveTree에 다른 사용자가 댓글을 남길 수 있습니다.",
+        name: "댓글 허용 내 러브트리에 다른 사용자가 댓글을 남길 수 있습니다.",
       })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("checkbox", {
-        name: "좋아요 허용 내 LoveTree에 좋아요 표현을 받을 수 있습니다.",
+        name: "좋아요 허용 내 러브트리에 좋아요 표현을 받을 수 있습니다.",
       })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("checkbox", {
-        name: "프로필 표시 이름 공개 LoveTree 옆에 내 프로필 표시 이름을 공개합니다.",
+        name: "프로필 표시 이름 공개 러브트리 옆에 내 프로필 표시 이름을 공개합니다.",
       })
     ).toBeInTheDocument();
   });
@@ -107,12 +107,12 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     renderAppAt("/settings/visibility-demo");
     expect(
       screen.getByRole("checkbox", {
-        name: "댓글 허용 내 LoveTree에 다른 사용자가 댓글을 남길 수 있습니다.",
+        name: "댓글 허용 내 러브트리에 다른 사용자가 댓글을 남길 수 있습니다.",
       })
     ).toBeChecked();
     expect(
       screen.getByRole("checkbox", {
-        name: "좋아요 허용 내 LoveTree에 좋아요 표현을 받을 수 있습니다.",
+        name: "좋아요 허용 내 러브트리에 좋아요 표현을 받을 수 있습니다.",
       })
     ).toBeChecked();
   });
@@ -121,7 +121,7 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     renderAppAt("/settings/visibility-demo");
     expect(
       screen.getByRole("checkbox", {
-        name: "프로필 표시 이름 공개 LoveTree 옆에 내 프로필 표시 이름을 공개합니다.",
+        name: "프로필 표시 이름 공개 러브트리 옆에 내 프로필 표시 이름을 공개합니다.",
       })
     ).not.toBeChecked();
   });
@@ -216,6 +216,25 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  /* ─── decorative SVG 접근성 계약 ─── */
+
+  it("모든 SVG는 aria-hidden 조상 안에 있어야 한다", () => {
+    renderAppAt("/settings/visibility-demo");
+    const svgs = document.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+    svgs.forEach((svg) => {
+      expect(svg.closest('[aria-hidden="true"]')).not.toBeNull();
+    });
+  });
+
+  it("모든 SVG에 focusable='false'가 있어야 한다", () => {
+    renderAppAt("/settings/visibility-demo");
+    const svgs = document.querySelectorAll("svg");
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute("focusable", "false");
+    });
   });
 
   /* ─── radio/checkbox 변경 후 사이드 이펙트 없음 ─── */

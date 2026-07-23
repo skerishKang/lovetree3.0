@@ -77,6 +77,26 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     expect(screen.getByText("#콘서트")).toBeInTheDocument();
   });
 
+  it("모든 SVG는 aria-hidden이거나 aria-hidden 조상 안에 있어야 한다", () => {
+    const { container } = renderPage();
+    const svgs = container.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+    svgs.forEach((svg) => {
+      const hidden =
+        svg.getAttribute("aria-hidden") === "true" ||
+        svg.closest('[aria-hidden="true"]') !== null;
+      expect(hidden).toBe(true);
+    });
+  });
+
+  it("모든 SVG에 focusable='false'가 있어야 한다", () => {
+    const { container } = renderPage();
+    const svgs = container.querySelectorAll("svg");
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute("focusable", "false");
+    });
+  });
+
   it("각 노드의 기억 유형 라벨을 렌더링한다", () => {
     renderPage();
     expect(screen.getByText("무대 영상")).toBeInTheDocument();

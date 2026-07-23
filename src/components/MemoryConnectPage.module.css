@@ -27,8 +27,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -74,11 +74,11 @@
 }
 
 .title {
-  font-size: clamp(1.35rem, 2vw, 1.75rem);
-  font-weight: 800;
+  font-size: var(--heading-work-size);
+  font-weight: var(--heading-work-weight);
   color: #3d3429;
   margin: 0;
-  line-height: 1.35;
+  line-height: var(--heading-work-line-height);
   word-break: keep-all;
 }
 
@@ -430,8 +430,10 @@
   line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tags {
