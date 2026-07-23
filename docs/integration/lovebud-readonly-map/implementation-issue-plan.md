@@ -228,14 +228,60 @@ Option B (Compatibility with LoveBud pattern):
 
 This mapping does NOT finalize the choice. Mark as PRODUCT/SECURITY DECISION.
 
+### Firebase-backed AccessTokenProvider
+
+Issue 3 provides the Firebase implementation of `AccessTokenProvider` interface (defined in Issue 1).
+
+### 401 Refresh-and-Retry
+
+1. Initial request returns 401
+2. Call `getAccessToken({ forceRefresh: true })`
+3. Retry only if new token exists and body is replayable
+4. Same request retried at most once
+5. Second 401: stop retry, propagate normalized 401
+6. Refresh failure: return original normalized 401
+
+### Replayability Guard
+
+Can retry only if:
+- No body OR
+- Re-creatable JSON/string/Blob/ArrayBuffer/FormData body
+
+Cannot auto-retry:
+- ReadableStream
+- Already consumed request body
+- Cannot safely clone body
+
+### Idempotency
+
+When retrying same logical mutation:
+- Keep original Idempotency-Key
+- Do NOT generate new key
+
+### Retry Safety
+
+- No infinite retry
+- Max 1 refresh retry
+- Log retry count in request context
+- No token or raw response body logging
+
 **Deliverables:**
 - Firebase App initialization (env-based config)
 - AuthContext with `{user, loading, tier}`
 - Token acquisition mechanism (per chosen option)
 - `signOut()` with state clear
 - Auth-exempt route list
+- Firebase-backed `AccessTokenProvider` implementation
+- 401 refresh-and-retry with replayability guard
 
-**Tests:** Token lifecycle, auth state transitions, exempt route logic
+**Tests:**
+- Token lifecycle, auth state transitions, exempt route logic
+- Initial 401 → one force refresh
+- Refresh success → one retry
+- Second 401 → stop, propagate
+- Refresh failure → return original 401
+- Non-replayable body → no retry
+- Idempotency-Key preserved on retry
 
 ---
 
@@ -252,14 +298,31 @@ This mapping does NOT finalize the choice. Mark as PRODUCT/SECURITY DECISION.
 - Post-login: redirect to `/my-trees`
 - Logout: clear state, redirect to `/login`
 
+### Persistent 401 Handling
+
+After Issue 3's refresh-and-retry, if 401 persists:
+
+1. Clear auth state
+2. Emit session-expired/logout event
+3. Redirect to `/login`
+4. Display user-understandable session expired message
+5. Decide whether to preserve original navigation target safely
+6. Prevent redirect loops
+
 **Deliverables:**
 - Connect existing AuthLoginPage to Firebase Auth
 - RequireAuth wrapper component
 - Post-login redirect logic
 - Logout button in app shell
 - Loading/error states
+- Persistent 401 handling (auth state clear, logout event, redirect)
 
-**Tests:** Colocated tests for redirect logic, RequireAuth gating
+**Tests:**
+- Initial 401 → one force refresh (Issue 3)
+- Second 401 → auth state clear, redirect
+- Redirect loop prevention
+- No unnecessary redirect on public/auth-exempt routes
+- Colocated tests for redirect logic, RequireAuth gating
 
 ---
 
