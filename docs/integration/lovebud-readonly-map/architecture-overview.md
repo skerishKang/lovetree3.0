@@ -120,30 +120,48 @@ Browser (LoveTree 3.0 SPA)
   |  fetch("/api/...")  [same-origin]
   v
 LoveTree Cloudflare Pages Function proxy (TO BE IMPLEMENTED)
-  |  fetch(UPSTREAM_URL + path)  [server-to-server]
+  |  fetch(LOVEBUD_API_BASE_URL + "/api/...")  [server-to-server]
   v
-LoveBud public API or Modal
+LoveBud public API origin (/api/**)
+  |
+  v
+LoveBud Cloudflare Pages Functions (existing, CONFIRMED)
+  |
+  v
+Modal FastAPI
   |
   v
 PostgreSQL
 ```
+
+LoveTree proxy calls LoveBud's **public API origin** (`/api/**`), NOT Modal directly.
+
+Rationale:
+- Preserves LoveBud's existing public route mapping
+- Preserves public/private dispatch
+- Preserves caching policy
+- Preserves body limit and request ID policy
+- Preserves error boundary
+- Avoids direct coupling to Modal internal routes
+- Isolates LoveTree from future LoveBud backend internal changes
 
 This architecture does NOT exist yet. It requires:
 1. Cloudflare Pages deployment for LoveTree 3.0
 2. `functions/api/**` proxy implementation (see implementation-issue-plan.md Issue 2)
 3. API client layer in `src/api/**`
 4. Firebase Auth SDK integration
-5. Environment variable configuration for upstream URL
+5. `LOVEBUD_API_BASE_URL` environment variable (Cloudflare server environment only, NOT in browser bundle)
 
 **Do not reference this as CONFIRMED. It is a design proposal only.**
 
 ### Why Same-Origin Proxy
 
-- Browser never calls Modal directly (no CORS changes needed on LoveBud)
-- Upstream URL stays server-side (not exposed in client bundle)
+- Browser never calls LoveBud or Modal directly (no CORS changes needed)
+- LoveBud API base URL stays server-side (`LOVEBUD_API_BASE_URL`, not exposed in client bundle)
 - Authorization/Idempotency-Key headers forwarded transparently
 - 128KB body limit enforceable at proxy layer
 - Request ID generation/forwarding at proxy layer
+- LoveBud internal changes (Modal routes, caching, dispatch) are isolated from LoveTree
 
 ### Vite Dev Proxy Note
 

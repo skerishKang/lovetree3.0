@@ -116,13 +116,14 @@ Note: Firebase web config is public by design (identifies project, not a secret)
 - No CORS changes needed (same-origin)
 - **Risk:** Couples deployments
 
-### Option B: Separate Deployment + Same-Origin Proxy
+### Option B: Separate Deployment + Same-Origin Proxy (Recommended)
 
-- Deploy LoveTree 3.0 independently
-- Add a thin proxy layer (Cloudflare Worker, Vercel Edge, etc.)
-- Proxy forwards /api/* to LoveBud Cloudflare Functions or Modal
-- No CORS changes needed (browser sees same-origin)
-- **Recommended approach**
+- Deploy LoveTree 3.0 independently on Cloudflare Pages
+- Add `functions/api/**` proxy that forwards to LoveBud public API origin
+- Proxy target: `LOVEBUD_API_BASE_URL` (Cloudflare server environment only)
+- LoveTree proxy calls LoveBud's `/api/**` public routes, NOT Modal directly
+- No CORS changes needed (browser sees same-origin; server-to-server call to LoveBud origin)
+- Production Modal CORS is NOT a blocker for LoveTree screen implementation
 
 ### Option C: Direct Cross-Origin to Modal
 
@@ -130,6 +131,15 @@ Note: Firebase web config is public by design (identifies project, not a secret)
 - Would require CORS_ALLOWED_ORIGINS production override
 - Exposes Modal URL to browser
 - Security and coupling concerns
+- Bypasses LoveBud's existing caching, body limit, request ID, and error boundary policies
+
+### LoveTree 3.0 Environment Variables (Proposed)
+
+| Variable | Purpose | Scope | Status |
+|---|---|---|---|
+| `LOVEBUD_API_BASE_URL` | LoveBud public API origin for server-to-server proxy | Cloudflare server environment ONLY | PROPOSED (name only, value not recorded) |
+
+This variable MUST NOT appear in browser bundle. It is server-side only.
 
 ---
 

@@ -18,18 +18,22 @@ LoveTree 3.0 React App (src/components/**)
     |  - Token injection
     |  - Error normalization (3 envelope shapes)
     |  - Idempotency key management
-    |  - 401 retry
+    |  - 401 retry (via AccessTokenProvider seam)
     v
 [Same-Origin Proxy] (/api/*) — TO BE IMPLEMENTED (functions/api/**)
+    |  fetch(LOVEBUD_API_BASE_URL + "/api/...")
+    v
+LoveBud public API origin (/api/**) — CONFIRMED (existing)
     |
     v
-LoveBud Cloudflare Pages Functions (CONFIRMED, existing)
+LoveBud Cloudflare Pages Functions — CONFIRMED (existing)
     |
     v
-Modal FastAPI (CONFIRMED, existing)
+Modal FastAPI — CONFIRMED (existing)
 ```
 
-Browser never calls Modal directly. Same-origin proxy pattern required.
+Browser never calls LoveBud or Modal directly. Same-origin proxy pattern required.
+LoveTree proxy calls LoveBud's public API origin, NOT Modal directly.
 
 ---
 
@@ -39,11 +43,27 @@ Browser never calls Modal directly. Same-origin proxy pattern required.
 
 Responsibilities:
 - Base URL configuration (same-origin `/api`)
-- Firebase ID token injection (Authorization: Bearer)
+- Token injection via `AccessTokenProvider` seam (see below)
 - Error normalization (3 envelope shapes, see below)
-- 401 retry (1 attempt with fresh token)
+- 401 retry (1 attempt via `AccessTokenProvider.getAccessToken({forceRefresh: true})`)
 - Request ID generation (x-lovebud-request-id compatible)
 - 128KB body guard
+
+### AccessTokenProvider Seam (Issue 1)
+
+Issue 1 defines ONLY this interface — no Firebase dependency:
+
+```typescript
+interface AccessTokenProvider {
+  getAccessToken(options?: { forceRefresh?: boolean }): Promise<string | null>;
+}
+```
+
+- Issue 1 uses a stub/null implementation (returns null)
+- Issue 3 provides the Firebase-backed implementation
+- 401 retry in Issue 1 calls `getAccessToken({forceRefresh: true})` — if null, propagate 401
+- No persistent 401 logout in Issue 1 (that belongs to Issue 4)
+- No Firebase `currentUser` dependency in Issue 1
 
 ### Error Envelopes (Confirmed)
 

@@ -119,9 +119,22 @@ Do NOT log raw response body or tokens.
 - Error normalization (3 envelope shapes)
 - Idempotency key generator + retry semantics
 - Request ID generator
-- 401 single-retry logic (placeholder until Firebase)
+- `AccessTokenProvider` interface seam (see below)
+- 401 single-retry via `AccessTokenProvider.getAccessToken({forceRefresh: true})`
 
-**Tests:** Colocated unit tests for error mapping, idempotency semantics, request ID format
+**AccessTokenProvider seam (Issue 1 scope only):**
+```typescript
+interface AccessTokenProvider {
+  getAccessToken(options?: { forceRefresh?: boolean }): Promise<string | null>;
+}
+```
+- Issue 1 ships a stub/null implementation (returns null → 401 propagated as-is)
+- No Firebase dependency in Issue 1
+- No persistent 401 logout in Issue 1 (belongs to Issue 4)
+- No `currentUser` dependency in Issue 1
+- Issue 3 provides the Firebase-backed implementation
+
+**Tests:** Colocated unit tests for error mapping, idempotency semantics, request ID format, AccessTokenProvider seam behavior
 
 ---
 
@@ -131,15 +144,27 @@ Do NOT log raw response body or tokens.
 
 **Allowed paths:** `functions/api/**`, `functions/_shared/**`, proxy contract tests, required Cloudflare configuration files (investigate before proposing)
 
-**Forbidden paths:** `src/components/**`, LoveBud, DB, business logic, secret values, direct Modal URL in browser bundle
+**Forbidden paths:** `src/components/**`, LoveBud, DB, business logic, secret values, direct Modal URL in browser bundle, direct Modal internal routes (`/modal/**`)
 
 **Position:** After Issue 1 (typed client), before Issue 3 (Firebase auth).
+
+**Upstream target:** LoveBud public API origin (`LOVEBUD_API_BASE_URL` + `/api/**`), NOT Modal directly.
+
+Rationale for calling LoveBud public API (not Modal):
+- Preserves LoveBud's existing public route mapping
+- Preserves public/private dispatch
+- Preserves caching policy
+- Preserves body limit and request ID policy
+- Preserves error boundary
+- Avoids direct coupling to Modal internal routes
+- Isolates LoveTree from future LoveBud backend internal changes
 
 **Required contract:**
 
 | Requirement | Detail |
 |---|---|
 | Same-origin | All requests via `/api/**` |
+| Upstream target | `LOVEBUD_API_BASE_URL` + `/api/**` (LoveBud public API origin) |
 | Upstream allowlist | Explicit route allowlist (no open proxy, no arbitrary upstream URL) |
 | Method forwarding | Forward HTTP method as-is |
 | Authorization forwarding | Pass `Authorization` header to upstream |
@@ -151,10 +176,10 @@ Do NOT log raw response body or tokens.
 | Non-JSON upstream error | Handle non-JSON upstream responses gracefully |
 | Abort/cancellation | Support request abort |
 | No open proxy | Reject requests not matching allowlist |
-| No arbitrary upstream | Upstream URL from server env only |
+| No arbitrary upstream | Upstream URL from server env only (`LOVEBUD_API_BASE_URL`) |
 | No business logic | Pure forwarding, no transformation |
 | No response-body logging | Do not log response bodies |
-| Env vars | Name only in source; production secrets in Cloudflare server environment only |
+| Env vars | `LOVEBUD_API_BASE_URL` name only in source; production value in Cloudflare server environment only |
 
 **Vite dev proxy:** `vite.config.ts` server.proxy is for local development only. It does NOT replace this production proxy.
 
