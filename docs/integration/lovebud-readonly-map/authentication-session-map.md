@@ -95,7 +95,29 @@ Source: [modal_compute/auth.py](https://github.com/skerishKang/LoveBud/blob/b1f9
 
 ### Session Security Notes
 
-- Token in sessionStorage only (not localStorage) — prevents XSS token theft across tabs
+- sessionStorage provides tab-scoped persistence (cleared on tab close)
+- Reduces persistence scope and cross-tab exposure compared to localStorage
+- XSS executing in the same document origin CAN read sessionStorage tokens
+- sessionStorage is NOT an XSS defense mechanism itself
 - UID binding prevents account-switch token reuse
 - `lovebud_auth_confirmed` in localStorage is a UX hint only, not a security boundary
 - Firebase ID tokens expire ~1 hour; SDK auto-refreshes
+
+### LoveTree 3.0 Auth Token Persistence — PRODUCT/SECURITY DECISION REQUIRED
+
+Two options (not finalized in this mapping):
+
+**Option A (Preferred baseline):**
+- Firebase SDK-managed auth persistence
+- `currentUser.getIdToken()` on demand
+- Application state holds minimal user/session metadata
+- Raw token long-term storage minimized
+
+**Option B (Compatibility with LoveBud pattern):**
+- sessionStorage token cache `{uid, token, expiresAt}`
+- UID binding
+- 30s expiry buffer
+- Persistent 401 eviction
+- Requires separate security justification and tests if chosen
+
+This mapping does NOT finalize the choice. See open-questions.md Q37.

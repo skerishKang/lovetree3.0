@@ -30,11 +30,12 @@ LoveBud pinned at `b1f977fa9aec559597cf2afbadf0600f090f41e7`.
 **Source:** [js/api/base-api-fetch.js](https://github.com/skerishKang/LoveBud/blob/b1f977fa9aec559597cf2afbadf0600f090f41e7/js/api/base-api-fetch.js)
 
 - Token stored in `sessionStorage` (tab-scoped, cleared on tab close)
-- NOT in localStorage (persists across tabs, more XSS-exposed)
+- sessionStorage provides tab-scoped persistence; reduces persistence scope and cross-tab exposure vs localStorage
+- XSS executing in the same document origin CAN read sessionStorage tokens — it is NOT an XSS defense
 - UID binding prevents cross-account token reuse
 - 30s expiry buffer prevents use of nearly-expired tokens
 
-**LoveTree 3.0 requirement:** Adopt same pattern. Never store tokens in localStorage or cookies.
+**LoveTree 3.0:** Auth token persistence strategy is a PRODUCT/SECURITY DECISION (see open-questions.md Q37). Two options documented in authentication-session-map.md.
 
 ### S3: CSRF Posture
 
@@ -78,7 +79,7 @@ Default allowed origins: `lovebud.vercel.app, lovebud.pages.dev, lovebud.netlify
 | # | Requirement | Priority | Phase |
 |---|---|---|---|
 | R1 | Never use dangerouslySetInnerHTML for UGC | CRITICAL | All phases |
-| R2 | Token in sessionStorage only | HIGH | Phase 1 |
+| R2 | Token persistence strategy (PRODUCT/SECURITY DECISION, see Q37) | HIGH | Phase 3 |
 | R3 | UID binding on token cache | HIGH | Phase 1 |
 | R4 | 401 retry max 1 attempt | MEDIUM | Phase 1 |
 | R5 | Idempotency key = crypto.randomUUID() | HIGH | Phase 1 |

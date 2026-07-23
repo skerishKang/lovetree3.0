@@ -2,31 +2,34 @@
 
 Design for connecting LoveTree 3.0 (React/TypeScript) to LoveBud backend.
 LoveBud pinned at `b1f977fa9aec559597cf2afbadf0600f090f41e7`.
+LoveTree 3.0 base: `f321d9933ce5b470958f46e4ff2ccbcab314b11e`.
 
 ---
 
 ## Architecture
 
+**Status: PROPOSED / NOT_IMPLEMENTED**
+
 ```
-LoveTree 3.0 React App
+LoveTree 3.0 React App (src/components/**)
     |
     v
-[API Client Layer] (src/api/)
+[API Client Layer] (src/api/) — TO BE IMPLEMENTED
     |  - Token injection
-    |  - Error normalization
-    |  - Idempotency key generation
-    |  - Retry logic
+    |  - Error normalization (3 envelope shapes)
+    |  - Idempotency key management
+    |  - 401 retry
     v
-[Same-Origin Proxy] (/api/*)
+[Same-Origin Proxy] (/api/*) — TO BE IMPLEMENTED (functions/api/**)
     |
     v
-LoveBud Cloudflare Pages Functions
+LoveBud Cloudflare Pages Functions (CONFIRMED, existing)
     |
     v
-Modal FastAPI
+Modal FastAPI (CONFIRMED, existing)
 ```
 
-**Recommended:** Same-origin proxy pattern. Browser never calls Modal directly.
+Browser never calls Modal directly. Same-origin proxy pattern required.
 
 ---
 
@@ -35,48 +38,68 @@ Modal FastAPI
 ### Core Module: `src/api/client.ts`
 
 Responsibilities:
-- Base URL configuration (same-origin `/api` or configurable)
+- Base URL configuration (same-origin `/api`)
 - Firebase ID token injection (Authorization: Bearer)
-- Request/response interceptors
-- Error normalization (map HTTP status + error code to typed errors)
+- Error normalization (3 envelope shapes, see below)
 - 401 retry (1 attempt with fresh token)
 - Request ID generation (x-lovebud-request-id compatible)
+- 128KB body guard
 
-### Error Types: `src/api/errors.ts`
+### Error Envelopes (Confirmed)
+
+**SocialWriteError** (social write endpoints):
+```json
+{"error": "human-readable message", "code": "ERROR_CODE", "retryAfterMs": 1000}
+```
+`retryAfterMs` is optional.
+
+**FastAPI HTTP/validation error** (all Modal endpoints):
+```json
+{"detail": "message"}
+```
+May also be a structured detail object.
+
+**Network/non-JSON error** (proxy failure, timeout, non-JSON response):
+- Use: status, statusText, content-type, bounded text fallback
+- Map to: NETWORK_ERROR code
+
+Not all endpoints return `{code, message}`. The client must detect and handle all three shapes.
+
+### Normalized ApiError
 
 ```typescript
-type ApiErrorCode =
-  | 'IDEMPOTENCY_KEY_REQUIRED'
-  | 'IDEMPOTENCY_KEY_INVALID'
-  | 'IDEMPOTENCY_KEY_REUSED'
-  | 'IDEMPOTENCY_RESULT_UNAVAILABLE'
-  | 'REACTION_TYPE_INVALID'
-  | 'RATE_LIMITED'
-  | 'RATE_LIMITED_MEMORY'
-  | 'RATE_LIMIT_UNAVAILABLE'
-  | 'SOCIAL_WRITE_UNAVAILABLE'
-  | 'PLUS_REQUIRED'
-  | 'NOT_FOUND'
-  | 'UNAUTHORIZED'
-  | 'VALIDATION_ERROR'
-  | 'NETWORK_ERROR'
-  | 'UNKNOWN';
-
 interface ApiError {
   status: number;
   code: ApiErrorCode;
   message: string;
+  retryAfterMs?: number;
   retryable: boolean;
+  rawCategory: 'social' | 'fastapi' | 'network' | 'unknown';
 }
 ```
 
-### Idempotency Helper: `src/api/idempotency.ts`
+Do NOT log raw response body or tokens.
 
-```typescript
-function generateIdempotencyKey(): string {
-  return crypto.randomUUID();
-}
-```
+### Idempotency Key Semantics
+
+**Same logical mutation retry** (timeout, connection drop, unclear response, user waiting for same submit):
+- Reuse the SAME Idempotency-Key
+
+**New logical mutation** (user explicitly starts a separate new action):
+- Generate a NEW key
+
+**React StrictMode / double-click:**
+- One logical mutation = one key, shared across StrictMode double-invoke and rapid double-click
+
+**409 IDEMPOTENCY_KEY_REUSED handling:**
+1. Stop auto-retry immediately
+2. Re-query authoritative state (GET the resource)
+3. Reconcile optimistic UI with server state
+4. Show conflict/reconfirmation state to user
+5. Generate new key ONLY when user explicitly initiates a new action
+
+Keys are never reused across distinct logical mutations.
+The same logical mutation retry reuses its original key.
 
 Pattern requirement: `^[A-Za-z0-9._:-]{8,128}$` (UUID v4 satisfies this).
 
@@ -118,8 +141,8 @@ Pattern requirement: `^[A-Za-z0-9._:-]{8,128}$` (UUID v4 satisfies this).
 
 | Method | Endpoint | Auth | Idempotency | Notes |
 |---|---|---|---|---|
-| `getMemoryComments(treeId, memoryId)` | GET /api/trees/:tid/memories/:mid/comments | Bearer | - | |
-| `createMemoryComment(treeId, memoryId, body, key)` | POST ... | Bearer | Required | Rate limited |
+| `getMemoryComments(treeId, memoryId)` | GET .../comments | Bearer | - | |
+| `createMemoryComment(treeId, memoryId, body, key)` | POST .../comments | Bearer | Required | Rate limited |
 | `deleteComment(id)` | DELETE /api/comments/:id | Bearer | - | Author or tree owner |
 | `getTreeComments(treeId)` | GET /api/trees/:id/comments | None | - | Public |
 | `createTreeComment(treeId, body, key)` | POST /api/trees/:id/comments | Bearer | Required | |
@@ -157,14 +180,27 @@ function toCommunityTree(snap: BrowseSnapshot): CommunityTree {
     stage: snap.stage,
     tag: snap.emotionTags[0] ?? '',
     memoryCount: snap.memoryCount,
-    likeCount: 0,
-    viewCount: 0,
+    likeCount: snap.likeCount,      // undefined if not provided by server
+    viewCount: snap.viewCount,      // undefined if not provided by server
     thumbnailUrl: snap.representativeThumbnail,
   };
 }
 ```
 
-Note: `likeCount`/`viewCount` not in BrowseSnapshot. Would require additional query or DTO extension. Status: **UNKNOWN** whether browse includes social counts.
+**Metrics rules:**
+- likeCount: use server value if number; undefined if not provided; 0 ONLY if server explicitly returns 0
+- viewCount: same rule
+- Do NOT fabricate 0 for missing metrics
+- UI must hide metric or show "no data" when undefined
+
+**Endpoint metric availability:**
+
+| Endpoint | likeCount | viewCount |
+|---|---|---|
+| GET /api/community/trees (BrowseSnapshot) | UNKNOWN (not confirmed in DTO) | UNKNOWN |
+| GET /api/trees/:id/likes | CONFIRMED (likeCount in response) | N/A |
+| POST /api/trees/:id/views | N/A | CONFIRMED (viewCount in response) |
+| GET /api/trees/:id (public detail) | UNKNOWN | UNKNOWN |
 
 ### NormalizedTree to MyTree
 
@@ -192,19 +228,29 @@ function toMyTree(t: NormalizedTree): MyTree {
 ```typescript
 interface AuthState {
   user: FirebaseUser | null;
-  token: string | null;
   loading: boolean;
   tier: 'free' | 'plus' | null;
 }
 ```
 
-### Token Cache (sessionStorage)
+### Token Persistence — PRODUCT/SECURITY DECISION REQUIRED
 
-Follow LoveBud pattern:
-- Key: `lovetree_auth_token`
-- Value: `{uid, token, expiresAt}`
+Two options (not finalized in this mapping):
+
+**Option A (Preferred baseline):**
+- Firebase SDK-managed auth persistence
+- `currentUser.getIdToken()` on demand
+- Application state holds minimal user/session metadata
+- Raw token long-term storage minimized
+
+**Option B (Compatibility with LoveBud pattern):**
+- sessionStorage token cache `{uid, token, expiresAt}`
+- UID binding
 - 30s expiry buffer
-- UID mismatch detection
+- Persistent 401 eviction
+- Requires separate security justification and tests if chosen
+
+This mapping does NOT finalize the choice. See open-questions.md Q37.
 
 ### Protected Route Wrapper
 
@@ -229,17 +275,37 @@ Migration strategy:
 3. Update test assertions from "fetch never called" to "adapter returns mock data"
 4. Integration tests (separate suite) can hit real endpoints
 
-**Status: NOT_IMPLEMENTED** (requires implementation phase 1)
+**Status: NOT_IMPLEMENTED** (requires Issue 1)
 
 ---
 
-## LoveBud Frontend Patterns to Adopt
+## Component Path Convention
+
+All screens are in `src/components/**`:
+- `src/components/AuthLoginPage.tsx`
+- `src/components/HomePage.tsx`
+- `src/components/CommunityPage.tsx`
+- `src/components/TreeDetailPage.tsx`
+- `src/components/MemoryConnectPage.tsx`
+- `src/components/MyTreesPage.tsx`
+- `src/components/MyTreesEmptyPage.tsx`
+- `src/components/TreeEditorPage.tsx`
+- `src/components/EmptyTreeEditorPage.tsx`
+- `src/components/MemoryDetailPage.tsx`
+- `src/components/MediaSearchPage.tsx`
+- `src/components/VisibilitySettingsPage.tsx`
+
+Do NOT create `src/pages/**`. Do NOT duplicate existing components. If architecture migration to `src/pages` is needed, it requires a separate Issue outside this plan.
+
+---
+
+## LoveBud Frontend Patterns (Reference)
 
 | Pattern | Source | Adoption |
 |---|---|---|
-| sessionStorage token cache | base-api-fetch.js | YES |
-| UID mismatch eviction | base-api-fetch.js | YES |
 | 401 single retry | base-api-fetch.js | YES |
 | Auth-exempt route list | auth-policy.js | YES |
 | camelCase DTO normalization | public-tree-adapter.js | Already camelCase from Modal |
 | YouTube videoId extraction | public-tree-adapter.js | YES (for media search) |
+| UID mismatch eviction | base-api-fetch.js | CONDITIONAL (Option B only) |
+| sessionStorage token cache | base-api-fetch.js | CONDITIONAL (Option B only, needs security justification) |

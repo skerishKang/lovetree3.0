@@ -129,6 +129,27 @@ Source: [modal_compute/social_idempotency.py](https://github.com/skerishKang/Lov
 | Reuse with same payload (replay) | Returns cached result (200) |
 | Result unavailable | 410 `IDEMPOTENCY_RESULT_UNAVAILABLE` |
 
+### Client-Side Key Semantics
+
+**Same logical mutation retry** (timeout, connection drop, unclear response, user waiting for same submit):
+- Reuse the SAME Idempotency-Key
+
+**New logical mutation** (user explicitly starts a separate new action):
+- Generate a NEW key only
+
+**React StrictMode / double-click:**
+- One logical mutation = one key, shared across StrictMode double-invoke and rapid double-click
+
+**409 IDEMPOTENCY_KEY_REUSED handling:**
+1. Stop auto-retry immediately
+2. Re-query authoritative state (GET the resource)
+3. Reconcile optimistic UI with server state
+4. Show conflict/reconfirmation state to user
+5. Generate new key ONLY when user explicitly initiates a new action
+
+Keys are never reused across distinct logical mutations.
+The same logical mutation retry reuses its original key.
+
 ### Lifecycle
 
 1. Client generates unique key (UUID recommended)
