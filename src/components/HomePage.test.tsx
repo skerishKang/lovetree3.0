@@ -49,16 +49,21 @@ describe("HomePage", () => {
     expect(screen.getByText("2023-05-17")).toBeInTheDocument();
   });
 
-  it("재생 버튼 5개를 렌더링한다", () => {
+  it("재생/메뉴 affordance는 interactive button이 아닌 decorative(aria-hidden) 요소다", () => {
     render(<HomePage />);
-    const playButtons = screen.getAllByRole("button", { name: "기억 재생" });
-    expect(playButtons).toHaveLength(5);
-  });
-
-  it("카드 메뉴 버튼 5개를 렌더링한다", () => {
-    render(<HomePage />);
-    const menuButtons = screen.getAllByRole("button", { name: "카드 메뉴" });
-    expect(menuButtons).toHaveLength(5);
+    expect(
+      screen.queryByRole("button", { name: "기억 재생" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "카드 메뉴" })
+    ).not.toBeInTheDocument();
+    const preview = screen.getByLabelText("러브트리 미리보기");
+    expect(
+      within(preview).getAllByTestId("memory-play-affordance")
+    ).toHaveLength(5);
+    expect(
+      within(preview).getAllByTestId("memory-dots-affordance")
+    ).toHaveLength(5);
   });
 });
 

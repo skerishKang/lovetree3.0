@@ -29,6 +29,11 @@
   padding: 0.5rem 0.25rem;
   transition: color var(--transition-fast);
   white-space: nowrap;
+  /* 44px minimum touch target (D-02): nav items are standalone navigation
+     actions, not inline text links, so they meet the touch-target floor. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 .navItem:hover {

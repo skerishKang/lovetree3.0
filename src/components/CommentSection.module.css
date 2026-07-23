@@ -87,6 +87,12 @@
   font-size: 0.7rem;
   color: #b09a88;
   cursor: pointer;
+  /* 44px minimum touch target (D-02) for the like/reaction action. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .likeBtn:hover {
@@ -130,6 +136,8 @@
   color: #2a221a;
   outline: none;
   transition: border-color 0.15s;
+  min-height: 44px;
+  box-sizing: border-box;
 }
 
 .input::placeholder {
@@ -150,6 +158,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
+  min-height: 44px;
 }
 
 .submitBtn:hover:not(:disabled) {

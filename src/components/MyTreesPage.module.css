@@ -56,8 +56,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: transparent;
   border: none;
@@ -115,6 +115,7 @@
   align-items: center;
   gap: 8px;
   padding: 11px 20px;
+  min-height: 44px;
   background: #d96b8f;
   color: #ffffff;
   border: none;
@@ -365,6 +366,7 @@
 .cardActionButton {
   flex: 1;
   padding: 7px 4px;
+  min-height: 44px;
   background: #faf6f1;
   border: 1px solid #eee7de;
   border-radius: 8px;

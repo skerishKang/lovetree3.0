@@ -51,6 +51,7 @@
   font-size: 0.8rem;
   color: #5c4a3a;
   box-sizing: border-box;
+  min-height: 44px;
 }
 
 .navSearchInput::placeholder {
@@ -75,6 +76,8 @@
   font-size: 0.875rem;
   color: #5c4a3a;
   font-weight: 500;
+  min-height: 44px;
+  box-sizing: border-box;
 }
 
 .navItemActive {
@@ -98,6 +101,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   cursor: default;
+  min-height: 44px;
 }
 
 .newTreeButton:focus-visible {
@@ -130,8 +134,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -197,6 +201,7 @@
   font-size: 0.8rem;
   font-weight: 500;
   cursor: default;
+  min-height: 44px;
 }
 
 .secBtn:focus-visible {
@@ -213,6 +218,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   cursor: default;
+  min-height: 44px;
 }
 
 .priBtn:focus-visible {
@@ -254,6 +260,7 @@
   font-size: 0.85rem;
   color: #3d2e22;
   outline: none;
+  min-height: 44px;
 }
 
 .canvasSearchInput::placeholder {
@@ -271,6 +278,7 @@
   cursor: default;
   white-space: nowrap;
   flex-shrink: 0;
+  min-height: 44px;
 }
 
 .addMemBtn:focus-visible {
@@ -630,6 +638,7 @@
   font-size: 0.875rem;
   box-sizing: border-box;
   cursor: default;
+  min-height: 44px;
 }
 
 .detailInput:focus-visible {
@@ -667,6 +676,7 @@
   font-size: 0.8rem;
   font-weight: 500;
   cursor: default;
+  min-height: 44px;
 }
 
 .actionBtn:focus-visible {
@@ -697,8 +707,8 @@
   }
 
   .newTreeButton {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     border-radius: 50%;
     font-size: 1.2rem;

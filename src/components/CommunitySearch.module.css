@@ -33,6 +33,9 @@
   font-family: inherit;
   font-size: clamp(1rem, 1.1vw, 1.2rem);
   color: var(--text-primary);
+  /* 44px minimum touch target (D-02): the input is the focusable/tappable
+     element inside the pill, so it carries the touch-target floor. */
+  min-height: 44px;
 }
 
 .input::placeholder {
