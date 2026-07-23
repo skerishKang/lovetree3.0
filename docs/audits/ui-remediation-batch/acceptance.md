@@ -1,7 +1,7 @@
 # Final Acceptance Checklist
 
-Head at capture time: `657b012ec5058e55a3e3e5b56b58a4bae1a6c993`
-(application code identical at this docs commit).
+Application source at capture time: `9c1f6d52b95c855b87499a0ba57b9cfb352b2b17`
+(last code commit; subsequent commits are docs/evidence-only).
 
 ## Functional acceptance
 

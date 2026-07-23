@@ -1,6 +1,6 @@
 # Route Matrix — 12 Routes × 3 Viewports
 
-Captured at head `657b012` via local `vite preview` (port 4173), Chrome
+Captured at application source `9c1f6d5` via local `vite preview` (127.0.0.1:4173), Chrome
 145.0.7632.116, Playwright 1.61.0. Viewports: desktop 1440×1000, intermediate
 900×900, mobile 390×844 (dpr 1, full-page screenshots).
 

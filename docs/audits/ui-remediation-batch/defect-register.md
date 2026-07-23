@@ -2,7 +2,7 @@
 
 Source: `docs/audits/ui-integration-12-screen/defect-register.md` (branch
 `audit/ui-integration-12-screen`). All items re-verified after remediation at
-head `657b012` (application code identical at this docs commit).
+application source `9c1f6d5` (last code commit; subsequent commits are docs/evidence-only).
 
 ## P1 — Mobile Home clipping and containment
 
@@ -90,7 +90,7 @@ head `657b012` (application code identical at this docs commit).
 - **Verification:** cross-screen DOM contract asserts `focusable="false"` on
   every rendered `<svg>` across all 12 routes.
 
-## Acceptance metrics (head 657b012)
+## Acceptance metrics (application source 9c1f6d5)
 
 | Metric | Result |
 | --- | --- |

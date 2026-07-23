@@ -96,3 +96,31 @@ D-06. App-header tokens applied to 5 app bars; border colors unified.
 
 - Corrected `(D-0x)` labels in `UiRemediationContracts.test.tsx` to match the
   original defect register numbering.
+
+## Phase 6 refinement — `9c1f6d5` chore: tokenize cross-screen heading hierarchy
+
+- `src/index.css`: `--heading-page-size` → `clamp(1.5rem, 2.25vw, 2rem)`,
+  `--heading-work-size` → `clamp(1.375rem, 1.95vw, 1.75rem)` (responsive clamps
+  replace static desktop targets).
+- 6 component CSS files: outer `clamp(…, var(--heading-*-size))` simplified to
+  `var(--heading-*-size)` (token is now self-contained clamp).
+- `MyTreesPage.module.css`: removed redundant `≤767px .pageTitle { font-size: 22px }`
+  override (clamp floor handles it).
+- `VisibilitySettingsPage.module.css`: removed redundant `≥900px .screenTitle`
+  override (base rule already resolves to token).
+
+## Evidence — `87fcaf8` docs: refresh audit captures and metadata
+
+- Regenerated 36 captures + contact sheets + capture-metadata.json at the
+  refined heading-token build.
+
+## Evidence recapture — (evidence commit) docs: recapture UI remediation evidence at final application head
+
+- Full 36-capture recapture at application source `9c1f6d5` with corrected
+  metadata SHA separation. Contact sheets, SHA256SUMS, and all docs updated
+  to reference `9c1f6d5` as the application/visual source.
+
+## Metadata correction — (metadata commit) docs: correct final UI remediation evidence metadata
+
+- `capture-metadata.json`: evidence and metadata commit SHAs filled; all
+  `657b012` capture-source references removed.

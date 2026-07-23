@@ -5,7 +5,7 @@ Clipping detection uses bounding-box intersection plus clipping-context
 analysis (overflow/position ancestors); `scrollWidth == clientWidth` alone is
 not trusted (per batch acceptance rules).
 
-## Results (head 657b012)
+## Results (application source 9c1f6d5)
 
 - **Document horizontal overflow:** 0 across all 36 captures.
 - **Hard clips (element bbox outside/clipped by an ancestor):** 0.

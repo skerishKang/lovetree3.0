@@ -19,7 +19,12 @@
 | 7 | `ef20def` | chore: standardize app header visual tokens |
 | 8 | `657b012` | test: add cross-screen UI remediation regressions |
 | — | `9f1fd0d` | test: align contract test defect labels with register |
-| — | (this commit) | docs: add post-remediation 12-screen UI audit |
+| — | `44b357e` | docs: add post-remediation 12-screen UI audit |
+| — | `dea9cc1` | docs: finalize UI remediation audit metadata |
+| 6+ | `9c1f6d5` | chore: tokenize cross-screen heading hierarchy (responsive clamp refinement) |
+| — | `87fcaf8` | docs: refresh audit captures and metadata for heading token refinement |
+| — | (evidence commit) | docs: recapture UI remediation evidence at final application head |
+| — | (metadata commit) | docs: correct final UI remediation evidence metadata |
 
 ## Results
 
