@@ -74,11 +74,11 @@
 }
 
 .title {
-  font-size: clamp(1.35rem, 2vw, 1.75rem);
-  font-weight: 800;
+  font-size: clamp(1.375rem, 2vw, var(--heading-work-size));
+  font-weight: var(--heading-work-weight);
   color: #3d3429;
   margin: 0;
-  line-height: 1.35;
+  line-height: var(--heading-work-line-height);
   word-break: keep-all;
 }
 

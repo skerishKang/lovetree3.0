@@ -28,12 +28,28 @@
   --font-sans: "Pretendard Variable", Pretendard, "Noto Sans KR",
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
 
+  /* Heading hierarchy (UI-AUDIT-D-05): hero > page > work > compact.
+     Size tokens are shared desktop targets; screens may clamp up to them
+     for small-viewport responsiveness. */
+  --heading-hero-size: clamp(2rem, 2.5vw, 4rem);
+  --heading-hero-weight: 800;
+  --heading-hero-line-height: 1.05;
+  --heading-page-size: 2rem;
+  --heading-page-weight: 800;
+  --heading-page-line-height: 1.3;
+  --heading-work-size: 1.75rem;
+  --heading-work-weight: 700;
+  --heading-work-line-height: 1.3;
+  --heading-compact-size: 1.125rem;
+  --heading-compact-weight: 700;
+  --heading-compact-line-height: 1.5;
+
   /* Headline (원본 정밀 측정: 2752×1536에서 약 65px, 첫 줄 폭 755px)
      "사랑에 빠진 모든 순간을 / 기록해 보세요" 정확히 2줄.
      2차 보정: 원본 폰트 크기에 맞춰 확대 (이전 ~52px → ~65px).
      vw 기반으로 2752px에서 65px 보장: 65/2752*100 = 2.36vw */
-  --fs-headline: clamp(2rem, 2.4vw, 4rem);
-  --lh-headline: 1.08;
+  --fs-headline: var(--heading-hero-size);
+  --lh-headline: var(--heading-hero-line-height);
   --ls-headline: -0.02em;
 
   /* Description (원본: 설명 텍스트 y=612~681, 높이 약 70px → 2줄)

@@ -24,7 +24,7 @@
 
 .headline {
   font-size: var(--fs-headline);
-  font-weight: 800;
+  font-weight: var(--heading-hero-weight);
   line-height: var(--lh-headline);
   letter-spacing: var(--ls-headline);
   color: var(--text-primary);

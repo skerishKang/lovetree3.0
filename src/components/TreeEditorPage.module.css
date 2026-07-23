@@ -151,8 +151,9 @@
 
 .toolbarTitle {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--heading-compact-size);
+  font-weight: var(--heading-compact-weight);
+  line-height: var(--heading-compact-line-height);
   color: #3d2e22;
 }
 

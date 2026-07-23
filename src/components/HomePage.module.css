@@ -14,8 +14,8 @@
   --surface-main: #f7f3e8;
   --surface-panel-radius: 32px;
 
-  --fs-headline: clamp(2rem, 2.5vw, 4rem);
-  --lh-headline: 1.05;
+  --fs-headline: var(--heading-hero-size);
+  --lh-headline: var(--heading-hero-line-height);
   --fs-description: clamp(1.125rem, 1.5vw, 1.8rem);
   --fs-button: clamp(0.95rem, 1vw, 1.2rem);
   --fs-feature-title: clamp(1.25rem, 1.5vw, 1.8rem);

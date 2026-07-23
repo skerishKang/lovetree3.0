@@ -60,8 +60,9 @@
 }
 
 .screenTitle {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: var(--heading-compact-size);
+  font-weight: var(--heading-compact-weight);
+  line-height: var(--heading-compact-line-height);
   color: #3d3229;
   margin: 0;
   flex: 1;
@@ -505,10 +506,6 @@
     padding: 20px 28px 16px;
     background: transparent;
     backdrop-filter: none;
-  }
-
-  .screenTitle {
-    font-size: 18px;
   }
 
   /* ── Media ── */

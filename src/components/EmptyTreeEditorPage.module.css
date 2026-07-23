@@ -232,8 +232,9 @@
 
 .heading {
   margin: 0 0 10px;
-  font-size: 1.625rem;
-  font-weight: 700;
+  font-size: clamp(1.35rem, 2.5vw, var(--heading-work-size));
+  font-weight: var(--heading-work-weight);
+  line-height: var(--heading-work-line-height);
   color: #3d2e22;
   letter-spacing: -0.015em;
 }
@@ -430,10 +431,6 @@
   .onboardingCard {
     padding: 32px 20px;
     border-radius: 12px;
-  }
-
-  .heading {
-    font-size: 1.35rem;
   }
 
   .description {

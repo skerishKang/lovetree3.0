@@ -67,10 +67,10 @@
 
 .title {
   margin: 0;
-  font-size: clamp(1.4rem, 2vw, 2rem);
-  font-weight: 800;
+  font-size: clamp(1.375rem, 2vw, var(--heading-work-size));
+  font-weight: var(--heading-work-weight);
   color: #2a221a;
-  line-height: 1.25;
+  line-height: var(--heading-work-line-height);
 }
 
 .subtitle {

@@ -97,10 +97,11 @@
 
 .pageTitle {
   margin: 0;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: var(--heading-work-size);
+  font-weight: var(--heading-work-weight);
   color: #2a2622;
   letter-spacing: -0.02em;
+  line-height: var(--heading-work-line-height);
 }
 
 .pageDescription {
