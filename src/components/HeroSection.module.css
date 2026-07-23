@@ -113,19 +113,8 @@
 }
 
 /* ===== 오른쪽: 트리 미리보기 =====
- * 2차 보정: 원본 트리 영역 y=304~822(2752기준) → 높이 518px
- * viewport 높이 1536의 33.7%
- * 원본에서 트리는 제목보다 위에서 시작 (가장 위 카드 y=304, 제목 y=509)
- * preview에 음수 margin-top으로 트리를 위로 올림 */
-.preview {
-  position: relative;
-  width: 100%;
-  height: clamp(420px, 34vh, 560px);
-  /* 트리 미리보기를 제목 위로 이동 (음수 transform).
-     정밀 보정: 원본 트리 상단 y=304px, 제목 시작 y=509px → 205px 위.
-     2752px 기준: 205px/1536vh = 13.35vh */
-  transform: translateY(clamp(-16rem, -13.35vh, -11rem));
-}
+ * 트리 시각화는 MemoryTreePreview가 자체 모듈(MemoryTreePreview.module.css)로
+ * 크기·배치를 관리합니다. HeroSection은 그리드 열만 제공합니다. */
 
 /* ===== 반응형 ===== */
 @media (max-width: 1200px) {
@@ -164,7 +153,15 @@
   .btnSecondary {
     width: 100%;
   }
-  .preview {
-    height: 560px;
+  /* The headline uses white-space:nowrap on desktop to keep the exact two-line
+     shape. On a 390px viewport that single line is wider than the panel, forcing
+     the copy grid item to overflow and be clipped. Allow natural wrapping here
+     (the explicit <br/> still defines the two lines) and let the grid item shrink. */
+  .headline {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+  .copy {
+    min-width: 0;
   }
 }

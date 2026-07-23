@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import HomePage from "./HomePage";
 
 describe("HomePage", () => {
@@ -59,5 +59,47 @@ describe("HomePage", () => {
     render(<HomePage />);
     const menuButtons = screen.getAllByRole("button", { name: "카드 메뉴" });
     expect(menuButtons).toHaveLength(5);
+  });
+});
+
+/**
+ * Mobile containment contract (Phase 1 — mobile Home P1 clipping).
+ *
+ * jsdom은 실제 layout/bounding box를 계산하지 못하므로, 여기서는 모바일에서
+ * 콘텐츠가 잘리지 않기 위한 DOM 전제조건을 검증한다. 실제 geometry(요소
+ * bounding box + 부모 clipping context) 검증은 Playwright 감사 스크립트로
+ * 수행하며 docs/audits/ui-remediation-batch/responseive-audit.md에 기록한다.
+ */
+describe("HomePage mobile containment contract", () => {
+  it("h1은 정확히 1개만 존재한다", () => {
+    render(<HomePage />);
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+  });
+
+  it("주요 메뉴 nav가 4개 항목을 모두 단일 nav 안에 렌더링한다 (wrap으로 전부 노출)", () => {
+    render(<HomePage />);
+    const nav = screen.getByRole("navigation", { name: "주요 메뉴" });
+    const links = within(nav).getAllByRole("link");
+    expect(links.map((l) => l.textContent)).toEqual([
+      "About",
+      "Features",
+      "Community",
+      "My Tree",
+    ]);
+  });
+
+  it("러브트리 미리보기가 단일 컨테이너에 5개 카드를 모두 포함한다 (scale-to-fit containment)", () => {
+    render(<HomePage />);
+    const preview = screen.getByLabelText("러브트리 미리보기");
+    const cards = within(preview).getAllByRole("article");
+    expect(cards).toHaveLength(5);
+  });
+
+  it("CTA 버튼은 presentation-only type=button 이다 (navigation/storage side-effect 없음)", () => {
+    render(<HomePage />);
+    const primary = screen.getByRole("button", { name: "첫 러브트리 만들기" });
+    const secondary = screen.getByRole("button", { name: "다른 러브트리 구경하기" });
+    expect(primary).toHaveAttribute("type", "button");
+    expect(secondary).toHaveAttribute("type", "button");
   });
 });
