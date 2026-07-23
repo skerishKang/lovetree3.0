@@ -24,7 +24,7 @@
 }
 
 .screenTitle {
-  font-size: clamp(1.5rem, 2.5vw, var(--heading-page-size));
+  font-size: var(--heading-page-size);
   font-weight: var(--heading-page-weight);
   color: #3d3229;
   margin: 0;
@@ -366,10 +366,6 @@
   .topBar {
     max-width: 560px;
     padding: 0 0 24px;
-  }
-
-  .screenTitle {
-    font-size: var(--heading-page-size);
   }
 
   .screenDescription {

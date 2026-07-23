@@ -88,7 +88,7 @@
 
 .pageTitle {
   margin: 0 0 12px;
-  font-size: clamp(1.5rem, 2.5vw, var(--heading-work-size));
+  font-size: var(--heading-work-size);
   font-weight: var(--heading-work-weight);
   color: #2a2622;
   letter-spacing: -0.02em;

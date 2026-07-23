@@ -4,7 +4,7 @@
 }
 
 .title {
-  font-size: clamp(1.5rem, 2.22vw, var(--heading-page-size));
+  font-size: var(--heading-page-size);
   font-weight: var(--heading-page-weight);
   line-height: var(--heading-page-line-height);
   color: var(--text-primary);

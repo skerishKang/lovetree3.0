@@ -533,10 +533,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .pageTitle {
-    font-size: 22px;
-  }
-
   .sidebar {
     position: static;
   }

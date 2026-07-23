@@ -232,7 +232,7 @@
 
 .heading {
   margin: 0 0 10px;
-  font-size: clamp(1.35rem, 2.5vw, var(--heading-work-size));
+  font-size: var(--heading-work-size);
   font-weight: var(--heading-work-weight);
   line-height: var(--heading-work-line-height);
   color: #3d2e22;
