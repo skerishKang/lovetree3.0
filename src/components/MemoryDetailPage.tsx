@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import { MOCK_MEMORY_DETAIL } from "../data/memoryDetailMockData";
 import styles from "./MemoryDetailPage.module.css";
 
 export default function MemoryDetailPage() {
+  const navigate = useNavigate();
   const data = MOCK_MEMORY_DETAIL;
 
   return (
@@ -15,6 +17,7 @@ export default function MemoryDetailPage() {
               type="button"
               className={styles.backButton}
               aria-label="뒤로 가기"
+              onClick={() => navigate(-1)}
             >
               <svg
                 width="24"

@@ -1,14 +1,17 @@
 import styles from "./SiteHeader.module.css";
+import { useNavigate } from "react-router-dom";
 import { brandLogo, navMenuItems } from "../data/mockData";
 
-/**
- * 상단 헤더
- * - 왼쪽: 텍스트 로고 "Relovetree"
- * - 오른쪽: About, Features, Community, My Tree
- *
- * 첫 정적 구현에서는 이동을 연결하지 않습니다.
- */
+const navRoutes: Record<typeof navMenuItems[number], string> = {
+  About: "/",
+  Features: "/",
+  Community: "/community",
+  "My Tree": "/my-trees",
+};
+
 export default function SiteHeader() {
+  const navigate = useNavigate();
+
   return (
     <header className={styles.header}>
       <span className={styles.logo}>{brandLogo}</span>
@@ -18,7 +21,10 @@ export default function SiteHeader() {
             key={item}
             className={styles.navItem}
             href="#"
-            onClick={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(navRoutes[item]);
+            }}
           >
             {item}
           </a>
