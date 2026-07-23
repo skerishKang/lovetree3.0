@@ -16,19 +16,19 @@ export const VISIBILITY_OPTIONS: VisibilityOption[] = [
   {
     id: "private",
     label: "나만 보기",
-    description: "본인만 LoveTree를 볼 수 있습니다.",
+    description: "본인만 러브트리를 볼 수 있습니다.",
     iconType: "private",
   },
   {
     id: "link",
     label: "링크를 가진 사람만",
-    description: "링크를 알고 있는 사람에게만 LoveTree가 공개됩니다.",
+    description: "링크를 알고 있는 사람에게만 러브트리가 공개됩니다.",
     iconType: "link",
   },
   {
     id: "community",
     label: "커뮤니티에 공개",
-    description: "모든 Relovetree 사용자가 커뮤니티에서 LoveTree를 검색하고 볼 수 있습니다.",
+    description: "모든 Relovetree 사용자가 커뮤니티에서 러브트리를 검색하고 볼 수 있습니다.",
     iconType: "community",
   },
 ];
@@ -44,19 +44,19 @@ export const ADDITIONAL_SETTINGS: AdditionalSetting[] = [
   {
     id: "allow-comments",
     label: "댓글 허용",
-    description: "내 LoveTree에 다른 사용자가 댓글을 남길 수 있습니다.",
+    description: "내 러브트리에 다른 사용자가 댓글을 남길 수 있습니다.",
     defaultChecked: true,
   },
   {
     id: "allow-likes",
     label: "좋아요 허용",
-    description: "내 LoveTree에 좋아요 표현을 받을 수 있습니다.",
+    description: "내 러브트리에 좋아요 표현을 받을 수 있습니다.",
     defaultChecked: true,
   },
   {
     id: "show-profile-name",
     label: "프로필 표시 이름 공개",
-    description: "LoveTree 옆에 내 프로필 표시 이름을 공개합니다.",
+    description: "러브트리 옆에 내 프로필 표시 이름을 공개합니다.",
     defaultChecked: false,
   },
 ];

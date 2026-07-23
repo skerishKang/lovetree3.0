@@ -11,7 +11,7 @@ export default function VisibilitySettingsPage() {
       <header className={styles.topBar}>
         <h1 className={styles.screenTitle}>공개 범위 설정</h1>
         <p className={styles.screenDescription}>
-          LoveTree의 공개 범위와 참여 설정을 관리합니다.
+          러브트리의 공개 범위와 참여 설정을 관리합니다.
         </p>
       </header>
 

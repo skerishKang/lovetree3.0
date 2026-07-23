@@ -49,9 +49,9 @@ describe("CommunityPage (LT3-COMMUNITY-001)", () => {
     });
   });
 
-  it("Featured LoveTree 영역과 상세 구조(태그 및 반응 정보 포함)를 검증한다", () => {
+  it("Featured 러브트리 영역과 상세 구조(태그 및 반응 정보 포함)를 검증한다", () => {
     render(<CommunityPage />);
-    expect(screen.getByText("🌟 Featured LoveTree")).toBeInTheDocument();
+    expect(screen.getByText("🌟 Featured 러브트리")).toBeInTheDocument();
     expect(screen.getByText("이주의 추천 트리")).toBeInTheDocument();
     expect(screen.getByText("OUR JOURNEY WITH RED VELVET")).toBeInTheDocument();
     expect(screen.getByText("레드벨벳 10주년을 함께한 팬들의 소중한 콘서트 현장 열기와 미발매곡 최초 공개의 순간, 그리고 멤버들과 함께 울고 웃었던 추억의 타임라인을 총망라한 기념비적 트리.")).toBeInTheDocument();

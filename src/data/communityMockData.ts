@@ -197,7 +197,7 @@ export const communityTreeCards: CommunityTreeCard[] = [
 
 export const featuredLoveTree: FeaturedLoveTree = {
   id: "feat-001",
-  label: "Featured LoveTree",
+  label: "Featured 러브트리",
   title: "OUR JOURNEY WITH RED VELVET",
   summary: "레드벨벳 10주년을 함께한 팬들의 소중한 콘서트 현장 열기와 미발매곡 최초 공개의 순간, 그리고 멤버들과 함께 울고 웃었던 추억의 타임라인을 총망라한 기념비적 트리.",
   author: { handle: "@ReVeluv_Fan", avatarColor: "#b87a7a", initial: "R" },

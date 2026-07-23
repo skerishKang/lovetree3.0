@@ -43,7 +43,7 @@ export default function MemoryConnectPage() {
             <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span className={styles.logo}>LoveTree</span>
+        <span className={styles.logo}>Relovetree</span>
       </header>
 
       <div className={styles.memoryConnectLayout}>

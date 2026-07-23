@@ -292,7 +292,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
   it("트리 이름이 표시되어야 한다", () => {
     renderAppAt("/memory/detail-demo");
-    expect(screen.getAllByText("민지의 Love Tree").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("민지의 러브트리").length).toBeGreaterThanOrEqual(1);
   });
 
   it("각 관련 기억에 유형이 표시되어야 한다", () => {

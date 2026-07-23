@@ -52,7 +52,7 @@ export const MOCK_MEMORY_DETAIL: MemoryDetailMockData = {
   },
   author: {
     name: "민지",
-    treeName: "민지의 Love Tree",
+    treeName: "민지의 러브트리",
     treeRelation: "개인 기억",
   },
   actions: {
