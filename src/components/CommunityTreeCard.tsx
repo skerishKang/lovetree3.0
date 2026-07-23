@@ -1,16 +1,23 @@
+import { useNavigate } from "react-router-dom";
 import styles from "./CommunityTreeCard.module.css";
 import type { CommunityTreeCard as CardData } from "../data/communityMockData";
 import CommunityTreePreview from "./CommunityTreePreview";
 
-/**
- * 일반 러브트리 카드 (1개)
- *
- * BASE 인터랙션: hover / keyboard focus 허용.
- * 실제 좋아요/댓글/트리 저장 요청은 하지 않음 (금지).
- */
 export default function CommunityTreeCard({ card }: { card: CardData }) {
+  const navigate = useNavigate();
+
   return (
-    <article className={`${styles.card} card`} tabIndex={0}>
+    <article
+      className={`${styles.card} card`}
+      tabIndex={0}
+      onClick={() => navigate("/tree/community-demo")}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          navigate("/tree/community-demo");
+        }
+      }}
+    >
       <div
         className={styles.thumbnail}
         style={{ background: card.thumbnail }}
