@@ -44,14 +44,17 @@ through shared tokens defined in `src/index.css` `:root`.
 
 ## Height changes vs pre-remediation audit
 
-| Route | Before | After (desktop) | Delta |
-| --- | --- | --- | --- |
-| `/my-trees` | 69px | ~65px | −4px (pad-y 14→12) |
-| `/tree/edit-demo` | 57px | ~61px | +4px (pad-y 10→12) |
-| `/tree/new-demo` | 52px | 52px | 0 |
-| `/memory/detail-demo` | 76px | 76px | 0 |
-| `/media/search-demo` | 91px | 91px | 0 |
-| `/settings/visibility-demo` | 103px | 103px | 0 |
+Measured at 1440px after remediation (Phase 2's 44px control minimums are
+included in the "after" values):
+
+| Route | Before | After (desktop) | Delta | Notes |
+| --- | --- | --- | --- | --- |
+| `/my-trees` | 69px | 69px | 0 | pad-y 14→12 offset by 44px controls |
+| `/tree/edit-demo` | 57px | 69px | +12px | +8px from 44px icon buttons (Phase 2), +4px from pad-y 10→12 |
+| `/tree/new-demo` | 52px | 52px | 0 | fixed-height token |
+| `/memory/detail-demo` | 76px | 80px | +4px | 44px back button (Phase 2) |
+| `/media/search-demo` | 91px | 91px | 0 | hero padding untouched |
+| `/settings/visibility-demo` | 103px | 102px | −1px | title line-height 1.35→1.3 (Phase 6) |
 
 Border colors `#ede6dc` (my-trees) and `#e8e0d8` (editor screens) are unified
 to `--app-header-border-color: #ede6dc`.
