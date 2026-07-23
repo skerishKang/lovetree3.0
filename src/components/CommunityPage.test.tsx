@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import CommunityPage from "./CommunityPage";
 import { communityTreeCards } from "../data/communityMockData";
 
@@ -9,14 +10,14 @@ describe("CommunityPage (LT3-COMMUNITY-001)", () => {
   });
 
   it("페이지 제목을 렌더링한다", () => {
-    render(<CommunityPage />);
+    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
     expect(
       screen.getByRole("heading", { name: "다른 팬들의 러브트리 구경하기" })
     ).toBeInTheDocument();
   });
 
   it("일반 카드 정확히 8개를 렌더링하고, 각 카드의 세부 메타데이터 필드를 검증한다", () => {
-    render(<CommunityPage />);
+    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
 
     // 일반 카드 8개 개수 검증
     expect(communityTreeCards).toHaveLength(8);
@@ -39,7 +40,7 @@ describe("CommunityPage (LT3-COMMUNITY-001)", () => {
   });
 
   it("CommunityTreePreview가 총 9개(일반 카드 8개 + Featured 1개) 존재하고 모든 SVG는 aria-hidden='true'이다", () => {
-    render(<CommunityPage />);
+    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
 
     const previews = screen.getAllByTestId("community-tree-preview");
     expect(previews).toHaveLength(9);
@@ -50,7 +51,7 @@ describe("CommunityPage (LT3-COMMUNITY-001)", () => {
   });
 
   it("Featured 러브트리 영역과 상세 구조(태그 및 반응 정보 포함)를 검증한다", () => {
-    render(<CommunityPage />);
+    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
     expect(screen.getByText("🌟 Featured 러브트리")).toBeInTheDocument();
     expect(screen.getByText("이주의 추천 트리")).toBeInTheDocument();
     expect(screen.getByText("OUR JOURNEY WITH RED VELVET")).toBeInTheDocument();
@@ -69,7 +70,7 @@ describe("CommunityPage (LT3-COMMUNITY-001)", () => {
   });
 
   it("검색 입력이 가능하다", () => {
-    render(<CommunityPage />);
+    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
     const input = screen.getByRole("searchbox");
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute(
@@ -79,14 +80,14 @@ describe("CommunityPage (LT3-COMMUNITY-001)", () => {
   });
 
   it("카테고리 메뉴를 렌더링한다", () => {
-    render(<CommunityPage />);
+    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
     const nav = screen.getByRole("navigation", { name: "커뮤니티 카테고리" });
     expect(within(nav).getByText("인기")).toBeInTheDocument();
     expect(within(nav).getByText("컴백")).toBeInTheDocument();
   });
 
   it("네트워크/API 호출이 없는 무네트워크(zero-network) 환경임을 보장한다", () => {
-    render(<CommunityPage />);
+    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     expect(fetchSpy).not.toHaveBeenCalled();
   });

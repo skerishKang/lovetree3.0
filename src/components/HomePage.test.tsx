@@ -1,15 +1,16 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import HomePage from "./HomePage";
 
 describe("HomePage", () => {
   it("로고 'Relovetree'를 렌더링한다", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(screen.getByText("Relovetree")).toBeInTheDocument();
   });
 
   it("헤더 메뉴 4개를 모두 렌더링한다", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(screen.getByText("About")).toBeInTheDocument();
     expect(screen.getByText("Features")).toBeInTheDocument();
     expect(screen.getByText("Community")).toBeInTheDocument();
@@ -17,13 +18,13 @@ describe("HomePage", () => {
   });
 
   it("메인 헤드라인을 렌더링한다", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(screen.getByText(/사랑에 빠진 모든 순간을/)).toBeInTheDocument();
     expect(screen.getByText(/기록해 보세요/)).toBeInTheDocument();
   });
 
   it("CTA 버튼 2개를 렌더링한다", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(
       screen.getByRole("button", { name: "첫 러브트리 만들기" })
     ).toBeInTheDocument();
@@ -33,7 +34,7 @@ describe("HomePage", () => {
   });
 
   it("하단 기능 설명 4개를 렌더링한다", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(screen.getByText("기록하기")).toBeInTheDocument();
     expect(screen.getByText("연결하기")).toBeInTheDocument();
     expect(screen.getByText("다시 보기")).toBeInTheDocument();
@@ -41,7 +42,7 @@ describe("HomePage", () => {
   });
 
   it("5개 기억 카드의 날짜를 렌더링한다", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(screen.getByText("2023-01-07")).toBeInTheDocument();
     expect(screen.getByText("2023-01-10")).toBeInTheDocument();
     expect(screen.getByText("2023-03-06")).toBeInTheDocument();
@@ -50,7 +51,7 @@ describe("HomePage", () => {
   });
 
   it("재생/메뉴 affordance는 interactive button이 아닌 decorative(aria-hidden) 요소다", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(
       screen.queryByRole("button", { name: "기억 재생" })
     ).not.toBeInTheDocument();
@@ -77,12 +78,12 @@ describe("HomePage", () => {
  */
 describe("HomePage mobile containment contract", () => {
   it("h1은 정확히 1개만 존재한다", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   });
 
   it("주요 메뉴 nav가 4개 항목을 모두 단일 nav 안에 렌더링한다 (wrap으로 전부 노출)", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     const nav = screen.getByRole("navigation", { name: "주요 메뉴" });
     const links = within(nav).getAllByRole("link");
     expect(links.map((l) => l.textContent)).toEqual([
@@ -94,14 +95,14 @@ describe("HomePage mobile containment contract", () => {
   });
 
   it("러브트리 미리보기가 단일 컨테이너에 5개 카드를 모두 포함한다 (scale-to-fit containment)", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     const preview = screen.getByLabelText("러브트리 미리보기");
     const cards = within(preview).getAllByRole("article");
     expect(cards).toHaveLength(5);
   });
 
   it("CTA 버튼은 presentation-only type=button 이다 (navigation/storage side-effect 없음)", () => {
-    render(<HomePage />);
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
     const primary = screen.getByRole("button", { name: "첫 러브트리 만들기" });
     const secondary = screen.getByRole("button", { name: "다른 러브트리 구경하기" });
     expect(primary).toHaveAttribute("type", "button");
