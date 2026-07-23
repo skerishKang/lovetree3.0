@@ -335,6 +335,26 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     expect(openSpy).not.toHaveBeenCalled();
   });
 
+  it("모든 SVG는 aria-hidden이거나 aria-hidden 조상 안에 있어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    const svgs = document.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+    svgs.forEach((svg) => {
+      const hidden =
+        svg.getAttribute("aria-hidden") === "true" ||
+        svg.closest('[aria-hidden="true"]') !== null;
+      expect(hidden).toBe(true);
+    });
+  });
+
+  it("모든 SVG에 focusable='false'가 있어야 한다", () => {
+    renderAppAt("/memory/detail-demo");
+    const svgs = document.querySelectorAll("svg");
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute("focusable", "false");
+    });
+  });
+
   it("navigation 링크가 없어야 한다", () => {
     renderAppAt("/memory/detail-demo");
     const links = screen.queryAllByRole("link");

@@ -218,6 +218,25 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
+  /* ─── decorative SVG 접근성 계약 ─── */
+
+  it("모든 SVG는 aria-hidden 조상 안에 있어야 한다", () => {
+    renderAppAt("/settings/visibility-demo");
+    const svgs = document.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+    svgs.forEach((svg) => {
+      expect(svg.closest('[aria-hidden="true"]')).not.toBeNull();
+    });
+  });
+
+  it("모든 SVG에 focusable='false'가 있어야 한다", () => {
+    renderAppAt("/settings/visibility-demo");
+    const svgs = document.querySelectorAll("svg");
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute("focusable", "false");
+    });
+  });
+
   /* ─── radio/checkbox 변경 후 사이드 이펙트 없음 ─── */
 
   it("radio를 변경해도 네트워크·Storage·Clipboard 호출이 없어야 한다", () => {

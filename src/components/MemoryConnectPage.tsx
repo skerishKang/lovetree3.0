@@ -9,6 +9,8 @@ function MemoryConnector({ highlighted }: { highlighted: boolean }) {
         className={styles.connectorSvg}
         viewBox="0 0 32 48"
         preserveAspectRatio="xMidYMid meet"
+        aria-hidden="true"
+        focusable="false"
       >
         <line
           x1="16" y1="0" x2="16" y2="48"
@@ -37,7 +39,7 @@ export default function MemoryConnectPage() {
     <div className={styles.page}>
       <header className={styles.topBar}>
         <button type="button" className={styles.backButton} aria-label="뒤로 가기">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
             <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>

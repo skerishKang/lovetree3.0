@@ -308,6 +308,38 @@ describe("TreeEditorPage - presentation-only regression", () => {
   });
 });
 
+describe("TreeEditorPage - decorative SVG accessibility", () => {
+  it("모든 SVG는 aria-hidden이거나 aria-hidden 조상 안에 있어야 한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const svgs = document.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+    svgs.forEach((svg) => {
+      const hidden =
+        svg.getAttribute("aria-hidden") === "true" ||
+        svg.closest('[aria-hidden="true"]') !== null;
+      expect(hidden).toBe(true);
+    });
+  });
+
+  it("모든 SVG는 focusable='false'여야 한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const svgs = document.querySelectorAll("svg");
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute("focusable", "false");
+    });
+  });
+
+  it("connector/branch 라인 SVG는 aria-hidden 컨테이너 안에 있어야 한다", () => {
+    renderAppAt("/tree/edit-demo");
+    document.querySelectorAll('[data-testid="connector"]').forEach((el) => {
+      expect(el.closest('[aria-hidden="true"]')).not.toBeNull();
+    });
+    document.querySelectorAll('[data-testid="branch-connector"]').forEach((el) => {
+      expect(el).toHaveAttribute("aria-hidden", "true");
+    });
+  });
+});
+
 describe("TreeEditorPage - existing routes preserved", () => {
   it("renders Home on /", () => {
     renderAppAt("/");
