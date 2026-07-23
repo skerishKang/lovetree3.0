@@ -2,14 +2,14 @@
   "base": "http://localhost:4173",
   "baseSha": "562cb177379d4b61d664f7a0d8bcba1428602805",
   "captureDeployedSha": "657b012ec5058e55a3e3e5b56b58a4bae1a6c993",
-  "finalAuditHead": "44b357eec1423d06baa968d77e229e8e5478cd6c",
+  "finalAuditHead": "657b012ec5058e55a3e3e5b56b58a4bae1a6c993",
   "deployedSha": "657b012ec5058e55a3e3e5b56b58a4bae1a6c993",
   "branchPreviewUrl": "https://integration-ui-remediation-b.lovetree3.pages.dev",
   "chromeVersion": "Google Chrome 145.0.7632.116",
   "playwrightVersion": "1.61.0",
   "browser": "Google Chrome (system)",
-  "generatedAt": "2026-07-23T11:16:16.381Z",
-  "note": "Captures were taken against a local vite preview (port 4173) serving the worktree production build of 657b012. The Cloudflare branch preview serves the same application code and returned HTTP 200. Commits after 657b012 (9f1fd0d test-label alignment, 44b357e this audit content, and the metadata finalization commit) differ only by test description labels and docs/audits/ui-remediation-batch/** content, so the captured UI matches the final deployed UI.",
+  "generatedAt": "2026-07-23T11:36:49.722Z",
+  "note": "Captures were taken against a local vite preview (port 4173) serving the worktree production build of 657b012. The Cloudflare branch preview serves the same commit and returned HTTP 200. The docs commit(s) after 657b012 differ only by docs/audits/ui-remediation-batch/** content, so the captured UI matches the final deployed UI.",
   "viewportCount": 3,
   "routeCount": 12,
   "entryCount": 36,
@@ -69,8 +69,8 @@
       "bodyTextLength": 1159,
       "pngWidth": 1440,
       "pngHeight": 2037,
-      "bytes": 859142,
-      "sha256": "f39c6b6af80b090bf52c935bc82b128ce70d930efb9ae93f259900cb021fcedf"
+      "bytes": 859185,
+      "sha256": "4bb1a48cc35dcbc1d16b5963b36c6302370e1ec8f3ac560002b43c5a911b23e8"
     },
     {
       "route": "/login",
@@ -404,9 +404,9 @@
       "hardClipCount": 0,
       "bodyTextLength": 557,
       "pngWidth": 900,
-      "pngHeight": 1380,
-      "bytes": 238653,
-      "sha256": "f0b43cefed471fbaa5e40629c8b52ff2c126d9fd692e854804bc4857e197e71d"
+      "pngHeight": 1372,
+      "bytes": 235469,
+      "sha256": "dcc3ac2c77ec42e8606dc918aabe48816374168745f8b2ed1ab811fb48cea556"
     },
     {
       "route": "/tree/edit-demo",
@@ -447,8 +447,8 @@
       "bodyTextLength": 130,
       "pngWidth": 900,
       "pngHeight": 900,
-      "bytes": 40511,
-      "sha256": "cbdbc37a7857148efdd6996a4ec81e0510a247ed99559522099cb3d199429228"
+      "bytes": 40562,
+      "sha256": "60737f04b79624faa1c93154c225f423a3ac41bf4c8b25924d72482a3c5c7846"
     },
     {
       "route": "/memory/detail-demo",
@@ -509,9 +509,9 @@
       "hardClipCount": 0,
       "bodyTextLength": 278,
       "pngWidth": 900,
-      "pngHeight": 1205,
-      "bytes": 194899,
-      "sha256": "3f94d2ff3414f089dc564ba15271833ca9f254629688e0b6240f0dac77593cd5"
+      "pngHeight": 1195,
+      "bytes": 191287,
+      "sha256": "ca39e400488d49412125d28c5c62b0b98a18cfcfce781724e9b506d894ea4e4b"
     },
     {
       "route": "/my-trees/empty-demo",
@@ -531,8 +531,8 @@
       "bodyTextLength": 196,
       "pngWidth": 900,
       "pngHeight": 920,
-      "bytes": 58463,
-      "sha256": "ca509692e0a01079e630f3578d0ba89683cc31af459dc55fed12fcd0b11bde8e"
+      "bytes": 58165,
+      "sha256": "b3cc96848150acf72e33cb73c6125dac416c33f893968639058e83f22baa2eff"
     },
     {
       "route": "/",
@@ -699,8 +699,8 @@
       "bodyTextLength": 130,
       "pngWidth": 390,
       "pngHeight": 844,
-      "bytes": 37469,
-      "sha256": "9b22aa31b614c209198b1502905d99a2d0ef939a7b016ada227f66240df6d9f9"
+      "bytes": 37433,
+      "sha256": "b72af02e82b942f853ec867ed0c391d96237c2c34ce57a6c927c454e7b2db3eb"
     },
     {
       "route": "/memory/detail-demo",
@@ -782,9 +782,9 @@
       "hardClipCount": 0,
       "bodyTextLength": 196,
       "pngWidth": 390,
-      "pngHeight": 905,
-      "bytes": 48358,
-      "sha256": "b5b9927fafc941a08516a2d114cfb6342a8666ad433a092d61efc6fda0fc23e6"
+      "pngHeight": 903,
+      "bytes": 48092,
+      "sha256": "1d92b93c0fedd7af86dcb4039a380714358f1a684074e35e75da14f6000392e0"
     }
   ]
 }
