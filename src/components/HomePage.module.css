@@ -14,8 +14,8 @@
   --surface-main: #f7f3e8;
   --surface-panel-radius: 32px;
 
-  --fs-headline: clamp(2rem, 2.5vw, 4rem);
-  --lh-headline: 1.05;
+  --fs-headline: var(--heading-hero-size);
+  --lh-headline: var(--heading-hero-line-height);
   --fs-description: clamp(1.125rem, 1.5vw, 1.8rem);
   --fs-button: clamp(0.95rem, 1vw, 1.2rem);
   --fs-feature-title: clamp(1.25rem, 1.5vw, 1.8rem);
@@ -111,8 +111,15 @@
 }
 
 @media (max-width: 768px) {
+  /* Mobile: the desktop "floating panel" (69.99vw + 13.8vw side margins) collapses
+     to a full-bleed panel. The narrow desktop panel forced content (nowrap headline,
+     nav, memory cards) to overflow and be clipped by .container overflow:hidden.
+     Full-width removes the dead side margins so content fits the 390px viewport. */
   .panel {
-    border-radius: 24px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
     padding: 1.25rem;
   }
 }

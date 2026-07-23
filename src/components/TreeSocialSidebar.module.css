@@ -116,8 +116,10 @@
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .socialActions {
@@ -132,6 +134,7 @@
   justify-content: center;
   gap: 0.3rem;
   padding: 0.6rem 0.5rem;
+  min-height: 44px;
   background: #fff;
   border: 1px solid #e5ddd4;
   border-radius: 10px;

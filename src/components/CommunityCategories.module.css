@@ -15,6 +15,11 @@
   background: rgba(45, 41, 38, 0.05);
   transition: all var(--transition-fast);
   white-space: nowrap;
+  /* 44px minimum touch target (D-02) for filter chips. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
 }
 
 .chip:hover {

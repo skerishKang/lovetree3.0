@@ -41,18 +41,7 @@
   justify-content: center;
   color: var(--text-primary);
   backdrop-filter: blur(2px);
-  transition: background var(--transition-fast), transform var(--transition-fast);
   z-index: 2;
-}
-
-.playBtn:hover {
-  background: rgba(255, 255, 255, 0.95);
-  transform: translate(-50%, -50%) scale(1.08);
-}
-
-.playBtn:focus-visible {
-  outline: 2px solid var(--accent-rose);
-  outline-offset: 2px;
 }
 
 .playIcon {
@@ -75,16 +64,6 @@
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.18);
   z-index: 2;
-  transition: background var(--transition-fast);
-}
-
-.dots:hover {
-  background: rgba(0, 0, 0, 0.32);
-}
-
-.dots:focus-visible {
-  outline: 2px solid var(--accent-rose);
-  outline-offset: 1px;
 }
 
 .dotsIcon {

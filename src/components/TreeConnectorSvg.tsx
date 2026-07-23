@@ -37,6 +37,7 @@ export default function TreeConnectorSvg({ className, ...rest }: TreeConnectorSv
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      focusable="false"
       {...rest}
     >
       {/* mem-001(4,68) → mem-002(43,34) : 시작 → 중앙 상단 (우상향 곡선) */}

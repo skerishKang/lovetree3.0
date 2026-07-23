@@ -22,3 +22,16 @@
   transform: translate(-50%, -50%);
   transform-origin: center;
 }
+
+@media (max-width: 768px) {
+  /* Cards are absolutely positioned at left 4%..88% with translate(-50%), a layout
+     calibrated for the wide 2752px reference. In a 390px viewport the outer cards
+     extend ~56px past the left edge and ~28px past the right edge, clipped by
+     .container overflow:hidden (P1: 기억 카드가 좌우로 잘림). Scale the whole tree
+     (cards + connector) around top-center so every card fits the container width.
+     0.75 keeps the outermost card edges at ~2px..327px inside the 350px content box. */
+  .preview {
+    transform: scale(0.75);
+    transform-origin: top center;
+  }
+}

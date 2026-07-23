@@ -24,11 +24,11 @@
 }
 
 .screenTitle {
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  font-weight: 800;
+  font-size: var(--heading-page-size);
+  font-weight: var(--heading-page-weight);
   color: #3d3229;
   margin: 0;
-  line-height: 1.35;
+  line-height: var(--heading-page-line-height);
   word-break: keep-all;
 }
 
@@ -314,10 +314,6 @@
     padding: 0 0 16px;
   }
 
-  .screenTitle {
-    font-size: clamp(1.5rem, 3vw, 1.75rem);
-  }
-
   .screenDescription {
     font-size: clamp(0.85rem, 1.2vw, 0.95rem);
   }
@@ -370,10 +366,6 @@
   .topBar {
     max-width: 560px;
     padding: 0 0 24px;
-  }
-
-  .screenTitle {
-    font-size: clamp(1.75rem, 4vw, 2rem);
   }
 
   .screenDescription {
@@ -435,10 +427,6 @@
 
   .topBar {
     padding: 28px 0 12px;
-  }
-
-  .screenTitle {
-    font-size: 1.5rem;
   }
 
   .content {

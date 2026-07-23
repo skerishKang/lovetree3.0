@@ -10,7 +10,7 @@ export default function MyTreesPage() {
       <header className={styles.topBar}>
         <div className={styles.brandArea}>
           <button type="button" className={styles.iconButton} aria-label="메뉴 열기">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
               <path
                 d="M4 7H20M4 12H20M4 17H20"
                 stroke="currentColor"
@@ -24,7 +24,7 @@ export default function MyTreesPage() {
 
         <div className={styles.topBarRight}>
           <button type="button" className={styles.iconButton} aria-label="알림 보기">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
               <path
                 d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"
                 stroke="currentColor"
@@ -35,7 +35,7 @@ export default function MyTreesPage() {
             </svg>
           </button>
           <button type="button" className={styles.profileButton} aria-label="마이페이지">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
               <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2" />
               <path
                 d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"
@@ -55,7 +55,7 @@ export default function MyTreesPage() {
           <p className={styles.pageDescription}>{data.headerDescription}</p>
         </div>
         <button type="button" className={styles.newTreeButton}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
           <span>{data.newTreeCtaText}</span>
@@ -94,7 +94,7 @@ export default function MyTreesPage() {
 
                       {/* 미니 트리 가지 및 노드 그래픽 */}
                       <div className={styles.miniTreeGraphic}>
-                        <svg width="100%" height="100%" viewBox="0 0 240 100" preserveAspectRatio="none">
+                        <svg width="100%" height="100%" viewBox="0 0 240 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
                           <line
                             x1="20"
                             y1="80"
@@ -170,7 +170,7 @@ export default function MyTreesPage() {
 
                       <div className={styles.cardStats}>
                         <span className={styles.statItem}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
                             <path
                               d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
                               stroke="currentColor"
@@ -182,7 +182,7 @@ export default function MyTreesPage() {
                           <span>{tree.views}</span>
                         </span>
                         <span className={styles.statItem}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
                             <path
                               d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1.1L12 21.2l7.8-7.7 1-1.1a5.5 5.5 0 000-7.8z"
                               stroke="currentColor"
@@ -194,7 +194,7 @@ export default function MyTreesPage() {
                           <span>{tree.likes}</span>
                         </span>
                         <span className={styles.statItem}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
                             <path
                               d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
                               stroke="currentColor"

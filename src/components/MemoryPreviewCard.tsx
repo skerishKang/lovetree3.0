@@ -12,8 +12,8 @@ interface MemoryPreviewCardProps {
  *
  * 구조:
  *   1. 상단 미디어 썸네일 (CSS radial-gradient 보케)
- *   2. 중앙 재생 버튼
- *   3. 우측 상단 점 3개 메뉴
+ *   2. 중앙 재생 affordance (decorative — aria-hidden, 비인터랙티브)
+ *   3. 우측 상단 점 3개 affordance (decorative — aria-hidden, 비인터랙티브)
  *   4. 날짜
  *   5. 감정 태그
  *   6. 짧은 메모
@@ -34,22 +34,20 @@ export default function MemoryPreviewCard({ card }: MemoryPreviewCardProps) {
     <article className={styles.card}>
       {/* 썸네일 */}
       <div className={styles.thumb} style={bokehStyle}>
-        <button
-          type="button"
+        <span
           className={styles.playBtn}
-          aria-label="기억 재생"
-          onClick={(e) => e.preventDefault()}
+          aria-hidden="true"
+          data-testid="memory-play-affordance"
         >
-          <PlayIcon className={styles.playIcon} />
-        </button>
-        <button
-          type="button"
+          <PlayIcon className={styles.playIcon} focusable="false" />
+        </span>
+        <span
           className={styles.dots}
-          aria-label="카드 메뉴"
-          onClick={(e) => e.preventDefault()}
+          aria-hidden="true"
+          data-testid="memory-dots-affordance"
         >
-          <DotsMenuIcon className={styles.dotsIcon} />
-        </button>
+          <DotsMenuIcon className={styles.dotsIcon} focusable="false" />
+        </span>
       </div>
 
       {/* 본문 */}

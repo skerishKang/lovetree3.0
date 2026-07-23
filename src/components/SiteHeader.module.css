@@ -29,6 +29,11 @@
   padding: 0.5rem 0.25rem;
   transition: color var(--transition-fast);
   white-space: nowrap;
+  /* 44px minimum touch target (D-02): nav items are standalone navigation
+     actions, not inline text links, so they meet the touch-target floor. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 .navItem:hover {
@@ -47,10 +52,12 @@
     gap: 1rem;
     align-items: flex-start;
   }
+  /* Wrap instead of horizontal scroll so every menu item stays visible.
+     overflow-x:auto clipped "Community"/"My Tree" off the right edge inside the
+     narrow mobile panel (P1: 상단 메뉴가 오른쪽에서 잘림). */
   .nav {
-    gap: 1rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    gap: 0.5rem 1rem;
+    flex-wrap: wrap;
     width: 100%;
     padding-bottom: 0.25rem;
   }

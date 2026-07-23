@@ -20,6 +20,12 @@
   border-radius: 8px;
   color: #555;
   transition: background 0.15s;
+  /* 44px minimum touch target (D-02) for the icon back button. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .backButton:hover {
@@ -61,10 +67,10 @@
 
 .title {
   margin: 0;
-  font-size: clamp(1.4rem, 2vw, 2rem);
-  font-weight: 800;
+  font-size: var(--heading-work-size);
+  font-weight: var(--heading-work-weight);
   color: #2a221a;
-  line-height: 1.25;
+  line-height: var(--heading-work-line-height);
 }
 
 .subtitle {
