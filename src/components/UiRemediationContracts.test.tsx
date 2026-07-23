@@ -194,7 +194,7 @@ describe("UI 리메디에이션 — cross-screen DOM 계약", () => {
     expect(document.querySelectorAll("h1")).toHaveLength(1);
   });
 
-  it.each(ROUTES)("%s의 모든 SVG가 AT에서 숨겨진다 (D-07)", (route) => {
+  it.each(ROUTES)("%s의 모든 SVG가 AT에서 숨겨진다 (D-03, D-07)", (route) => {
     renderAppAt(route);
     const svgs = Array.from(document.querySelectorAll("svg"));
     for (const svg of svgs) {
@@ -209,14 +209,14 @@ describe("UI 리메디에이션 — cross-screen DOM 계약", () => {
   });
 
   it.each(ROUTES)(
-    "%s에 visible 'LoveTree' 표기가 없다 (D-02)",
+    "%s에 visible 'LoveTree' 표기가 없다 (D-01)",
     (route) => {
       renderAppAt(route);
       expect(document.body.textContent ?? "").not.toMatch(/\bLove ?Tree\b/i);
     }
   );
 
-  it("홈 메모리 프리뷰의 장식 affordance가 비인터랙티브다 (D-03)", () => {
+  it("홈 메모리 프리뷰의 장식 affordance가 비인터랙티브다 (D-02)", () => {
     renderAppAt("/");
     const plays = screen.getAllByTestId("memory-play-affordance");
     const dots = screen.getAllByTestId("memory-dots-affordance");
