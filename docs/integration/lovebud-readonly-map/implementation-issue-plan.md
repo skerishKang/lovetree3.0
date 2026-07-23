@@ -119,8 +119,7 @@ Do NOT log raw response body or tokens.
 - Error normalization (3 envelope shapes)
 - Idempotency key generator + retry semantics
 - Request ID generator
-- `AccessTokenProvider` interface seam (see below)
-- 401 single-retry via `AccessTokenProvider.getAccessToken({forceRefresh: true})`
+- `AccessTokenProvider` interface seam
 
 **AccessTokenProvider seam (Issue 1 scope only):**
 ```typescript
@@ -128,11 +127,11 @@ interface AccessTokenProvider {
   getAccessToken(options?: { forceRefresh?: boolean }): Promise<string | null>;
 }
 ```
-- Issue 1 ships a stub/null implementation (returns null → 401 propagated as-is)
+- Issue 1 ships a null provider (returns null → 401 propagated as normalized error)
+- No 401 retry in Issue 1
 - No Firebase dependency in Issue 1
 - No persistent 401 logout in Issue 1 (belongs to Issue 4)
-- No `currentUser` dependency in Issue 1
-- Issue 3 provides the Firebase-backed implementation
+- Issue 3 provides the Firebase-backed implementation with refresh-and-retry
 
 **Tests:** Colocated unit tests for error mapping, idempotency semantics, request ID format, AccessTokenProvider seam behavior
 

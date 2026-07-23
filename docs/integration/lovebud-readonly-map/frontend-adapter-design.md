@@ -43,9 +43,8 @@ LoveTree proxy calls LoveBud's public API origin, NOT Modal directly.
 
 Responsibilities:
 - Base URL configuration (same-origin `/api`)
-- Token injection via `AccessTokenProvider` seam (see below)
+- Token injection via `AccessTokenProvider` seam
 - Error normalization (3 envelope shapes, see below)
-- 401 retry (1 attempt via `AccessTokenProvider.getAccessToken({forceRefresh: true})`)
 - Request ID generation (x-lovebud-request-id compatible)
 - 128KB body guard
 
@@ -59,11 +58,21 @@ interface AccessTokenProvider {
 }
 ```
 
-- Issue 1 uses a stub/null implementation (returns null)
+- Issue 1 ships a null provider (returns null → 401 propagated as normalized error)
 - Issue 3 provides the Firebase-backed implementation
-- 401 retry in Issue 1 calls `getAccessToken({forceRefresh: true})` — if null, propagate 401
-- No persistent 401 logout in Issue 1 (that belongs to Issue 4)
-- No Firebase `currentUser` dependency in Issue 1
+- Issue 3 handles 401 with `forceRefresh` and single retry
+- No persistent 401 logout in Issue 1 (belongs to Issue 4)
+
+### Auth Responsibility Table
+
+| Responsibility | Issue |
+|---|---|
+| AccessTokenProvider interface definition | Issue 1 |
+| Null/default provider implementation | Issue 1 |
+| Firebase-backed provider | Issue 3 |
+| One refresh-and-retry on 401 | Issue 3 |
+| Replayability guard (streaming/body safety) | Issue 3 |
+| Persistent 401 logout UX | Issue 4 |
 
 ### Error Envelopes (Confirmed)
 
