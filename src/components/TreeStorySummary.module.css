@@ -86,3 +86,31 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 480px) {
+  .storyCard {
+    padding: 1rem 0.75rem;
+  }
+
+  .label {
+    font-size: 0.78rem;
+    word-break: keep-all;
+  }
+
+  .period {
+    font-size: 0.68rem;
+  }
+
+  .storyText {
+    font-size: 0.82rem;
+    word-break: keep-all;
+  }
+
+  .statLabel {
+    font-size: 0.65rem;
+  }
+
+  .statVal {
+    font-size: 0.78rem;
+  }
+}

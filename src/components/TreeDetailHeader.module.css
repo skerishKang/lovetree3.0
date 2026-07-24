@@ -71,6 +71,7 @@
   font-weight: var(--heading-work-weight);
   color: #2a221a;
   line-height: var(--heading-work-line-height);
+  word-break: keep-all;
 }
 
 .subtitle {
@@ -78,6 +79,7 @@
   font-size: 0.95rem;
   color: #8a7e72;
   line-height: 1.45;
+  word-break: keep-all;
 }
 
 .metaSummary {
@@ -207,5 +209,64 @@
   .header {
     flex-wrap: wrap;
     gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainHeaderContent {
+    padding: 0;
+  }
+
+  .title {
+    word-break: keep-all;
+    font-size: calc(var(--heading-work-size) * 0.85);
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    word-break: keep-all;
+  }
+
+  .metaSummary {
+    gap: 0.25rem;
+  }
+
+  .metaItem {
+    font-size: 0.72rem;
+  }
+
+  .statsSummary {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .statItem {
+    font-size: 0.68rem;
+  }
+
+  .categoryBadge {
+    font-size: 0.68rem;
+  }
+
+  .tagList {
+    gap: 0.25rem;
+  }
+
+  .treeTag {
+    font-size: 0.68rem;
+  }
+
+  .authorArea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .authorName {
+    font-size: 0.85rem;
+  }
+
+  .authorHandle {
+    font-size: 0.72rem;
   }
 }

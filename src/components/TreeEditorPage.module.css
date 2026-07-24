@@ -287,6 +287,28 @@
   outline-offset: 2px;
 }
 
+.mediaSearchBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px solid #e8e0d8;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #5c4a3a;
+  cursor: default;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-height: 44px;
+}
+
+.mediaSearchBtn:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
 /* ===== 트리 영역 ===== */
 .treeArea {
   display: flex;
@@ -782,5 +804,21 @@
   .priBtn, .secBtn {
     padding: 5px 10px;
     font-size: 0.75rem;
+  }
+
+  .canvasSearchBar {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+  }
+
+  .canvasSearchInput {
+    width: 100%;
+    flex: none;
+  }
+
+  .addMemBtn, .mediaSearchBtn {
+    font-size: 0.75rem;
+    padding: 5px 10px;
   }
 }
