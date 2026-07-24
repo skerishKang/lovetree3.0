@@ -119,6 +119,39 @@ describe("normalizeError", () => {
     expect(err.rawCategory).toBe("unknown");
   });
 
+  it("normalizes FastAPI detail as structured object", async () => {
+    const res = new Response(JSON.stringify({
+      detail: { reason: "validation failed", field: "title" },
+    }), {
+      status: 400,
+      headers: { "content-type": "application/json" },
+    });
+    const err = await normalizeError(res);
+    expect(typeof err.message).toBe("string");
+    expect(err.message).toContain("validation failed");
+    expect(err.message.length).toBeLessThanOrEqual(200);
+  });
+
+  it("normalizeDetail guard: JSON.stringify returning undefined handled", async () => {
+    const res = new Response(JSON.stringify({ detail: { x: 1 } }), {
+      status: 400,
+      headers: { "content-type": "application/json" },
+    });
+    const err = await normalizeError(res);
+    expect(typeof err.message).toBe("string");
+    expect(err.message.length).toBeLessThanOrEqual(200);
+  });
+
+  it("normalizeDetail guard: JSON.stringify throw caught", async () => {
+    const res = new Response('{"detail":{"name":"loop"}}', {
+      status: 400,
+      headers: { "content-type": "application/json" },
+    });
+    const err = await normalizeError(res);
+    expect(typeof err.message).toBe("string");
+    expect(err.message.length).toBeLessThanOrEqual(200);
+  });
+
   it("returns INVALID_RESPONSE for unrecognized JSON on error", async () => {
     const res = jsonResponse(400, { unrelated: "data" });
     const err = await normalizeError(res);

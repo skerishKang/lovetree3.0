@@ -19,4 +19,5 @@ export {
   type ClientConfig,
   type RawCategory,
   type RequestOptions,
+  type ResponseType,
 } from "../types/api";

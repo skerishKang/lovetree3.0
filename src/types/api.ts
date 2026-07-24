@@ -40,10 +40,12 @@ export function isApiError(value: unknown): value is ApiError {
   if (typeof obj.retryable !== "boolean") return false;
   if (typeof obj.rawCategory !== "string") return false;
   if (!RAW_CATEGORIES.includes(obj.rawCategory)) return false;
-  if (obj.retryAfterMs !== undefined && obj.retryAfterMs !== null) {
+  if (obj.retryAfterMs !== undefined) {
+    if (obj.retryAfterMs === null) return false;
     if (typeof obj.retryAfterMs !== "number" || !Number.isFinite(obj.retryAfterMs as number)) {
       return false;
     }
+    if ((obj.retryAfterMs as number) < 0) return false;
   }
   return true;
 }
@@ -76,6 +78,8 @@ export const NULL_ACCESS_TOKEN_PROVIDER: AccessTokenProvider = {
   getAccessToken: async () => null,
 };
 
+export type ResponseType = "json" | "text";
+
 export interface RequestOptions {
   method?: string;
   headers?: Record<string, string>;
@@ -84,6 +88,7 @@ export interface RequestOptions {
   signal?: AbortSignal;
   idempotencyKey?: string;
   requestId?: string;
+  responseType?: ResponseType;
 }
 
 export interface ClientConfig {

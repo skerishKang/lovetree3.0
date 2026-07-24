@@ -74,7 +74,10 @@ function normalizeDetail(detail: unknown): string {
   }
   if (typeof detail === "object" && detail !== null) {
     try {
-      return JSON.stringify(detail).slice(0, MAX_FALLBACK_LENGTH);
+      const serialized = JSON.stringify(detail);
+      return typeof serialized === "string"
+        ? serialized.slice(0, MAX_FALLBACK_LENGTH)
+        : "structured error detail";
     } catch {
       return "structured error detail";
     }

@@ -62,6 +62,11 @@ export class ApiClient {
     this.accessTokenProvider = config.accessTokenProvider ?? NULL_ACCESS_TOKEN_PROVIDER;
 
     for (const [key, value] of Object.entries(this.defaultHeaders)) {
+      const lowerKey = key.toLowerCase();
+      if (MANAGED_HEADERS.has(lowerKey)) {
+        throw new HeaderValidationError(key,
+          `managed header "${key}" cannot be set in defaultHeaders`);
+      }
       validateHeaderName(key);
       validateHeaderValue(value, `default header "${key}"`);
     }
@@ -147,23 +152,36 @@ export class ApiClient {
       return undefined as T;
     }
 
-    const contentType = response.headers.get("content-type") ?? "";
-    if (contentType.startsWith("application/json") ||
-        (contentType.startsWith("application/") && contentType.includes("+json"))) {
-      try {
-        return JSON.parse(bodyText) as T;
-      } catch {
-        throw new ApiErrorImpl({
-          status: response.status,
-          code: "INVALID_RESPONSE",
-          message: "Response body is not valid JSON",
-          retryable: false,
-          rawCategory: "unknown",
-        });
-      }
+    const responseType = options.responseType ?? "json";
+    if (responseType === "text") {
+      return bodyText as T;
     }
 
-    return bodyText as T;
+    const contentType = response.headers.get("content-type") ?? "";
+    const isJsonContentType = contentType.startsWith("application/json") ||
+      (contentType.startsWith("application/") && contentType.includes("+json"));
+
+    if (!isJsonContentType) {
+      throw new ApiErrorImpl({
+        status: response.status,
+        code: "INVALID_RESPONSE",
+        message: `Expected JSON but received content-type "${contentType}"`,
+        retryable: false,
+        rawCategory: "unknown",
+      });
+    }
+
+    try {
+      return JSON.parse(bodyText) as T;
+    } catch {
+      throw new ApiErrorImpl({
+        status: response.status,
+        code: "INVALID_RESPONSE",
+        message: "Response body is not valid JSON",
+        retryable: false,
+        rawCategory: "unknown",
+      });
+    }
   }
 
   get<T>(path: string, options?: RequestOptions): Promise<T> {
