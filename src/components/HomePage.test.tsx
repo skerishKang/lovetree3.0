@@ -17,6 +17,13 @@ describe("HomePage", () => {
     expect(screen.getByText("My Tree")).toBeInTheDocument();
   });
 
+  it("로그인 링크가 보이고 /login으로 연결된다", () => {
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
+    const loginLink = screen.getByRole("link", { name: "로그인" });
+    expect(loginLink).toBeInTheDocument();
+    expect(loginLink).toHaveAttribute("href", "/login");
+  });
+
   it("메인 헤드라인을 렌더링한다", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
     expect(screen.getByText(/사랑에 빠진 모든 순간을/)).toBeInTheDocument();

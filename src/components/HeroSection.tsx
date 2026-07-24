@@ -16,7 +16,7 @@ export default function HeroSection() {
         <p className={styles.description}>
           영상, 날짜, 감정, 메모가 이어져
           <br />
-          나만의 럤브트리가 됩니다
+          나만의 러브트리가 됩니다
         </p>
         <div className={styles.actions}>
           <button

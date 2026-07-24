@@ -1,4 +1,4 @@
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { MOCK_TREE_EDITOR } from "../data/treeEditorMockData";
 import App from "../App";
@@ -252,22 +252,22 @@ describe("TreeEditorPage - buttons", () => {
 
   it("홈 메뉴 클릭 시 /로 이동한다", () => {
     renderAppAt("/tree/edit-demo");
-    const homeBtn = screen.getByText("홈").closest("li");
-    fireEvent.click(homeBtn!);
+    const homeLink = screen.getByText("홈").closest("a");
+    fireEvent.click(homeLink!);
     expect(window.location.pathname).toBe("/");
   });
 
   it("내 러브트리 메뉴 클릭 시 /my-trees로 이동한다", () => {
     renderAppAt("/tree/edit-demo");
-    const treesBtn = screen.getByText("내 러브트리").closest("li");
-    fireEvent.click(treesBtn!);
+    const treesLink = screen.getByText("내 러브트리").closest("a");
+    fireEvent.click(treesLink!);
     expect(window.location.pathname).toBe("/my-trees");
   });
 
   it("설정 메뉴 클릭 시 /settings/visibility-demo로 이동한다", () => {
     renderAppAt("/tree/edit-demo");
-    const settingsBtn = screen.getByText("설정").closest("li");
-    fireEvent.click(settingsBtn!);
+    const settingsLink = screen.getByText("설정").closest("a");
+    fireEvent.click(settingsLink!);
     expect(window.location.pathname).toBe("/settings/visibility-demo");
   });
 
@@ -295,7 +295,8 @@ describe("TreeEditorPage - buttons", () => {
   it("기억 카드 클릭 시 /memory/detail-demo로 이동한다", () => {
     renderAppAt("/tree/edit-demo");
     const card = screen.getByRole("article", { name: "팬들이 준비한 이벤트" });
-    fireEvent.click(card);
+    const link = within(card).getByRole("link");
+    fireEvent.click(link);
     expect(window.location.pathname).toBe("/memory/detail-demo");
   });
 });

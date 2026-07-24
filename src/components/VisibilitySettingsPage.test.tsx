@@ -220,7 +220,7 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     checkboxes.forEach((c) => fireEvent.click(c));
     const navigationButtonNames = ["홈", "내 러브트리", "에디터로 돌아가기"];
     const buttons = screen.getAllByRole("button").filter(
-      (b) => !navigationButtonNames.includes(b.textContent || "")
+      (b) => !navigationButtonNames.includes(b.textContent || "") && b.getAttribute("aria-label") !== "뒤로 가기"
     );
     buttons.forEach((b) => fireEvent.click(b));
 
@@ -234,7 +234,7 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
 
     const navigationButtonNames = ["홈", "내 러브트리", "에디터로 돌아가기"];
     const buttons = screen.getAllByRole("button").filter(
-      (b) => !navigationButtonNames.includes(b.textContent || "")
+      (b) => !navigationButtonNames.includes(b.textContent || "") && b.getAttribute("aria-label") !== "뒤로 가기"
     );
     buttons.forEach((btn) => fireEvent.click(btn));
 

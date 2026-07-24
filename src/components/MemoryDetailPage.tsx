@@ -1,18 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { MOCK_MEMORY_DETAIL } from "../data/memoryDetailMockData";
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import styles from "./MemoryDetailPage.module.css";
 
 export default function MemoryDetailPage() {
   const navigate = useNavigate();
   const data = MOCK_MEMORY_DETAIL;
-
-  const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/tree/community-demo", { replace: true });
-    }
-  };
+  const handleBack = useBackWithFallback("/tree/community-demo");
 
   return (
     <div className={styles.page}>
@@ -268,7 +262,13 @@ export default function MemoryDetailPage() {
           </div>
 
           {/* Tree Context Card */}
-          <div className={styles.treeContextCard} onClick={() => navigate("/tree/community-demo")} data-testid="tree-context-card">
+          <button
+            type="button"
+            className={styles.treeContextCard}
+            aria-label="기억 트리 보기"
+            onClick={() => navigate("/tree/community-demo")}
+            data-testid="tree-context-card"
+          >
             <h3 className={styles.treeContextHeading}>기억 트리</h3>
             <div className={styles.treeContextBody}>
               <svg
@@ -300,9 +300,9 @@ export default function MemoryDetailPage() {
                   {data.author.treeRelation}
                 </span>
               </div>
-            </div>
-          </div>
-        </aside>
+              </div>
+            </button>
+          </aside>
       </div>
 
       {/* ── Mobile Bottom Action Bar ── */}

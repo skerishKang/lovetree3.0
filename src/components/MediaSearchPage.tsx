@@ -4,20 +4,14 @@ import {
   MOCK_MEDIA_CONTEXT,
   MEDIA_CATEGORIES,
 } from "../data/mediaSearchMockData";
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import styles from "./MediaSearchPage.module.css";
 
 export default function MediaSearchPage() {
   const navigate = useNavigate();
   const context = MOCK_MEDIA_CONTEXT;
   const results = MOCK_MEDIA_RESULTS;
-
-  const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/memory/connect-demo", { replace: true });
-    }
-  };
+  const handleBack = useBackWithFallback("/memory/connect-demo");
 
   return (
     <div className={styles.page}>

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import type { TreeDetailData } from "../data/treeDetailMockData";
 import styles from "./TreeDetailHeader.module.css";
 
@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function TreeDetailHeader({ data }: Props) {
-  const navigate = useNavigate();
+  const handleBack = useBackWithFallback("/");
 
   return (
     <header className={styles.header}>
@@ -15,7 +15,7 @@ export default function TreeDetailHeader({ data }: Props) {
         <button
           className={styles.backButton}
           aria-label="뒤로 가기"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
         >
           &lt;
         </button>

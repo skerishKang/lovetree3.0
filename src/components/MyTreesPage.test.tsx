@@ -233,7 +233,8 @@ describe("MyTreesPage — /my-trees", () => {
   it("트리 카드 클릭 시 /tree/edit-demo로 이동한다", () => {
     renderAppAt("/my-trees");
     const card = screen.getByRole("article", { name: "나의 러브트리" });
-    fireEvent.click(card);
+    const link = within(card).getByRole("link");
+    fireEvent.click(link);
     expect(window.location.pathname).toBe("/tree/edit-demo");
   });
 

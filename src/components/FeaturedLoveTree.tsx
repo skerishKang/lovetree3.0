@@ -1,17 +1,16 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styles from "./FeaturedLoveTree.module.css";
 import { featuredLoveTree } from "../data/communityMockData";
 import CommunityTreePreview from "./CommunityTreePreview";
 
 export default function FeaturedLoveTree() {
-  const navigate = useNavigate();
   const feat = featuredLoveTree;
 
   return (
-    <section
+    <Link
+      to="/tree/community-demo"
       className={styles.section}
       aria-labelledby="featured-label"
-      onClick={() => navigate("/tree/community-demo")}
     >
       <div className={styles.sectionHeader}>
         <span id="featured-label" className={styles.label}>
@@ -67,6 +66,6 @@ export default function FeaturedLoveTree() {
           </div>
         </div>
       </article>
-    </section>
+    </Link>
   );
 }

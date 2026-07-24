@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { MOCK_MEMORY_CONNECT } from "../data/memoryConnectMockData";
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import styles from "./MemoryConnectPage.module.css";
 
 function MemoryConnector({ highlighted }: { highlighted: boolean }) {
@@ -38,13 +39,7 @@ export default function MemoryConnectPage() {
   const data = MOCK_MEMORY_CONNECT;
   const selectedNode = data.nodes.find((n) => n.id === data.selectedNodeId);
 
-  const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/tree/edit-demo", { replace: true });
-    }
-  };
+  const handleBack = useBackWithFallback("/tree/edit-demo");
 
   return (
     <div className={styles.page}>

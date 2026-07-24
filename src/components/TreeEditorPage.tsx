@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MOCK_TREE_EDITOR } from "../data/treeEditorMockData";
 import type { TreeConnector } from "../data/treeEditorMockData";
 import styles from "./TreeEditorPage.module.css";
@@ -116,17 +116,23 @@ export default function TreeEditorPage() {
           />
         </div>
         <ul className={styles.navMenu}>
-          <li className={styles.navItem} onClick={() => navigate("/")}>
-            <span className={styles.navIcon} aria-hidden="true">🏠</span>
-            <span>홈</span>
+          <li className={styles.navItem}>
+            <Link to="/" className={styles.navLink}>
+              <span className={styles.navIcon} aria-hidden="true">🏠</span>
+              <span>홈</span>
+            </Link>
           </li>
-          <li className={`${styles.navItem} ${styles.navItemActive}`} onClick={() => navigate("/my-trees")}>
-            <span className={styles.navIcon} aria-hidden="true">🌳</span>
-            <span>내 러브트리</span>
+          <li className={`${styles.navItem} ${styles.navItemActive}`}>
+            <Link to="/my-trees" className={styles.navLink}>
+              <span className={styles.navIcon} aria-hidden="true">🌳</span>
+              <span>내 러브트리</span>
+            </Link>
           </li>
-          <li className={styles.navItem} onClick={() => navigate("/settings/visibility-demo")}>
-            <span className={styles.navIcon} aria-hidden="true">⚙️</span>
-            <span>설정</span>
+          <li className={styles.navItem}>
+            <Link to="/settings/visibility-demo" className={styles.navLink}>
+              <span className={styles.navIcon} aria-hidden="true">⚙️</span>
+              <span>설정</span>
+            </Link>
           </li>
         </ul>
         <button type="button" className={styles.newTreeButton} onClick={() => navigate("/tree/new-demo")}>
@@ -206,7 +212,7 @@ export default function TreeEditorPage() {
                   {selectedMemory.childIds.map((cid) => {
                     const child = memById[cid];
                     if (!child) return null;
-                    return                 <MemoryNodeCard key={child.id} memory={child} isSelected={false} onClick={() => navigate("/memory/detail-demo")} />;
+                    return                 <MemoryNodeCard key={child.id} memory={child} isSelected={false} to="/memory/detail-demo" />;
                   })}
                 </div>
               </div>
@@ -221,7 +227,7 @@ export default function TreeEditorPage() {
                 <div className={styles.treeRowBranch}>
                   <div className={styles.branchGroup}>
                       {grandchildren.map((gc) => (
-                        <MemoryNodeCard key={gc!.id} memory={gc!} isSelected={false} onClick={() => navigate("/memory/detail-demo")} />
+                         <MemoryNodeCard key={gc!.id} memory={gc!} isSelected={false} to="/memory/detail-demo" />
                       ))}
                   </div>
                 </div>
@@ -352,15 +358,9 @@ export default function TreeEditorPage() {
   );
 }
 
-function MemoryNodeCard({ memory, isSelected, onClick }: { memory: { id: string; title: string; date: string; description: string; thumbnailColorKey: string; tags: string[]; typeLabel: string }; isSelected: boolean; onClick?: () => void }) {
-  return (
-    <article
-      className={`${styles.memCard} ${isSelected ? styles.memCardSelected : ""}`}
-      aria-labelledby={`editor-mem-title-${memory.id}`}
-      data-selected={isSelected ? "true" : "false"}
-      aria-current={isSelected ? "location" : undefined}
-      onClick={onClick}
-    >
+function MemoryNodeCard({ memory, isSelected, to }: { memory: { id: string; title: string; date: string; description: string; thumbnailColorKey: string; tags: string[]; typeLabel: string }; isSelected: boolean; to?: string }) {
+  const content = (
+    <>
       <div className={`${styles.memThumb} ${styles[`thumb_${memory.thumbnailColorKey}`]}`} aria-hidden="true">
         <span className={styles.memTypeBadge}>{memory.typeLabel}</span>
       </div>
@@ -375,6 +375,17 @@ function MemoryNodeCard({ memory, isSelected, onClick }: { memory: { id: string;
         </div>
       </div>
       {isSelected && <span className={styles.selectedBadge} aria-hidden="true">선택됨</span>}
+    </>
+  );
+
+  return (
+    <article
+      className={`${styles.memCard} ${isSelected ? styles.memCardSelected : ""}`}
+      aria-labelledby={`editor-mem-title-${memory.id}`}
+      data-selected={isSelected ? "true" : "false"}
+      aria-current={isSelected ? "location" : undefined}
+    >
+      {to ? <Link to={to} className={styles.memCardLink}>{content}</Link> : content}
     </article>
   );
 }

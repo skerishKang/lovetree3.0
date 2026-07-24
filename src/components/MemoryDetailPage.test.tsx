@@ -219,7 +219,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
     renderRoute(["/memory/detail-demo"]);
 
-    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색");
+    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }
@@ -232,7 +232,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
     const articlesBefore = screen.getAllByRole("article").length;
 
-    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색");
+    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }
@@ -249,7 +249,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     const dateBefore = screen.getByText("2023. 12. 25.");
     const memoBefore = screen.getByText(/정말 행복했던 첫 콘서트 순간/);
 
-    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색");
+    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }
@@ -266,7 +266,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
     const articlesBefore = screen.getAllByRole("article").length;
 
-    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색");
+    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }
@@ -283,7 +283,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     const dateBefore = screen.getByText("2023. 12. 25.");
     const memoBefore = screen.getByText(/정말 행복했던 첫 콘서트 순간/);
 
-    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색");
+    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }
@@ -303,7 +303,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
     renderRoute(["/memory/detail-demo"]);
 
-    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색");
+    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }
@@ -323,7 +323,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     renderRoute(["/memory/detail-demo"]);
     expect(currentLocation()).toBe("/memory/detail-demo");
 
-    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색");
+    const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }

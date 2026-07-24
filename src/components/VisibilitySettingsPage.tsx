@@ -4,18 +4,12 @@ import {
   ADDITIONAL_SETTINGS,
   SHARE_LINK_PLACEHOLDER,
 } from "../data/visibilitySettingsMockData";
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import styles from "./VisibilitySettingsPage.module.css";
 
 export default function VisibilitySettingsPage() {
   const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/tree/edit-demo", { replace: true });
-    }
-  };
+  const handleBack = useBackWithFallback("/tree/edit-demo");
 
   return (
     <div className={styles.page}>

@@ -26,6 +26,9 @@ export default function SiteHeader() {
           </Link>
         ))}
       </nav>
+      <Link to="/login" className={styles.loginLink} aria-label="로그인">
+        로그인
+      </Link>
     </header>
   );
 }
