@@ -202,6 +202,29 @@
   font-size: 0.95rem;
 }
 
+.connectBtn {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: #fff;
+  color: #2a221a;
+  border: 1px solid #e5ddd4;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.connectBtn:hover {
+  background: #f5f0ea;
+  border-color: #d0c5b8;
+}
+
+.connectBtn:focus-visible {
+  outline: 2px solid #b8a08e;
+  outline-offset: 2px;
+}
+
 @media (max-width: 900px) {
   .socialActions {
     justify-content: center;

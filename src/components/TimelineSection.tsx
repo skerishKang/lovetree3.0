@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { TimelineMemory } from "../data/treeDetailMockData";
 import TimelineCard from "./TimelineCard";
 import styles from "./TimelineSection.module.css";
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export default function TimelineSection({ memories }: Props) {
+  const navigate = useNavigate();
   return (
     <section className={styles.timeline} aria-label="기억 타임라인">
       {/* 중심 가지선 */}
@@ -46,7 +48,7 @@ export default function TimelineSection({ memories }: Props) {
               )}
 
               {/* 기억 카드 */}
-              <div data-testid="timeline-memory-card" className={styles.cardContainer}>
+              <div data-testid="timeline-memory-card" className={styles.cardContainer} onClick={() => navigate("/memory/detail-demo")}>
                 <TimelineCard memory={memory} />
               </div>
             </div>

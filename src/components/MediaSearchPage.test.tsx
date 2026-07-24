@@ -250,7 +250,10 @@ describe("MediaSearchPage — /media/search-demo", () => {
 
     const articlesBefore = screen.getAllByRole("article").length;
 
-    const buttons = screen.getAllByRole("button");
+    const navigationButtonNames = ["결과 검토"];
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.includes(b.textContent || "")
+    );
     for (const button of buttons) {
       fireEvent.click(button);
     }
@@ -264,7 +267,10 @@ describe("MediaSearchPage — /media/search-demo", () => {
     renderAppAt("/media/search-demo");
     expect(window.location.pathname).toBe("/media/search-demo");
 
-    const buttons = screen.getAllByRole("button");
+    const navigationButtonNames = ["결과 검토"];
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.includes(b.textContent || "")
+    );
     for (const button of buttons) {
       fireEvent.click(button);
     }
@@ -317,6 +323,13 @@ describe("MediaSearchPage — /media/search-demo", () => {
     expect(ctaContext).toBeInTheDocument();
     expect(ctaContext.textContent).toContain("MY_STARLINE");
     expect(ctaContext.textContent).toContain("선택한 미디어를");
+  });
+
+  it("결과 검토 버튼 클릭 시 /memory/connect-demo로 이동한다", () => {
+    renderAppAt("/media/search-demo");
+    const reviewBtn = screen.getByRole("button", { name: "결과 검토" });
+    fireEvent.click(reviewBtn);
+    expect(window.location.pathname).toBe("/memory/connect-demo");
   });
 });
 

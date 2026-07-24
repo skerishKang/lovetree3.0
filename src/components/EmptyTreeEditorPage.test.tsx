@@ -46,6 +46,27 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
     ).toBeInTheDocument();
   });
 
+  it("'첫 순간 추가' 버튼 클릭 시 /memory/connect-demo로 이동한다", () => {
+    renderAppAt("/tree/new-demo");
+    const btn = screen.getByRole("button", { name: "첫 순간 추가" });
+    fireEvent.click(btn);
+    expect(window.location.pathname).toBe("/memory/connect-demo");
+  });
+
+  it("'미디어 찾기' 버튼 클릭 시 /media/search-demo로 이동한다", () => {
+    renderAppAt("/tree/new-demo");
+    const btn = screen.getByRole("button", { name: "미디어 찾기" });
+    fireEvent.click(btn);
+    expect(window.location.pathname).toBe("/media/search-demo");
+  });
+
+  it("사이드바 '내 러브트리' 메뉴 클릭 시 /my-trees로 이동한다", () => {
+    renderAppAt("/tree/new-demo");
+    const btn = screen.getByRole("button", { name: /내 러브트리/ });
+    fireEvent.click(btn);
+    expect(window.location.pathname).toBe("/my-trees");
+  });
+
   /* ─── 사이드바 ─── */
 
   it("사이드바에 '내 러브트리' 메뉴가 있어야 한다", () => {
@@ -186,8 +207,11 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 
-    // 4. Click all buttons
-    const allButtons = screen.getAllByRole("button");
+    // 4. Click all non-navigation buttons
+    const navigationButtonNames = ["내 러브트리", "탐색", "설정", "첫 순간 추가", "미디어 찾기"];
+    const allButtons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.some(name => (b.textContent || "").includes(name))
+    );
     allButtons.forEach((btn) => fireEvent.click(btn));
 
     // 5. Re-query DOM post-click
@@ -282,7 +306,10 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
     renderAppAt("/tree/new-demo");
     const currentUrl = window.location.href;
 
-    const buttons = screen.getAllByRole("button");
+    const navigationButtonNames = ["내 러브트리", "탐색", "설정", "첫 순간 추가", "미디어 찾기"];
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.some(name => (b.textContent || "").includes(name))
+    );
     buttons.forEach((btn) => fireEvent.click(btn));
 
     expect(window.location.href).toBe(currentUrl);
@@ -300,7 +327,10 @@ describe("EmptyTreeEditorPage — /tree/new-demo", () => {
         b.textContent === "설정"
     ).length;
 
-    const buttons = screen.getAllByRole("button");
+    const navigationButtonNames = ["내 러브트리", "탐색", "설정", "첫 순간 추가", "미디어 찾기"];
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.some(name => (b.textContent || "").includes(name))
+    );
     buttons.forEach((btn) => fireEvent.click(btn));
 
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(initialHeading);

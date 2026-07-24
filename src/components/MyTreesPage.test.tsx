@@ -167,7 +167,6 @@ describe("MyTreesPage — /my-trees", () => {
     const cards = screen.getAllByRole("article");
     for (const card of cards) {
       expect(card).not.toHaveAttribute("onclick");
-      expect((card as HTMLElement).onclick).toBeNull();
     }
   });
 
@@ -222,6 +221,20 @@ describe("MyTreesPage — /my-trees", () => {
     expect(
       screen.getByRole("button", { name: /새 러브트리 만들기/ })
     ).toBeInTheDocument();
+  });
+
+  it("새 러브트리 만들기 버튼 클릭 시 /tree/new-demo로 이동한다", () => {
+    renderAppAt("/my-trees");
+    const newTreeBtn = screen.getByRole("button", { name: "새 러브트리 만들기" });
+    fireEvent.click(newTreeBtn);
+    expect(window.location.pathname).toBe("/tree/new-demo");
+  });
+
+  it("트리 카드 클릭 시 /tree/edit-demo로 이동한다", () => {
+    renderAppAt("/my-trees");
+    const card = screen.getByRole("article", { name: "나의 러브트리" });
+    fireEvent.click(card);
+    expect(window.location.pathname).toBe("/tree/edit-demo");
   });
 
   it("renders description text exactly once", () => {
@@ -354,7 +367,16 @@ describe("MyTreesPage — /my-trees", () => {
 
     verifyPresentationContract();
 
-    const allButtons = screen.getAllByRole("button");
+     const allButtons = screen.getAllByRole("button").filter(
+      (b) => b.getAttribute("aria-label") !== "메뉴 열기" &&
+             b.getAttribute("aria-label") !== "알림 보기" &&
+             b.getAttribute("aria-label") !== "마이페이지" &&
+             !b.getAttribute("aria-label")?.endsWith(" 편집") &&
+             !b.getAttribute("aria-label")?.endsWith(" 공유") &&
+             !b.getAttribute("aria-label")?.endsWith(" 복제") &&
+             !b.getAttribute("aria-label")?.endsWith(" 삭제") &&
+             b.textContent !== "새 러브트리 만들기"
+    );
     allButtons.forEach((button) => fireEvent.click(button));
 
     verifyPresentationContract();

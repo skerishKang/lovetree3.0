@@ -6,6 +6,14 @@ export default function MemoryDetailPage() {
   const navigate = useNavigate();
   const data = MOCK_MEMORY_DETAIL;
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/tree/community-demo", { replace: true });
+    }
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.panel}>
@@ -17,7 +25,7 @@ export default function MemoryDetailPage() {
               type="button"
               className={styles.backButton}
               aria-label="뒤로 가기"
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
             >
               <svg
                 width="24"
@@ -260,7 +268,7 @@ export default function MemoryDetailPage() {
           </div>
 
           {/* Tree Context Card */}
-          <div className={styles.treeContextCard}>
+          <div className={styles.treeContextCard} onClick={() => navigate("/tree/community-demo")} data-testid="tree-context-card">
             <h3 className={styles.treeContextHeading}>기억 트리</h3>
             <div className={styles.treeContextBody}>
               <svg
@@ -361,6 +369,24 @@ export default function MemoryDetailPage() {
             />
           </svg>
           <span className={styles.actionLabel}>수정</span>
+        </button>
+
+        <button
+          type="button"
+          className={styles.actionButton}
+          aria-label="기억 연결"
+          onClick={() => navigate("/memory/connect-demo")}
+        >
+          <span className={styles.actionLabel}>연결</span>
+        </button>
+
+        <button
+          type="button"
+          className={styles.actionButton}
+          aria-label="미디어 검색"
+          onClick={() => navigate("/media/search-demo")}
+        >
+          <span className={styles.actionLabel}>미디어</span>
         </button>
       </footer>
     </div>

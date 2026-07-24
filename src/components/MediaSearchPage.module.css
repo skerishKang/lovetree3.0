@@ -12,12 +12,32 @@
 .topBar {
   display: flex;
   align-items: center;
+  gap: 12px;
   justify-content: center;
   padding: 52px 16px 12px;
   background: var(--app-header-bg-ivory);
   position: sticky;
   top: 0;
   z-index: var(--app-header-z-index);
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #4a3f35;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.backButton:focus-visible {
+  outline: 2px solid #b8a08e;
+  outline-offset: 2px;
 }
 
 .screenTitle {
@@ -357,6 +377,30 @@
   font-size: 12px;
   font-weight: 600;
   color: #3d3229;
+}
+
+.reviewBtn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  background: #4a3f35;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.reviewBtn:hover {
+  background: #3d3429;
+}
+
+.reviewBtn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #4a3f35;
 }
 
 /* === Filter Bar (하단 고정) === */

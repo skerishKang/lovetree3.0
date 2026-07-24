@@ -113,9 +113,13 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     expect(screen.getByText("음원 스트리밍")).toBeInTheDocument();
   });
 
-  it("실제 버튼은 뒤로 가기와 CTA 2개만 존재한다", () => {
+  it("실제 버튼은 뒤로 가기, CTA, 미디어 찾기, 에디터 복귀가 존재한다", () => {
     renderPage();
-    expect(screen.getAllByRole("button")).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "뒤로 가기" })).toHaveLength(1);
+    const ctaButtons = screen.getAllByRole("button").filter(b => b.textContent === "이 순간 뒤에 연결하기");
+    expect(ctaButtons.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole("button", { name: "미디어 검색" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "에디터 복귀" })).toHaveLength(1);
   });
 
   it("노드에는 button role이 부여되지 않는다", () => {
@@ -196,16 +200,15 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
 
   it("CTA 버튼 문구가 노출된다", () => {
     renderPage();
-    expect(
-      screen.getByRole("button", { name: "이 순간 뒤에 연결하기" })
-    ).toBeInTheDocument();
+    const ctaButtons = screen.getAllByRole("button").filter(b => b.textContent === "이 순간 뒤에 연결하기");
+    expect(ctaButtons.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("CTA 클릭 전후 화면·문구 변화가 없다 (presentation-only)", () => {
+  it("CTA 클릭 전후 화면·문구 변화가 없다 (presentation-only, disabled)", () => {
     renderPage();
-    const ctaBtn = screen.getByRole("button", {
+    const ctaBtn = screen.getAllByRole("button", {
       name: "이 순간 뒤에 연결하기",
-    });
+    })[0];
     const textBefore = ctaBtn.textContent;
     const htmlBefore = document.body.innerHTML;
     ctaBtn.click();
@@ -213,7 +216,7 @@ describe("MemoryConnectPage (LT3-MEMORY-001)", () => {
     expect(document.body.innerHTML).toBe(htmlBefore);
   });
 
-  it("뒤로 가기 버튼 클릭 후에도 상태 변화가 없다", () => {
+  it("뒤로 가기 버튼 클릭 후에도 상태 변화가 없다 (MemoryRouter 단일 entry)", () => {
     renderPage();
     const backBtn = screen.getByRole("button", { name: "뒤로 가기" });
     const htmlBefore = document.body.innerHTML;

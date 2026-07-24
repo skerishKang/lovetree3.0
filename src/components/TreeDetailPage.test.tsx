@@ -1,14 +1,42 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import TreeDetailPage from "./TreeDetailPage";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { cleanup, render, screen, within, fireEvent } from "@testing-library/react";
+import { createMemoryRouter, RouterProvider, useLocation } from "react-router-dom";
+import { AppRoutes } from "../App";
+
+function LocationProbe() {
+  const location = useLocation();
+  return (
+    <div data-testid="location" style={{ display: "none" }}>
+      {location.pathname}
+    </div>
+  );
+}
+
+function renderRoute(initialEntries: string[]) {
+  const router = createMemoryRouter(
+    [
+      {
+        path: "*",
+        element: (
+          <>
+            <AppRoutes />
+            <LocationProbe />
+          </>
+        ),
+      },
+    ],
+    { initialEntries },
+  );
+  render(<RouterProvider router={router} />);
+  return router;
+}
+
+function currentLocation() {
+  return screen.getByTestId("location").textContent ?? "";
+}
 
 function renderPage() {
-  return render(
-    <MemoryRouter initialEntries={["/tree/community-demo"]}>
-      <TreeDetailPage />
-    </MemoryRouter>
-  );
+  return renderRoute(["/tree/community-demo"]);
 }
 
 describe("TreeDetailPage (LT3-TREE-DETAIL-001) - Comprehensive Audit", () => {
@@ -143,6 +171,25 @@ describe("TreeDetailPage (LT3-TREE-DETAIL-001) - Comprehensive Audit", () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
+  });
+
+  it("기억 카드 클릭 시 /memory/detail-demo로 이동한다", () => {
+    renderPage();
+    const card = screen.getAllByTestId("timeline-memory-card")[0];
+    fireEvent.click(card);
+    expect(currentLocation()).toBe("/memory/detail-demo");
+  });
+
+  it("기억 연결 CTA 클릭 시 /memory/connect-demo로 이동한다", () => {
+    renderPage();
+    const connectBtn = screen.getByRole("button", { name: "기억 연결" });
+    fireEvent.click(connectBtn);
+    expect(currentLocation()).toBe("/memory/connect-demo");
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
   });
 });
 

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import AuthBrand from "./AuthBrand";
 import LoginPanel from "./LoginPanel";
 import AuthLegalNotice from "./AuthLegalNotice";
@@ -18,6 +19,9 @@ export default function AuthLoginPage() {
 
         <div className={styles.legalRow}>
           <AuthLegalNotice />
+          <Link to="/community" className={styles.communityLink}>
+            커뮤니티 둘러보기
+          </Link>
         </div>
       </div>
       <section className={styles.trustContext} aria-labelledby="auth-trust-title">

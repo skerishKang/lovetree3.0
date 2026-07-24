@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import { MOCK_MY_TREES } from "../data/myTreesMockData";
 import styles from "./MyTreesPage.module.css";
 
 export default function MyTreesPage() {
+  const navigate = useNavigate();
   const data = MOCK_MY_TREES;
 
   return (
@@ -54,7 +56,7 @@ export default function MyTreesPage() {
           <h1 className={styles.pageTitle}>{data.headerTitle}</h1>
           <p className={styles.pageDescription}>{data.headerDescription}</p>
         </div>
-        <button type="button" className={styles.newTreeButton} disabled>
+        <button type="button" className={styles.newTreeButton} onClick={() => navigate("/tree/new-demo")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
@@ -75,13 +77,14 @@ export default function MyTreesPage() {
             {data.trees.map((tree) => {
               const isSelected = tree.id === data.selectedTreeId;
               return (
-                <li key={tree.id} className={styles.treeListItem}>
-                  <article
-                    className={`${styles.treeCard} ${isSelected ? styles.treeCardSelected : ""}`}
-                    data-selected={isSelected ? "true" : "false"}
-                    aria-current={isSelected ? "true" : undefined}
-                    aria-labelledby={`my-tree-title-${tree.id}`}
-                  >
+           <li key={tree.id} className={styles.treeListItem}>
+                   <article
+                     className={`${styles.treeCard} ${isSelected ? styles.treeCardSelected : ""}`}
+                     data-selected={isSelected ? "true" : "false"}
+                     aria-current={isSelected ? "true" : undefined}
+                     aria-labelledby={`my-tree-title-${tree.id}`}
+                     onClick={() => navigate("/tree/edit-demo")}
+                   >
                     {/* 썸네일 및 미니 트리 시각화 */}
                     <div
                       className={`${styles.thumbnail} ${styles[`thumb_${tree.thumbnailColorKey}`]}`}
