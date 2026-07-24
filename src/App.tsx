@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { NavigationHistoryProvider } from "./hooks/NavigationHistory";
+import { HashScrollRestoration } from "./components/HashScrollRestoration";
 import HomePage from "./components/HomePage";
 import CommunityPage from "./components/CommunityPage";
 import AuthLoginPage from "./components/AuthLoginPage";
@@ -38,6 +39,7 @@ export function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
+      <HashScrollRestoration />
       <AppRoutes />
     </BrowserRouter>
   );

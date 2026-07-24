@@ -115,4 +115,14 @@ describe("HomePage mobile containment contract", () => {
     expect(primary).toHaveAttribute("type", "button");
     expect(secondary).toHaveAttribute("type", "button");
   });
+
+  it("About/Features 해시 링크가 올바른 section id를 가리킨다", () => {
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
+    const aboutLink = screen.getByRole("link", { name: "About" });
+    const featuresLink = screen.getByRole("link", { name: "Features" });
+    expect(aboutLink).toHaveAttribute("href", "/#about");
+    expect(featuresLink).toHaveAttribute("href", "/#features");
+    expect(document.getElementById("about")).not.toBeNull();
+    expect(document.getElementById("features")).not.toBeNull();
+  });
 });

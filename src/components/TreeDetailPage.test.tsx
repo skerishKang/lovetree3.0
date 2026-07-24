@@ -187,6 +187,16 @@ describe("TreeDetailPage (LT3-TREE-DETAIL-001) - Comprehensive Audit", () => {
     expect(currentLocation()).toBe("/memory/connect-demo");
   });
 
+  it("공개 트리 상세 direct-entry 뒤로 가기 시 /community로 fallback 이동한다", () => {
+    renderPage();
+    expect(currentLocation()).toBe("/tree/community-demo");
+
+    const backButton = screen.getByRole("button", { name: "뒤로 가기" });
+    fireEvent.click(backButton);
+
+    expect(currentLocation()).toBe("/community");
+  });
+
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();

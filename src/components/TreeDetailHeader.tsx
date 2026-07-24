@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function TreeDetailHeader({ data }: Props) {
-  const handleBack = useBackWithFallback("/");
+  const handleBack = useBackWithFallback("/community");
 
   return (
     <header className={styles.header}>
