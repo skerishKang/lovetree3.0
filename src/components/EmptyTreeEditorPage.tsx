@@ -132,7 +132,7 @@ export default function EmptyTreeEditorPage() {
               </p>
             </div>
 
-            <button type="button" className={styles.primaryCta}>
+            <button type="button" className={styles.primaryCta} disabled>
               첫 순간 추가
             </button>
           </section>

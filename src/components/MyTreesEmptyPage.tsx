@@ -52,10 +52,10 @@ export default function MyTreesEmptyPage() {
           <p className={styles.pageDescription}>{EMPTY_STATE.pageDescription}</p>
 
           <div className={styles.ctaGroup}>
-            <button type="button" className={styles.primaryCta}>
+            <button type="button" className={styles.primaryCta} disabled>
               {EMPTY_STATE.primaryCtaLabel}
             </button>
-            <button type="button" className={styles.secondaryCta}>
+            <button type="button" className={styles.secondaryCta} disabled>
               {EMPTY_STATE.secondaryCtaLabel}
             </button>
           </div>
@@ -70,6 +70,7 @@ export default function MyTreesEmptyPage() {
                   <button
                     type="button"
                     className={`${styles.quickStartButton} ${styles[idea.variant]}`}
+                    disabled
                   >
                     {idea.variant === "rose" && (
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">

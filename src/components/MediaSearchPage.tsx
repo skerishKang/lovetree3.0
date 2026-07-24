@@ -127,6 +127,7 @@ export default function MediaSearchPage() {
                       type="button"
                       className={styles.addButton}
                       aria-label={`${item.title} 러브트리에 추가`}
+                      disabled
                     >
                       러브트리에
                       <br />

@@ -1,22 +1,13 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styles from "./CommunityTreeCard.module.css";
 import type { CommunityTreeCard as CardData } from "../data/communityMockData";
 import CommunityTreePreview from "./CommunityTreePreview";
 
 export default function CommunityTreeCard({ card }: { card: CardData }) {
-  const navigate = useNavigate();
-
   return (
-    <article
+    <Link
+      to="/tree/community-demo"
       className={`${styles.card} card`}
-      tabIndex={0}
-      onClick={() => navigate("/tree/community-demo")}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          navigate("/tree/community-demo");
-        }
-      }}
     >
       <div
         className={styles.thumbnail}
@@ -69,6 +60,6 @@ export default function CommunityTreeCard({ card }: { card: CardData }) {
           </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

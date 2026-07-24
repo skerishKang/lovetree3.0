@@ -19,6 +19,7 @@ export default function SocialLoginButton({ icon, label, variant }: Props) {
       className={`${styles.socialBtn} ${styles[variant]}`}
       onClick={handleClick}
       aria-label={label}
+      aria-disabled="true"
     >
       <span className={styles.btnIcon}>{icon}</span>
       {label}

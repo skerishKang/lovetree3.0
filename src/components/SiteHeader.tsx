@@ -1,33 +1,29 @@
 import styles from "./SiteHeader.module.css";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { brandLogo, navMenuItems } from "../data/mockData";
 
 const navRoutes: Record<typeof navMenuItems[number], string> = {
-  About: "/",
-  Features: "/",
+  About: "/#about",
+  Features: "/#features",
   Community: "/community",
   "My Tree": "/my-trees",
 };
 
 export default function SiteHeader() {
-  const navigate = useNavigate();
-
   return (
     <header className={styles.header}>
-      <span className={styles.logo}>{brandLogo}</span>
+      <Link to="/" className={styles.logo}>
+        {brandLogo}
+      </Link>
       <nav className={styles.nav} aria-label="주요 메뉴">
         {navMenuItems.map((item) => (
-          <a
+          <Link
             key={item}
             className={styles.navItem}
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate(navRoutes[item]);
-            }}
+            to={navRoutes[item]}
           >
             {item}
-          </a>
+          </Link>
         ))}
       </nav>
     </header>

@@ -150,9 +150,9 @@ export default function TreeEditorPage() {
           </span>
           <span className={styles.saveStatus}>자동 저장됨</span>
           <div className={styles.toolbarActions}>
-            <button type="button" className={styles.secBtn}>미리보기</button>
-            <button type="button" className={styles.secBtn}>저장</button>
-            <button type="button" className={styles.priBtn}>게시하기</button>
+            <button type="button" className={styles.secBtn} disabled>미리보기</button>
+            <button type="button" className={styles.secBtn} disabled>저장</button>
+            <button type="button" className={styles.priBtn} disabled>게시하기</button>
           </div>
         </header>
 

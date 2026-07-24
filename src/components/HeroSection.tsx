@@ -6,7 +6,7 @@ export default function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className={styles.hero}>
+    <section id="about" className={styles.hero}>
       <div className={styles.copy}>
         <h1 className={styles.headline}>
           사랑에 빠진 모든 순간을
