@@ -238,6 +238,15 @@ describe("MyTreesPage — /my-trees", () => {
     expect(window.location.pathname).toBe("/tree/edit-demo");
   });
 
+  it("anchor(Link) 내부에 button이 없어야 한다", () => {
+    renderAppAt("/my-trees");
+    const anchors = document.querySelectorAll("a");
+    expect(anchors.length).toBeGreaterThan(0);
+    anchors.forEach((a) => {
+      expect(a.querySelector("button")).toBeNull();
+    });
+  });
+
   it("renders description text exactly once", () => {
     renderAppAt("/my-trees");
     expect(screen.getByText(MOCK_MY_TREES.headerDescription)).toBeInTheDocument();

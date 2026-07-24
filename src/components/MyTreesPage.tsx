@@ -80,8 +80,8 @@ export default function MyTreesPage() {
             {data.trees.map((tree) => {
               const isSelected = tree.id === data.selectedTreeId;
               return (
-           <li key={tree.id} className={styles.treeListItem}>
-           <article
+            <li key={tree.id} className={styles.treeListItem}>
+            <article
                       className={`${styles.treeCard} ${isSelected ? styles.treeCardSelected : ""}`}
                       data-selected={isSelected ? "true" : "false"}
                       aria-current={isSelected ? "true" : undefined}
@@ -212,44 +212,44 @@ export default function MyTreesPage() {
                           <span>{tree.comments}</span>
                         </span>
                       </div>
-
-                      {/* 카드 액션 버튼 4개 */}
-                      <div className={styles.cardActions}>
-                        <button
-                          type="button"
-                          className={styles.cardActionButton}
-                          aria-label={`${tree.title} 편집`}
-                          disabled
-                        >
-                          편집
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.cardActionButton}
-                          aria-label={`${tree.title} 공유`}
-                          disabled
-                        >
-                          공유
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.cardActionButton}
-                          aria-label={`${tree.title} 복제`}
-                          disabled
-                        >
-                          복제
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.cardActionButton}
-                          aria-label={`${tree.title} 삭제`}
-                          disabled
-                        >
-                          삭제
-                        </button>
-                      </div>
                     </div>
                   </Link>
+
+                  {/* 카드 액션 버튼 4개 */}
+                  <div className={styles.cardActions}>
+                    <button
+                      type="button"
+                      className={styles.cardActionButton}
+                      aria-label={`${tree.title} 편집`}
+                      disabled
+                    >
+                      편집
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.cardActionButton}
+                      aria-label={`${tree.title} 공유`}
+                      disabled
+                    >
+                      공유
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.cardActionButton}
+                      aria-label={`${tree.title} 복제`}
+                      disabled
+                    >
+                      복제
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.cardActionButton}
+                      aria-label={`${tree.title} 삭제`}
+                      disabled
+                    >
+                      삭제
+                    </button>
+                  </div>
                 </article>
                 </li>
               );

@@ -209,6 +209,18 @@
   box-shadow: 0 0 0 2px rgba(217, 107, 143, 0.3), 0 6px 20px rgba(42, 38, 34, 0.08);
 }
 
+.treeCardLink {
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+}
+
+.treeCardLink:focus-visible {
+  outline: 2px solid #d96b8f;
+  outline-offset: 2px;
+}
+
 /* 썸네일 & 미니 트리 시각화 */
 .thumbnail {
   position: relative;
@@ -363,7 +375,7 @@
 .cardActions {
   display: flex;
   gap: 6px;
-  padding-top: 4px;
+  padding: 0 16px 16px;
 }
 
 .cardActionButton {

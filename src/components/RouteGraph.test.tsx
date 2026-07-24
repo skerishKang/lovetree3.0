@@ -140,7 +140,11 @@ describe("Route Graph — all 12 routes reachable from /", () => {
     visited.add("/tree/new-demo");
 
     cleanup();
-    renderRoute(["/my-trees"]);
+    renderRoute(["/"]);
+    expect(currentLocation()).toBe("/");
+
+    fireEvent.click(screen.getByRole("link", { name: "My Tree" }));
+    expect(currentLocation()).toBe("/my-trees");
     visited.add("/my-trees");
 
     fireEvent.click(screen.getByRole("link", { name: "빈 상태 미리보기" }));

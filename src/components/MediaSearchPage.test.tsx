@@ -252,7 +252,7 @@ describe("MediaSearchPage — /media/search-demo", () => {
 
     const navigationButtonNames = ["결과 검토"];
     const buttons = screen.getAllByRole("button").filter(
-      (b) => !navigationButtonNames.includes(b.textContent || "")
+      (b) => !navigationButtonNames.includes(b.textContent || "") && b.getAttribute("aria-label") !== "뒤로 가기"
     );
     for (const button of buttons) {
       fireEvent.click(button);
@@ -269,7 +269,7 @@ describe("MediaSearchPage — /media/search-demo", () => {
 
     const navigationButtonNames = ["결과 검토"];
     const buttons = screen.getAllByRole("button").filter(
-      (b) => !navigationButtonNames.includes(b.textContent || "")
+      (b) => !navigationButtonNames.includes(b.textContent || "") && b.getAttribute("aria-label") !== "뒤로 가기"
     );
     for (const button of buttons) {
       fireEvent.click(button);
