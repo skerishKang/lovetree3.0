@@ -1,3 +1,4 @@
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import type { TreeDetailData } from "../data/treeDetailMockData";
 import styles from "./TreeDetailHeader.module.css";
 
@@ -6,13 +7,15 @@ interface Props {
 }
 
 export default function TreeDetailHeader({ data }: Props) {
+  const handleBack = useBackWithFallback("/community");
+
   return (
     <header className={styles.header}>
       <div className={styles.backRow}>
         <button
           className={styles.backButton}
           aria-label="뒤로 가기"
-          onClick={(e) => e.preventDefault()}
+          onClick={handleBack}
         >
           &lt;
         </button>

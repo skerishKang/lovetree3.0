@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { TreeDetailData } from "../data/treeDetailMockData";
 import CommentSection from "./CommentSection";
 import styles from "./TreeSocialSidebar.module.css";
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export default function TreeSocialSidebar({ data }: Props) {
+  const navigate = useNavigate();
   // Find featured memory card info
   const featuredMemory = data.memories.find(m => m.id === data.featuredMemoryId);
 
@@ -94,6 +96,16 @@ export default function TreeSocialSidebar({ data }: Props) {
           <span className={styles.count}>{data.shareCount}</span>
         </button>
       </div>
+
+      {/* 기억 연결 CTA */}
+      <button
+        type="button"
+        className={styles.connectBtn}
+        aria-label="기억 연결"
+        onClick={() => navigate("/memory/connect-demo")}
+      >
+        기억 연결
+      </button>
 
       {/* 저장 버튼 (presentation-only) */}
       <button

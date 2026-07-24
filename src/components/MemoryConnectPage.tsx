@@ -1,5 +1,8 @@
 import { Fragment } from "react";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MOCK_MEMORY_CONNECT } from "../data/memoryConnectMockData";
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import styles from "./MemoryConnectPage.module.css";
 
 function MemoryConnector({ highlighted }: { highlighted: boolean }) {
@@ -32,18 +35,23 @@ function MemoryConnector({ highlighted }: { highlighted: boolean }) {
 }
 
 export default function MemoryConnectPage() {
+  const navigate = useNavigate();
   const data = MOCK_MEMORY_CONNECT;
   const selectedNode = data.nodes.find((n) => n.id === data.selectedNodeId);
+
+  const handleBack = useBackWithFallback("/tree/edit-demo");
 
   return (
     <div className={styles.page}>
       <header className={styles.topBar}>
-        <button type="button" className={styles.backButton} aria-label="뒤로 가기">
+        <button type="button" className={styles.backButton} aria-label="뒤로 가기" onClick={handleBack}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
             <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span className={styles.logo}>Relovetree</span>
+        <Link to="/" className={styles.logoLink}>
+          <span className={styles.logo}>Relovetree</span>
+        </Link>
       </header>
 
       <div className={styles.memoryConnectLayout}>
@@ -87,16 +95,34 @@ export default function MemoryConnectPage() {
             )}
           </section>
 
-          <div className={styles.desktopCtaPanel}>
+           <div className={styles.desktopCtaPanel}>
             {selectedNode && (
               <p className={styles.ctaContext} data-testid="cta-context">
                 "<strong>{selectedNode.title}</strong>" 뒤에
                 "<strong>{data.newMemory.title}</strong>"를 연결합니다
               </p>
             )}
-            <button type="button" className={styles.ctaButton}>
-              {data.ctaText}
-            </button>
+            <div className={styles.ctaActions}>
+              <button type="button" className={styles.ctaButton} disabled>
+                {data.ctaText}
+              </button>
+              <button
+                type="button"
+                className={styles.mediaSearchBtn}
+                aria-label="미디어 검색"
+                onClick={() => navigate("/media/search-demo")}
+              >
+                미디어 찾기
+              </button>
+              <button
+                type="button"
+                className={styles.editorReturnBtn}
+                aria-label="에디터 복귀"
+                onClick={() => navigate("/tree/edit-demo")}
+              >
+                에디터로 돌아가기
+              </button>
+            </div>
           </div>
         </div>
 
@@ -176,9 +202,27 @@ export default function MemoryConnectPage() {
               "<strong>{data.newMemory.title}</strong>"를 연결합니다
             </p>
           )}
-          <button type="button" className={styles.ctaButton}>
-            {data.ctaText}
-          </button>
+          <div className={styles.ctaActions}>
+            <button type="button" className={styles.ctaButton} disabled>
+              {data.ctaText}
+            </button>
+            <button
+              type="button"
+              className={styles.mediaSearchBtn}
+              aria-label="미디어 검색"
+              onClick={() => navigate("/media/search-demo")}
+            >
+              미디어 찾기
+            </button>
+            <button
+              type="button"
+              className={styles.editorReturnBtn}
+              aria-label="에디터 복귀"
+              onClick={() => navigate("/tree/edit-demo")}
+            >
+              에디터로 돌아가기
+            </button>
+          </div>
         </div>
       </div>
     </div>

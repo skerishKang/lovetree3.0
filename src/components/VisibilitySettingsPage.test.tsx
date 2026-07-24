@@ -151,12 +151,36 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     ).toBeInTheDocument();
   });
 
+  it("홈 빠른 이동 버튼 클릭 시 /로 이동한다", () => {
+    renderAppAt("/settings/visibility-demo");
+    const homeBtn = screen.getByRole("button", { name: "홈" });
+    fireEvent.click(homeBtn);
+    expect(window.location.pathname).toBe("/");
+  });
+
+  it("내 러브트리 빠른 이동 버튼 클릭 시 /my-trees로 이동한다", () => {
+    renderAppAt("/settings/visibility-demo");
+    const treesBtn = screen.getByRole("button", { name: "내 러브트리" });
+    fireEvent.click(treesBtn);
+    expect(window.location.pathname).toBe("/my-trees");
+  });
+
+  it("에디터 복귀 버튼 클릭 시 /tree/edit-demo로 이동한다", () => {
+    renderAppAt("/settings/visibility-demo");
+    const editorBtn = screen.getByRole("button", { name: "에디터 복귀" });
+    fireEvent.click(editorBtn);
+    expect(window.location.pathname).toBe("/tree/edit-demo");
+  });
+
   it("모든 버튼 클릭 후 fetch가 0회여야 한다", () => {
     renderAppAt("/settings/visibility-demo");
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const buttons = screen.getAllByRole("button");
+    const navigationButtonNames = ["홈", "내 러브트리", "에디터로 돌아가기"];
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.includes(b.textContent || "")
+    );
     buttons.forEach((btn) => fireEvent.click(btn));
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -194,7 +218,10 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     radios.forEach((r) => fireEvent.click(r));
     const checkboxes = screen.getAllByRole("checkbox");
     checkboxes.forEach((c) => fireEvent.click(c));
-    const buttons = screen.getAllByRole("button");
+    const navigationButtonNames = ["홈", "내 러브트리", "에디터로 돌아가기"];
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.includes(b.textContent || "") && b.getAttribute("aria-label") !== "뒤로 가기"
+    );
     buttons.forEach((b) => fireEvent.click(b));
 
     expect(getItemSpy).not.toHaveBeenCalled();
@@ -205,7 +232,10 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     renderAppAt("/settings/visibility-demo");
     const currentUrl = window.location.href;
 
-    const buttons = screen.getAllByRole("button");
+    const navigationButtonNames = ["홈", "내 러브트리", "에디터로 돌아가기"];
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.includes(b.textContent || "") && b.getAttribute("aria-label") !== "뒤로 가기"
+    );
     buttons.forEach((btn) => fireEvent.click(btn));
 
     expect(window.location.href).toBe(currentUrl);

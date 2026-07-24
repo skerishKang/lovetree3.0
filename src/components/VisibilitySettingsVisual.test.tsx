@@ -211,7 +211,10 @@ describe("VisibilitySettingsPage — Visual Contracts", () => {
     renderAppAt("/settings/visibility-demo");
     const currentUrl = window.location.href;
 
-    const buttons = screen.getAllByRole("button");
+    const navigationButtonNames = ["홈", "내 러브트리", "에디터로 돌아가기"];
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.some(name => (b.textContent || "").includes(name)) && b.getAttribute("aria-label") !== "뒤로 가기"
+    );
     buttons.forEach((btn) => fireEvent.click(btn));
 
     expect(window.location.href).toBe(currentUrl);

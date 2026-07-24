@@ -297,6 +297,29 @@
   outline-offset: 2px;
 }
 
+.mediaSearchBtn {
+  margin-top: 12px;
+  padding: 10px 24px;
+  border: 1px solid #e8e0d8;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #5c4a3a;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.mediaSearchBtn:hover {
+  background: #f5f0ea;
+  border-color: #d0c5b8;
+}
+
+.mediaSearchBtn:focus-visible {
+  outline: 2px solid #b8a99a;
+  outline-offset: 2px;
+}
+
 /* ─── Intermediate ( 태블릿 / Compact Rail: 768px ~ 1024px ) ─── */
 
 @media (max-width: 1024px) and (min-width: 768px) {

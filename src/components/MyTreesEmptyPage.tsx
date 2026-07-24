@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import { EMPTY_STATE, QUICK_START_IDEAS } from "../data/myTreesEmptyMockData";
 import styles from "./MyTreesEmptyPage.module.css";
 
 export default function MyTreesEmptyPage() {
+  const navigate = useNavigate();
   return (
     <div className={styles.page}>
       <header className={styles.brandBar}>
@@ -52,10 +54,10 @@ export default function MyTreesEmptyPage() {
           <p className={styles.pageDescription}>{EMPTY_STATE.pageDescription}</p>
 
           <div className={styles.ctaGroup}>
-            <button type="button" className={styles.primaryCta}>
+            <button type="button" className={styles.primaryCta} onClick={() => navigate("/tree/new-demo")}>
               {EMPTY_STATE.primaryCtaLabel}
             </button>
-            <button type="button" className={styles.secondaryCta}>
+            <button type="button" className={styles.secondaryCta} onClick={() => navigate("/tree/community-demo")}>
               {EMPTY_STATE.secondaryCtaLabel}
             </button>
           </div>
@@ -70,6 +72,7 @@ export default function MyTreesEmptyPage() {
                   <button
                     type="button"
                     className={`${styles.quickStartButton} ${styles[idea.variant]}`}
+                    onClick={() => navigate("/tree/new-demo")}
                   >
                     {idea.variant === "rose" && (
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">

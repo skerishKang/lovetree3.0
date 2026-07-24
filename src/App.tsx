@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { NavigationHistoryProvider } from "./hooks/NavigationHistory";
+import { HashScrollRestoration } from "./components/HashScrollRestoration";
 import HomePage from "./components/HomePage";
 import CommunityPage from "./components/CommunityPage";
 import AuthLoginPage from "./components/AuthLoginPage";
@@ -12,9 +14,9 @@ import VisibilitySettingsPage from "./components/VisibilitySettingsPage";
 import MyTreesEmptyPage from "./components/MyTreesEmptyPage";
 import EmptyTreeEditorPage from "./components/EmptyTreeEditorPage";
 
-function App() {
+export function AppRoutes() {
   return (
-    <BrowserRouter>
+    <NavigationHistoryProvider>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/community" element={<CommunityPage />} />
@@ -30,6 +32,15 @@ function App() {
         <Route path="/my-trees/empty-demo" element={<MyTreesEmptyPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </NavigationHistoryProvider>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <HashScrollRestoration />
+      <AppRoutes />
     </BrowserRouter>
   );
 }

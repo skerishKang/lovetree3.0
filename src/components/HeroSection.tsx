@@ -6,7 +6,7 @@ export default function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className={styles.hero}>
+    <section id="about" className={styles.hero} style={{ scrollMarginTop: "80px" }}>
       <div className={styles.copy}>
         <h1 className={styles.headline}>
           사랑에 빠진 모든 순간을
@@ -16,7 +16,7 @@ export default function HeroSection() {
         <p className={styles.description}>
           영상, 날짜, 감정, 메모가 이어져
           <br />
-          나만의 럤브트리가 됩니다
+          나만의 러브트리가 됩니다
         </p>
         <div className={styles.actions}>
           <button

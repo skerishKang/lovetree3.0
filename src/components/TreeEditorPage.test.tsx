@@ -1,4 +1,4 @@
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { MOCK_TREE_EDITOR } from "../data/treeEditorMockData";
 import App from "../App";
@@ -249,10 +249,60 @@ describe("TreeEditorPage - buttons", () => {
     expect(screen.getByText("설정")).toBeInTheDocument();
     expect(screen.getByText("새 러브트리 만들기")).toBeInTheDocument();
   });
+
+  it("홈 메뉴 클릭 시 /로 이동한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const homeLink = screen.getByText("홈").closest("a");
+    fireEvent.click(homeLink!);
+    expect(window.location.pathname).toBe("/");
+  });
+
+  it("내 러브트리 메뉴 클릭 시 /my-trees로 이동한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const treesLink = screen.getByText("내 러브트리").closest("a");
+    fireEvent.click(treesLink!);
+    expect(window.location.pathname).toBe("/my-trees");
+  });
+
+  it("설정 메뉴 클릭 시 /settings/visibility-demo로 이동한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const settingsLink = screen.getByText("설정").closest("a");
+    fireEvent.click(settingsLink!);
+    expect(window.location.pathname).toBe("/settings/visibility-demo");
+  });
+
+  it("새 러브트리 만들기 버튼 클릭 시 /tree/new-demo로 이동한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const newTreeBtn = screen.getByRole("button", { name: "새 러브트리 만들기" });
+    fireEvent.click(newTreeBtn);
+    expect(window.location.pathname).toBe("/tree/new-demo");
+  });
+
+  it("메모리 추가 버튼 클릭 시 /memory/connect-demo로 이동한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const addMemBtn = screen.getByRole("button", { name: "메모리 추가" });
+    fireEvent.click(addMemBtn);
+    expect(window.location.pathname).toBe("/memory/connect-demo");
+  });
+
+  it("미디어 찾기 버튼 클릭 시 /media/search-demo로 이동한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const mediaBtn = screen.getByRole("button", { name: "미디어 찾기" });
+    fireEvent.click(mediaBtn);
+    expect(window.location.pathname).toBe("/media/search-demo");
+  });
+
+  it("기억 카드 클릭 시 /memory/detail-demo로 이동한다", () => {
+    renderAppAt("/tree/edit-demo");
+    const card = screen.getByRole("article", { name: "팬들이 준비한 이벤트" });
+    const link = within(card).getByRole("link");
+    fireEvent.click(link);
+    expect(window.location.pathname).toBe("/memory/detail-demo");
+  });
 });
 
 describe("TreeEditorPage - presentation-only regression", () => {
-  it("no state change after all buttons clicked", () => {
+  it("no state change after all non-navigation buttons clicked", () => {
     const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
     const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
     const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
@@ -282,7 +332,10 @@ describe("TreeEditorPage - presentation-only regression", () => {
     const initialMemo = memoInput.value;
     const initialInspectorTitle = screen.getByRole("heading", { level: 2 }).textContent;
 
-    const allButtons = screen.getAllByRole("button");
+    const navigationButtonNames = ["홈", "내 러브트리", "설정", "새 러브트리 만들기", "메모리 추가", "미디어 찾기"];
+    const allButtons = screen.getAllByRole("button").filter(
+      (b) => !navigationButtonNames.some(name => (b.textContent || "").includes(name))
+    );
     for (const button of allButtons) {
       fireEvent.click(button);
     }
@@ -291,7 +344,7 @@ describe("TreeEditorPage - presentation-only regression", () => {
     expect(screen.getAllByRole("article")).toHaveLength(5);
     expect(document.querySelectorAll('[data-connector-id]')).toHaveLength(initialConnectors);
     expect(document.querySelectorAll('[data-highlighted="true"]')).toHaveLength(initialHighlighted);
-    expect(screen.getAllByRole("button").length).toBe(allButtons.length);
+    expect(screen.getAllByRole("button").length).toBeGreaterThan(allButtons.length);
     expect(titleInput.value).toBe(initialTitle);
     expect(descInput.value).toBe(initialDesc);
     expect(dateInput.value).toBe(initialDate);

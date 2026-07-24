@@ -1,19 +1,35 @@
+import { useNavigate } from "react-router-dom";
 import {
   VISIBILITY_OPTIONS,
   ADDITIONAL_SETTINGS,
   SHARE_LINK_PLACEHOLDER,
 } from "../data/visibilitySettingsMockData";
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import styles from "./VisibilitySettingsPage.module.css";
 
 export default function VisibilitySettingsPage() {
+  const navigate = useNavigate();
+  const handleBack = useBackWithFallback("/tree/edit-demo");
+
   return (
     <div className={styles.page}>
       <header className={styles.topBar}>
+        <button type="button" className={styles.backButton} aria-label="뒤로 가기" onClick={handleBack}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
         <h1 className={styles.screenTitle}>공개 범위 설정</h1>
         <p className={styles.screenDescription}>
           러브트리의 공개 범위와 참여 설정을 관리합니다.
         </p>
       </header>
+
+      <nav className={styles.quickNav} aria-label="빠른 이동">
+        <button type="button" className={styles.quickNavBtn} aria-label="홈" onClick={() => navigate("/")}>홈</button>
+        <button type="button" className={styles.quickNavBtn} aria-label="내 러브트리" onClick={() => navigate("/my-trees")}>내 러브트리</button>
+        <button type="button" className={styles.quickNavBtn} aria-label="에디터 복귀" onClick={() => navigate("/tree/edit-demo")}>에디터로 돌아가기</button>
+      </nav>
 
       <main className={styles.content}>
         <fieldset className={styles.visibilityFieldset}>

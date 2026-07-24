@@ -50,3 +50,21 @@
     border-top: 1px solid #eeeae4;
   }
 }
+
+@media (max-width: 480px) {
+  .page {
+    padding: 0;
+  }
+
+  .panel {
+    border-radius: 0;
+  }
+
+  .mainArea {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .sidebar {
+    padding: 1.25rem 0.75rem;
+  }
+}

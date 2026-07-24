@@ -1,3 +1,9 @@
+.brandLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .brandMark {
   display: flex;
   align-items: center;

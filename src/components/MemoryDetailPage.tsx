@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { MOCK_MEMORY_DETAIL } from "../data/memoryDetailMockData";
+import { useBackWithFallback } from "../hooks/useBackWithFallback";
 import styles from "./MemoryDetailPage.module.css";
 
 export default function MemoryDetailPage() {
   const navigate = useNavigate();
   const data = MOCK_MEMORY_DETAIL;
+  const handleBack = useBackWithFallback("/tree/community-demo");
 
   return (
     <div className={styles.page}>
@@ -17,7 +19,7 @@ export default function MemoryDetailPage() {
               type="button"
               className={styles.backButton}
               aria-label="뒤로 가기"
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
             >
               <svg
                 width="24"
@@ -260,7 +262,13 @@ export default function MemoryDetailPage() {
           </div>
 
           {/* Tree Context Card */}
-          <div className={styles.treeContextCard}>
+          <button
+            type="button"
+            className={styles.treeContextCard}
+            aria-label="기억 트리 보기"
+            onClick={() => navigate("/tree/community-demo")}
+            data-testid="tree-context-card"
+          >
             <h3 className={styles.treeContextHeading}>기억 트리</h3>
             <div className={styles.treeContextBody}>
               <svg
@@ -292,9 +300,9 @@ export default function MemoryDetailPage() {
                   {data.author.treeRelation}
                 </span>
               </div>
-            </div>
-          </div>
-        </aside>
+              </div>
+            </button>
+          </aside>
       </div>
 
       {/* ── Mobile Bottom Action Bar ── */}
@@ -361,6 +369,24 @@ export default function MemoryDetailPage() {
             />
           </svg>
           <span className={styles.actionLabel}>수정</span>
+        </button>
+
+        <button
+          type="button"
+          className={styles.actionButton}
+          aria-label="기억 연결"
+          onClick={() => navigate("/memory/connect-demo")}
+        >
+          <span className={styles.actionLabel}>연결</span>
+        </button>
+
+        <button
+          type="button"
+          className={styles.actionButton}
+          aria-label="미디어 검색"
+          onClick={() => navigate("/media/search-demo")}
+        >
+          <span className={styles.actionLabel}>미디어</span>
         </button>
       </footer>
     </div>

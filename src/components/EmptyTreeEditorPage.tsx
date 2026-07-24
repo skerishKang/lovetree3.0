@@ -3,10 +3,12 @@
  * 빈 트리 에디터 UI — presentation-only, no side effects
  */
 
+import { useNavigate } from "react-router-dom";
 import { SIDEBAR_MENU_ITEMS } from "../data/emptyTreeEditorMockData";
 import styles from "./EmptyTreeEditorPage.module.css";
 
 export default function EmptyTreeEditorPage() {
+  const navigate = useNavigate();
   return (
     <div className={styles.page}>
       {/* 좌측 사이드바 */}
@@ -18,22 +20,30 @@ export default function EmptyTreeEditorPage() {
 
         <nav className={styles.menuNav} aria-label="에디터 메뉴">
           <ul className={styles.menuList}>
-            {SIDEBAR_MENU_ITEMS.map((item) => (
-              <li key={item.id} className={styles.menuItem}>
-                <button
-                  type="button"
-                  className={`${styles.menuButton} ${
-                    item.active ? styles.menuButtonActive : ""
-                  }`}
-                  aria-current={item.active ? "page" : undefined}
-                >
+            {SIDEBAR_MENU_ITEMS.map((item) => {
+              const handleClick = () => {
+                if (item.id === "my-trees") navigate("/my-trees");
+                else if (item.id === "explore") navigate("/");
+                else if (item.id === "settings") navigate("/settings/visibility-demo");
+              };
+              return (
+                <li key={item.id} className={styles.menuItem}>
+                  <button
+                    type="button"
+                    className={`${styles.menuButton} ${
+                      item.active ? styles.menuButtonActive : ""
+                    }`}
+                    aria-current={item.active ? "page" : undefined}
+                    onClick={handleClick}
+                  >
                   <span className={styles.menuIcon} aria-hidden="true">
                     {item.icon}
                   </span>
                   <span className={styles.menuLabel}>{item.label}</span>
                 </button>
               </li>
-            ))}
+            );
+          })}
           </ul>
         </nav>
 
@@ -132,8 +142,11 @@ export default function EmptyTreeEditorPage() {
               </p>
             </div>
 
-            <button type="button" className={styles.primaryCta}>
+            <button type="button" className={styles.primaryCta} onClick={() => navigate("/memory/connect-demo")}>
               첫 순간 추가
+            </button>
+            <button type="button" className={styles.mediaSearchBtn} aria-label="미디어 찾기" onClick={() => navigate("/media/search-demo")}>
+              미디어 찾기
             </button>
           </section>
         </div>

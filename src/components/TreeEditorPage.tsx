@@ -1,3 +1,4 @@
+import { Link, useNavigate } from "react-router-dom";
 import { MOCK_TREE_EDITOR } from "../data/treeEditorMockData";
 import type { TreeConnector } from "../data/treeEditorMockData";
 import styles from "./TreeEditorPage.module.css";
@@ -78,6 +79,7 @@ function BranchConnectorGroup({ leftConnector, rightConnector }: { leftConnector
 }
 
 export default function TreeEditorPage() {
+  const navigate = useNavigate();
   const data = MOCK_TREE_EDITOR;
   const selectedMemory = data.memories.find(
     (m) => m.id === data.selectedMemoryId,
@@ -115,19 +117,25 @@ export default function TreeEditorPage() {
         </div>
         <ul className={styles.navMenu}>
           <li className={styles.navItem}>
-            <span className={styles.navIcon} aria-hidden="true">🏠</span>
-            <span>홈</span>
+            <Link to="/" className={styles.navLink}>
+              <span className={styles.navIcon} aria-hidden="true">🏠</span>
+              <span>홈</span>
+            </Link>
           </li>
           <li className={`${styles.navItem} ${styles.navItemActive}`}>
-            <span className={styles.navIcon} aria-hidden="true">🌳</span>
-            <span>내 러브트리</span>
+            <Link to="/my-trees" className={styles.navLink}>
+              <span className={styles.navIcon} aria-hidden="true">🌳</span>
+              <span>내 러브트리</span>
+            </Link>
           </li>
           <li className={styles.navItem}>
-            <span className={styles.navIcon} aria-hidden="true">⚙️</span>
-            <span>설정</span>
+            <Link to="/settings/visibility-demo" className={styles.navLink}>
+              <span className={styles.navIcon} aria-hidden="true">⚙️</span>
+              <span>설정</span>
+            </Link>
           </li>
         </ul>
-        <button type="button" className={styles.newTreeButton}>
+        <button type="button" className={styles.newTreeButton} onClick={() => navigate("/tree/new-demo")}>
           새 러브트리 만들기
         </button>
       </nav>
@@ -150,9 +158,9 @@ export default function TreeEditorPage() {
           </span>
           <span className={styles.saveStatus}>자동 저장됨</span>
           <div className={styles.toolbarActions}>
-            <button type="button" className={styles.secBtn}>미리보기</button>
-            <button type="button" className={styles.secBtn}>저장</button>
-            <button type="button" className={styles.priBtn}>게시하기</button>
+            <button type="button" className={styles.secBtn} disabled>미리보기</button>
+            <button type="button" className={styles.secBtn} disabled>저장</button>
+            <button type="button" className={styles.priBtn} disabled>게시하기</button>
           </div>
         </header>
 
@@ -165,8 +173,11 @@ export default function TreeEditorPage() {
                 <path d="M21 21l-4.35-4.35" stroke="#8a7a6a" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <input type="text" placeholder="메모리 검색..." readOnly className={styles.canvasSearchInput} aria-label="메모리 검색" />
-              <button type="button" className={styles.addMemBtn}>
+              <button type="button" className={styles.addMemBtn} onClick={() => navigate("/memory/connect-demo")}>
                 <span aria-hidden="true">+</span> 메모리 추가
+              </button>
+              <button type="button" className={styles.mediaSearchBtn} aria-label="미디어 찾기" onClick={() => navigate("/media/search-demo")}>
+                <span aria-hidden="true">🔍</span> 미디어 찾기
               </button>
             </div>
 
@@ -201,7 +212,7 @@ export default function TreeEditorPage() {
                   {selectedMemory.childIds.map((cid) => {
                     const child = memById[cid];
                     if (!child) return null;
-                    return <MemoryNodeCard key={child.id} memory={child} isSelected={false} />;
+                    return                 <MemoryNodeCard key={child.id} memory={child} isSelected={false} to="/memory/detail-demo" />;
                   })}
                 </div>
               </div>
@@ -215,9 +226,9 @@ export default function TreeEditorPage() {
               {grandchildren.length > 0 && (
                 <div className={styles.treeRowBranch}>
                   <div className={styles.branchGroup}>
-                    {grandchildren.map((gc) => (
-                      <MemoryNodeCard key={gc!.id} memory={gc!} isSelected={false} />
-                    ))}
+                      {grandchildren.map((gc) => (
+                         <MemoryNodeCard key={gc!.id} memory={gc!} isSelected={false} to="/memory/detail-demo" />
+                      ))}
                   </div>
                 </div>
               )}
@@ -347,14 +358,9 @@ export default function TreeEditorPage() {
   );
 }
 
-function MemoryNodeCard({ memory, isSelected }: { memory: { id: string; title: string; date: string; description: string; thumbnailColorKey: string; tags: string[]; typeLabel: string }; isSelected: boolean }) {
-  return (
-    <article
-      className={`${styles.memCard} ${isSelected ? styles.memCardSelected : ""}`}
-      aria-labelledby={`editor-mem-title-${memory.id}`}
-      data-selected={isSelected ? "true" : "false"}
-      aria-current={isSelected ? "location" : undefined}
-    >
+function MemoryNodeCard({ memory, isSelected, to }: { memory: { id: string; title: string; date: string; description: string; thumbnailColorKey: string; tags: string[]; typeLabel: string }; isSelected: boolean; to?: string }) {
+  const content = (
+    <>
       <div className={`${styles.memThumb} ${styles[`thumb_${memory.thumbnailColorKey}`]}`} aria-hidden="true">
         <span className={styles.memTypeBadge}>{memory.typeLabel}</span>
       </div>
@@ -369,6 +375,17 @@ function MemoryNodeCard({ memory, isSelected }: { memory: { id: string; title: s
         </div>
       </div>
       {isSelected && <span className={styles.selectedBadge} aria-hidden="true">선택됨</span>}
+    </>
+  );
+
+  return (
+    <article
+      className={`${styles.memCard} ${isSelected ? styles.memCardSelected : ""}`}
+      aria-labelledby={`editor-mem-title-${memory.id}`}
+      data-selected={isSelected ? "true" : "false"}
+      aria-current={isSelected ? "location" : undefined}
+    >
+      {to ? <Link to={to} className={styles.memCardLink}>{content}</Link> : content}
     </article>
   );
 }

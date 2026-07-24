@@ -1,7 +1,9 @@
+import { Link, useNavigate } from "react-router-dom";
 import { MOCK_MY_TREES } from "../data/myTreesMockData";
 import styles from "./MyTreesPage.module.css";
 
 export default function MyTreesPage() {
+  const navigate = useNavigate();
   const data = MOCK_MY_TREES;
 
   return (
@@ -54,12 +56,15 @@ export default function MyTreesPage() {
           <h1 className={styles.pageTitle}>{data.headerTitle}</h1>
           <p className={styles.pageDescription}>{data.headerDescription}</p>
         </div>
-        <button type="button" className={styles.newTreeButton}>
+        <button type="button" className={styles.newTreeButton} onClick={() => navigate("/tree/new-demo")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
           <span>{data.newTreeCtaText}</span>
         </button>
+        <Link to="/my-trees/empty-demo" className={styles.emptyPreviewLink}>
+          빈 상태 미리보기
+        </Link>
       </section>
 
       {/* 대시보드 본문: 트리 그리드 + 우측 측면 사이드바 */}
@@ -75,13 +80,14 @@ export default function MyTreesPage() {
             {data.trees.map((tree) => {
               const isSelected = tree.id === data.selectedTreeId;
               return (
-                <li key={tree.id} className={styles.treeListItem}>
-                  <article
-                    className={`${styles.treeCard} ${isSelected ? styles.treeCardSelected : ""}`}
-                    data-selected={isSelected ? "true" : "false"}
-                    aria-current={isSelected ? "true" : undefined}
-                    aria-labelledby={`my-tree-title-${tree.id}`}
-                  >
+            <li key={tree.id} className={styles.treeListItem}>
+            <article
+                      className={`${styles.treeCard} ${isSelected ? styles.treeCardSelected : ""}`}
+                      data-selected={isSelected ? "true" : "false"}
+                      aria-current={isSelected ? "true" : undefined}
+                      aria-labelledby={`my-tree-title-${tree.id}`}
+                    >
+                      <Link to="/tree/edit-demo" className={styles.treeCardLink}>
                     {/* 썸네일 및 미니 트리 시각화 */}
                     <div
                       className={`${styles.thumbnail} ${styles[`thumb_${tree.thumbnailColorKey}`]}`}
@@ -206,40 +212,45 @@ export default function MyTreesPage() {
                           <span>{tree.comments}</span>
                         </span>
                       </div>
-
-                      {/* 카드 액션 버튼 4개 */}
-                      <div className={styles.cardActions}>
-                        <button
-                          type="button"
-                          className={styles.cardActionButton}
-                          aria-label={`${tree.title} 편집`}
-                        >
-                          편집
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.cardActionButton}
-                          aria-label={`${tree.title} 공유`}
-                        >
-                          공유
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.cardActionButton}
-                          aria-label={`${tree.title} 복제`}
-                        >
-                          복제
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.cardActionButton}
-                          aria-label={`${tree.title} 삭제`}
-                        >
-                          삭제
-                        </button>
-                      </div>
                     </div>
-                  </article>
+                  </Link>
+
+                  {/* 카드 액션 버튼 4개 */}
+                  <div className={styles.cardActions}>
+                    <button
+                      type="button"
+                      className={styles.cardActionButton}
+                      aria-label={`${tree.title} 편집`}
+                      disabled
+                    >
+                      편집
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.cardActionButton}
+                      aria-label={`${tree.title} 공유`}
+                      disabled
+                    >
+                      공유
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.cardActionButton}
+                      aria-label={`${tree.title} 복제`}
+                      disabled
+                    >
+                      복제
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.cardActionButton}
+                      aria-label={`${tree.title} 삭제`}
+                      disabled
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </article>
                 </li>
               );
             })}

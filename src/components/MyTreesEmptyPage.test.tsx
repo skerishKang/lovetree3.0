@@ -54,6 +54,27 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     ).toBeInTheDocument();
   });
 
+  it("'첫 순간 기록하기' 버튼 클릭 시 /tree/new-demo로 이동한다", () => {
+    renderAppAt("/my-trees/empty-demo");
+    const btn = screen.getByRole("button", { name: "첫 순간 기록하기" });
+    fireEvent.click(btn);
+    expect(window.location.pathname).toBe("/tree/new-demo");
+  });
+
+  it("'예시 러브트리 보기' 버튼 클릭 시 /tree/community-demo로 이동한다", () => {
+    renderAppAt("/my-trees/empty-demo");
+    const btn = screen.getByRole("button", { name: "예시 러브트리 보기" });
+    fireEvent.click(btn);
+    expect(window.location.pathname).toBe("/tree/community-demo");
+  });
+
+  it("quick-start 태그 클릭 시 /tree/new-demo로 이동한다", () => {
+    renderAppAt("/my-trees/empty-demo");
+    const tag = screen.getByRole("button", { name: "입덕" });
+    fireEvent.click(tag);
+    expect(window.location.pathname).toBe("/tree/new-demo");
+  });
+
   /* ─── 빠른 시작 태그 ─── */
 
   it("빠른 시작 태그가 정확히 3개여야 한다", () => {
@@ -176,7 +197,12 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     renderAppAt("/my-trees/empty-demo");
     const currentUrl = window.location.href;
 
-    const buttons = screen.getAllByRole("button");
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => {
+        const t = (b.textContent || "").trim();
+        return t !== "첫 순간 기록하기" && t !== "예시 러브트리 보기" && !/^입덕|첫 콘서트|최애 무대$/.test(t);
+      }
+    );
     buttons.forEach((btn) => fireEvent.click(btn));
 
     expect(window.location.href).toBe(currentUrl);
@@ -191,7 +217,12 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     ).length;
     const initialTags = screen.getAllByRole("button", { name: /^입덕|첫 콘서트|최애 무대$/ }).length;
 
-    const buttons = screen.getAllByRole("button");
+    const buttons = screen.getAllByRole("button").filter(
+      (b) => {
+        const t = (b.textContent || "").trim();
+        return t !== "첫 순간 기록하기" && t !== "예시 러브트리 보기" && !/^입덕|첫 콘서트|최애 무대$/.test(t);
+      }
+    );
     buttons.forEach((btn) => fireEvent.click(btn));
 
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(initialHeading);
@@ -259,8 +290,13 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     const secondaryCount = screen.getAllByRole("button", { name: "예시 러브트리 보기" }).length;
     const quickStartCount = screen.getAllByTestId("quick-start-item").length;
 
-    const allButtons = screen.getAllByRole("button");
-    expect(allButtons.length).toBeGreaterThanOrEqual(5);
+    const allButtons = screen.getAllByRole("button").filter(
+      (b) => {
+        const t = (b.textContent || "").trim();
+        return t !== "첫 순간 기록하기" && t !== "예시 러브트리 보기" && !/^입덕|첫 콘서트|최애 무대$/.test(t);
+      }
+    );
+    expect(allButtons.length).toBeGreaterThanOrEqual(1);
     allButtons.forEach((btn) => fireEvent.click(btn));
 
     expect(window.location.href).toBe(urlBefore);

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { TimelineMemory } from "../data/treeDetailMockData";
 import TimelineCard from "./TimelineCard";
 import styles from "./TimelineSection.module.css";
@@ -46,9 +47,13 @@ export default function TimelineSection({ memories }: Props) {
               )}
 
               {/* 기억 카드 */}
-              <div data-testid="timeline-memory-card" className={styles.cardContainer}>
+              <Link
+                to="/memory/detail-demo"
+                data-testid="timeline-memory-card"
+                className={styles.cardContainer}
+              >
                 <TimelineCard memory={memory} />
-              </div>
+              </Link>
             </div>
           );
         })}
