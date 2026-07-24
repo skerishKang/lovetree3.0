@@ -1,4 +1,4 @@
-export type ApiErrorCode =
+export type KnownApiErrorCode =
   | "BAD_REQUEST"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
@@ -13,8 +13,10 @@ export type ApiErrorCode =
   | "SERVICE_UNAVAILABLE"
   | "NETWORK_ERROR"
   | "ABORT_ERROR"
-  | "UNKNOWN"
-  | string;
+  | "INVALID_RESPONSE"
+  | "UNKNOWN";
+
+export type ApiErrorCode = KnownApiErrorCode | (string & { __brand?: never });
 
 export type RawCategory = "social" | "fastapi" | "network" | "unknown";
 
@@ -27,15 +29,23 @@ export interface ApiError {
   rawCategory: RawCategory;
 }
 
+const RAW_CATEGORIES: readonly string[] = ["social", "fastapi", "network", "unknown"];
+
 export function isApiError(value: unknown): value is ApiError {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "status" in value &&
-    "code" in value &&
-    "message" in value &&
-    "rawCategory" in value
-  );
+  if (typeof value !== "object" || value === null) return false;
+  const obj = value as Record<string, unknown>;
+  if (typeof obj.status !== "number" || !Number.isFinite(obj.status)) return false;
+  if (typeof obj.code !== "string") return false;
+  if (typeof obj.message !== "string") return false;
+  if (typeof obj.retryable !== "boolean") return false;
+  if (typeof obj.rawCategory !== "string") return false;
+  if (!RAW_CATEGORIES.includes(obj.rawCategory)) return false;
+  if (obj.retryAfterMs !== undefined && obj.retryAfterMs !== null) {
+    if (typeof obj.retryAfterMs !== "number" || !Number.isFinite(obj.retryAfterMs as number)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export class ApiErrorImpl extends Error implements ApiError {
@@ -80,4 +90,52 @@ export interface ClientConfig {
   baseUrl: string;
   defaultHeaders?: Record<string, string>;
   accessTokenProvider?: AccessTokenProvider;
+}
+
+export const MANAGED_HEADERS = new Set([
+  "authorization",
+  "idempotency-key",
+  "x-lovebud-request-id",
+  "content-type",
+]);
+
+export const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{8,128}$/;
+
+const REQUEST_ID_PATTERN = /^[A-Za-z0-9._:-]+$/;
+const REQUEST_ID_MAX_LENGTH = 80;
+
+export function isValidIdempotencyKey(key: string): boolean {
+  return IDEMPOTENCY_KEY_PATTERN.test(key);
+}
+
+export function isValidRequestId(id: string): boolean {
+  return REQUEST_ID_PATTERN.test(id) && id.length <= REQUEST_ID_MAX_LENGTH;
+}
+
+export function generateRequestId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  throw new Error("crypto.randomUUID is not available");
+}
+
+export function assertNoCrlf(value: string, label: string): void {
+  if (/[\r\n]/.test(value)) {
+    throw new Error(`Invalid ${label}: CR/LF detected`);
+  }
+}
+
+export class HeaderValidationError extends Error {
+  readonly headerName: string;
+  constructor(headerName: string, reason: string) {
+    super(`${headerName}: ${reason}`);
+    this.name = "HeaderValidationError";
+    this.headerName = headerName;
+  }
+}
+
+export function validateHttpToken(name: string): void {
+  if (!/^[!#$%&'*+\-.^_`|~a-zA-Z0-9]+$/.test(name)) {
+    throw new HeaderValidationError(name, "invalid HTTP token characters");
+  }
 }

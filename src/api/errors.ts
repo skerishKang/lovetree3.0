@@ -15,6 +15,7 @@ function defaultCodeForStatus(status: number): ApiErrorCode {
 }
 
 function isRetryable(status: number, code: ApiErrorCode): boolean {
+  if (code === "INVALID_RESPONSE") return false;
   if (status === 409 && code === "IDEMPOTENCY_KEY_REUSED") return false;
   if (status === 401) return false;
   if (status === 422) return false;
@@ -27,7 +28,7 @@ function isRetryable(status: number, code: ApiErrorCode): boolean {
 export interface SocialWriteErrorBody {
   error: string;
   code: string;
-  retryAfterMs?: number;
+  retryAfterMs?: unknown;
 }
 
 export function isSocialWriteErrorBody(body: unknown): body is SocialWriteErrorBody {
@@ -39,6 +40,14 @@ export function isSocialWriteErrorBody(body: unknown): body is SocialWriteErrorB
     "code" in body &&
     typeof (body as Record<string, unknown>).code === "string"
   );
+}
+
+function extractRetryAfterMs(raw: unknown): number | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    return raw >= 0 ? raw : undefined;
+  }
+  return undefined;
 }
 
 interface FastApiDetailBody {
@@ -64,7 +73,11 @@ function normalizeDetail(detail: unknown): string {
     }).join("; ").slice(0, MAX_FALLBACK_LENGTH);
   }
   if (typeof detail === "object" && detail !== null) {
-    return JSON.stringify(detail).slice(0, MAX_FALLBACK_LENGTH);
+    try {
+      return JSON.stringify(detail).slice(0, MAX_FALLBACK_LENGTH);
+    } catch {
+      return "structured error detail";
+    }
   }
   return String(detail).slice(0, MAX_FALLBACK_LENGTH);
 }
@@ -77,6 +90,11 @@ async function tryParseJson(text: string): Promise<unknown> {
   }
 }
 
+function isJsonContentType(contentType: string): boolean {
+  const ct = contentType.toLowerCase().trim();
+  return ct.startsWith("application/json") || ct.startsWith("application/") && ct.includes("+json");
+}
+
 export async function normalizeError(
   response: Response,
   bodyText?: string,
@@ -85,7 +103,7 @@ export async function normalizeError(
   const contentType = response.headers.get("content-type") ?? "";
   const rawBody = bodyText ?? await response.text().catch(() => "");
 
-  if (contentType.startsWith("application/json") || rawBody.length > 0) {
+  if (isJsonContentType(contentType) || rawBody.length > 0) {
     const parsed = await tryParseJson(rawBody);
 
     if (parsed !== null) {
@@ -95,7 +113,7 @@ export async function normalizeError(
           status,
           code,
           message: parsed.error.slice(0, MAX_FALLBACK_LENGTH),
-          retryAfterMs: parsed.retryAfterMs,
+          retryAfterMs: extractRetryAfterMs(parsed.retryAfterMs),
           retryable: isRetryable(status, code),
           rawCategory: "social",
         });
@@ -122,6 +140,16 @@ export async function normalizeError(
           rawCategory: "unknown",
         });
       }
+    }
+
+    if (isJsonContentType(contentType)) {
+      return new ApiErrorImpl({
+        status,
+        code: "INVALID_RESPONSE",
+        message: parsed === null ? "Response body is not valid JSON" : "unexpected JSON response structure",
+        retryable: false,
+        rawCategory: "unknown",
+      });
     }
   }
 

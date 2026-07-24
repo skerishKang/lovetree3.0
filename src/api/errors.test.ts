@@ -47,6 +47,46 @@ describe("normalizeError", () => {
     expect(err.rawCategory).toBe("social");
   });
 
+  it("handles invalid retryAfterMs (negative)", async () => {
+    const res = jsonResponse(429, {
+      error: "negative",
+      code: "RATE_LIMITED",
+      retryAfterMs: -100,
+    });
+    const err = await normalizeError(res);
+    expect(err.retryAfterMs).toBeUndefined();
+  });
+
+  it("handles invalid retryAfterMs (NaN)", async () => {
+    const res = jsonResponse(429, {
+      error: "not a number",
+      code: "RATE_LIMITED",
+      retryAfterMs: "string",
+    });
+    const err = await normalizeError(res);
+    expect(err.retryAfterMs).toBeUndefined();
+  });
+
+  it("handles invalid retryAfterMs (Infinity)", async () => {
+    const res = jsonResponse(429, {
+      error: "inf",
+      code: "RATE_LIMITED",
+      retryAfterMs: Infinity,
+    });
+    const err = await normalizeError(res);
+    expect(err.retryAfterMs).toBeUndefined();
+  });
+
+  it("handles invalid retryAfterMs (object)", async () => {
+    const res = jsonResponse(429, {
+      error: "object",
+      code: "RATE_LIMITED",
+      retryAfterMs: { value: 1000 },
+    });
+    const err = await normalizeError(res);
+    expect(err.retryAfterMs).toBeUndefined();
+  });
+
   it("normalizes FastAPI string detail", async () => {
     const res = jsonResponse(401, { detail: "Unauthorized" });
     const err = await normalizeError(res);
@@ -79,6 +119,14 @@ describe("normalizeError", () => {
     expect(err.rawCategory).toBe("unknown");
   });
 
+  it("returns INVALID_RESPONSE for unrecognized JSON on error", async () => {
+    const res = jsonResponse(400, { unrelated: "data" });
+    const err = await normalizeError(res);
+    expect(err.code).toBe("INVALID_RESPONSE");
+    expect(err.retryable).toBe(false);
+    expect(err.rawCategory).toBe("unknown");
+  });
+
   it("normalizes non-JSON 4xx/5xx", async () => {
     const res = textResponse(500, "Internal Server Error", "text/plain");
     const err = await normalizeError(res);
@@ -95,6 +143,7 @@ describe("normalizeError", () => {
     });
     const err = await normalizeError(res, "{broken");
     expect(err.status).toBe(400);
+    expect(err.code).toBe("INVALID_RESPONSE");
     expect(typeof err.message).toBe("string");
   });
 
@@ -123,6 +172,25 @@ describe("normalizeError", () => {
     const res = textResponse(400, long, "text/plain");
     const err = await normalizeError(res);
     expect(err.message.length).toBeLessThanOrEqual(200);
+  });
+
+  it("recognizes application/problem+json as JSON", async () => {
+    const res = new Response(JSON.stringify({ detail: "problem" }), {
+      status: 500,
+      headers: { "content-type": "application/problem+json" },
+    });
+    const err = await normalizeError(res);
+    expect(err.rawCategory).toBe("fastapi");
+    expect(err.message).toBe("problem");
+  });
+
+  it("recognizes application/vnd.api+json as JSON", async () => {
+    const res = new Response(JSON.stringify({ code: "ERR", message: "api" }), {
+      status: 400,
+      headers: { "content-type": "application/vnd.api+json" },
+    });
+    const err = await normalizeError(res);
+    expect(err.code).toBe("ERR");
   });
 });
 
