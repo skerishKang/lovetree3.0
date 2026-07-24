@@ -8,10 +8,6 @@ function mockFetch(body: string, status = 200, contentType = "application/json")
   );
 }
 
-function mockJsonFetch(body: string, status = 200) {
-  return mockFetch(body, status, "application/json");
-}
-
 describe("ApiClient", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -19,14 +15,14 @@ describe("ApiClient", () => {
 
   describe("base URL", () => {
     it("uses /api as default", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees");
       expect(fetchSpy).toHaveBeenCalledWith("/api/trees", expect.anything());
     });
 
     it("accepts custom base URL", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = new ApiClient({ baseUrl: "https://example.com/proxy" });
       await client.request("/trees");
       expect(fetchSpy).toHaveBeenCalledWith(
@@ -36,7 +32,7 @@ describe("ApiClient", () => {
     });
 
     it("strips trailing slash from base URL", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = new ApiClient({ baseUrl: "/api/" });
       await client.request("/trees");
       expect(fetchSpy).toHaveBeenCalledWith("/api/trees", expect.anything());
@@ -48,7 +44,7 @@ describe("ApiClient", () => {
       const provider: AccessTokenProvider = {
         getAccessToken: async () => "test-token",
       };
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
       await client.request("/trees");
       const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
@@ -56,7 +52,7 @@ describe("ApiClient", () => {
     });
 
     it("omits Authorization when token is null", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees");
       const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
@@ -74,7 +70,7 @@ describe("ApiClient", () => {
 
   describe("request ID", () => {
     it("adds x-lovebud-request-id header", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees");
       const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
@@ -82,7 +78,7 @@ describe("ApiClient", () => {
     });
 
     it("uses caller-provided request ID", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees", { requestId: "my-custom-id" });
       const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
@@ -104,7 +100,7 @@ describe("ApiClient", () => {
     });
 
     it("accepts 80-char caller-provided request ID", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       const id = "a".repeat(80);
       await client.request("/trees", { requestId: id });
@@ -137,7 +133,7 @@ describe("ApiClient", () => {
 
   describe("Idempotency-Key", () => {
     it("passes valid Idempotency-Key header", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/comments", {
         method: "POST",
@@ -148,7 +144,7 @@ describe("ApiClient", () => {
     });
 
     it("omits Idempotency-Key when not provided", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees");
       const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
@@ -228,7 +224,7 @@ describe("ApiClient", () => {
 
   describe("JSON body", () => {
     it("sends JSON body with Content-Type", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees", {
         method: "POST",
@@ -241,7 +237,7 @@ describe("ApiClient", () => {
     });
 
     it("does not include body for GET requests", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.get("/trees");
       const init = fetchSpy.mock.calls[0][1] as RequestInit;
@@ -251,7 +247,7 @@ describe("ApiClient", () => {
 
   describe("query encoding", () => {
     it("encodes query parameters", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees", {
         query: { limit: 10, view: "summary" },
@@ -263,7 +259,7 @@ describe("ApiClient", () => {
     });
 
     it("skips undefined and null query parameters", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees", {
         query: { limit: 10, offset: undefined, extra: null },
@@ -275,7 +271,7 @@ describe("ApiClient", () => {
     });
 
     it("encodes special characters in query values", async () => {
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/search", {
         query: { q: "hello world&more" },
@@ -372,7 +368,7 @@ describe("ApiClient", () => {
   describe("AbortSignal", () => {
     it("passes AbortSignal to fetch", async () => {
       const controller = new AbortController();
-      const fetchSpy = mockJsonFetch("{}");
+      const fetchSpy = mockFetch("{}");
       const client = createClient();
       await client.request("/trees", { signal: controller.signal });
       const init = fetchSpy.mock.calls[0][1] as RequestInit;
@@ -435,7 +431,7 @@ describe("AccessTokenProvider seam", () => {
   });
 
   it("uses null provider by default", async () => {
-    mockJsonFetch("{}");
+    mockFetch("{}");
     const client = createClient();
     await client.request("/trees");
     const headers = vi.mocked(fetch).mock.calls[0][1]?.headers as Headers;
@@ -445,7 +441,7 @@ describe("AccessTokenProvider seam", () => {
   it("calls custom provider", async () => {
     const getAccessToken = vi.fn().mockResolvedValue("custom-token");
     const provider: AccessTokenProvider = { getAccessToken };
-    mockJsonFetch("{}");
+    mockFetch("{}");
     const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
     await client.request("/trees");
     expect(getAccessToken).toHaveBeenCalledTimes(1);
@@ -454,7 +450,7 @@ describe("AccessTokenProvider seam", () => {
   it("does not call forceRefresh automatically", async () => {
     const getAccessToken = vi.fn().mockResolvedValue("token");
     const provider: AccessTokenProvider = { getAccessToken };
-    mockJsonFetch("{}");
+    mockFetch("{}");
     const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
     await client.request("/trees");
     expect(getAccessToken).toHaveBeenCalledTimes(1);
@@ -512,13 +508,27 @@ describe("defaultHeaders managed header protection", () => {
   });
 });
 
+describe("type-level overloads", () => {
+  it("json mode permits generic T and returns Promise<T | undefined>", () => {
+    type _Check1 = Promise<{ id: string } | undefined> extends ReturnType<ApiClient["request"]> ? true : false;
+    const _check1: _Check1 = true;
+    expect(_check1).toBe(true);
+  });
+
+  it("requestText returns Promise<string | undefined>", () => {
+    type _Check2 = ReturnType<ApiClient["requestText"]>;
+    const _check2: _Check2 extends Promise<string | undefined> ? true : false = true;
+    expect(_check2).toBe(true);
+  });
+});
+
 describe("responseType", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
   it("default json mode accepts JSON response", async () => {
-    mockJsonFetch(JSON.stringify({ id: "123" }));
+    mockFetch(JSON.stringify({ id: "123" }));
     const client = createClient();
     const result = await client.request<{ id: string }>("/trees");
     expect(result).toEqual({ id: "123" });
@@ -545,8 +555,32 @@ describe("responseType", () => {
       }),
     );
     const client = createClient();
-    const result = await client.request("/trees", { responseType: "text" });
+    const result = await client.requestText("/trees");
     expect(result).toBe("hello world");
+  });
+
+  it("text mode empty body returns empty string", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        status: 200,
+        headers: { "content-type": "text/plain" },
+      }),
+    );
+    const client = createClient();
+    const result = await client.requestText("/trees");
+    expect(result).toBe("");
+  });
+
+  it("json mode empty body returns undefined", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    const client = createClient();
+    const result = await client.request("/trees");
+    expect(result).toBeUndefined();
   });
 
   it("text mode returns string type at runtime", async () => {
@@ -557,7 +591,7 @@ describe("responseType", () => {
       }),
     );
     const client = createClient();
-    const result = await client.request<string>("/trees", { responseType: "text" });
+    const result = await client.requestText("/trees");
     expect(typeof result).toBe("string");
   });
 });

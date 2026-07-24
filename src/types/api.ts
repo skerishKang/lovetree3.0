@@ -20,6 +20,8 @@ export type ApiErrorCode = KnownApiErrorCode | (string & { __brand?: never });
 
 export type RawCategory = "social" | "fastapi" | "network" | "unknown";
 
+const RAW_CATEGORIES: readonly string[] = ["social", "fastapi", "network", "unknown"];
+
 export interface ApiError {
   status: number;
   code: ApiErrorCode;
@@ -28,8 +30,6 @@ export interface ApiError {
   retryable: boolean;
   rawCategory: RawCategory;
 }
-
-const RAW_CATEGORIES: readonly string[] = ["social", "fastapi", "network", "unknown"];
 
 export function isApiError(value: unknown): value is ApiError {
   if (typeof value !== "object" || value === null) return false;
@@ -78,9 +78,7 @@ export const NULL_ACCESS_TOKEN_PROVIDER: AccessTokenProvider = {
   getAccessToken: async () => null,
 };
 
-export type ResponseType = "json" | "text";
-
-export interface RequestOptions {
+export interface BaseRequestOptions {
   method?: string;
   headers?: Record<string, string>;
   body?: unknown;
@@ -88,8 +86,17 @@ export interface RequestOptions {
   signal?: AbortSignal;
   idempotencyKey?: string;
   requestId?: string;
-  responseType?: ResponseType;
 }
+
+export interface JsonRequestOptions extends BaseRequestOptions {
+  responseType?: "json";
+}
+
+export interface TextRequestOptions extends BaseRequestOptions {
+  responseType: "text";
+}
+
+export type RequestOptions = JsonRequestOptions | TextRequestOptions;
 
 export interface ClientConfig {
   baseUrl: string;

@@ -18,6 +18,7 @@ export {
   type KnownApiErrorCode,
   type ClientConfig,
   type RawCategory,
-  type RequestOptions,
-  type ResponseType,
+  type BaseRequestOptions,
+  type JsonRequestOptions,
+  type TextRequestOptions,
 } from "../types/api";

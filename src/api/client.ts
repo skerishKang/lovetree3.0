@@ -3,6 +3,9 @@ import {
   MANAGED_HEADERS,
   type AccessTokenProvider,
   type ClientConfig,
+  type BaseRequestOptions,
+  type JsonRequestOptions,
+  type TextRequestOptions,
   type RequestOptions,
   isValidIdempotencyKey,
   isValidRequestId,
@@ -51,6 +54,10 @@ function buildManagedHeaders(
   return h;
 }
 
+function isTextOptions(options: RequestOptions): boolean {
+  return options.responseType === "text";
+}
+
 export class ApiClient {
   private readonly baseUrl: string;
   private readonly defaultHeaders: Record<string, string>;
@@ -72,7 +79,11 @@ export class ApiClient {
     }
   }
 
-  async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  request(path: string, options: TextRequestOptions): Promise<string | undefined>;
+  request<T>(path: string, options?: JsonRequestOptions): Promise<T | undefined>;
+  async request<T>(path: string, options: RequestOptions = {}): Promise<T | string | undefined> {
+    const isText = isTextOptions(options);
+
     const requestId = options.requestId ?? generateRequestId();
     if (options.requestId !== undefined) {
       if (!isValidRequestId(options.requestId)) {
@@ -134,7 +145,7 @@ export class ApiClient {
     }
 
     if (response.status === 204) {
-      return undefined as T;
+      return undefined;
     }
 
     let bodyText: string;
@@ -148,13 +159,12 @@ export class ApiClient {
       throw await normalizeError(response, bodyText);
     }
 
-    if (bodyText.length === 0) {
-      return undefined as T;
+    if (isText) {
+      return bodyText;
     }
 
-    const responseType = options.responseType ?? "json";
-    if (responseType === "text") {
-      return bodyText as T;
+    if (bodyText.length === 0) {
+      return undefined;
     }
 
     const contentType = response.headers.get("content-type") ?? "";
@@ -184,19 +194,23 @@ export class ApiClient {
     }
   }
 
-  get<T>(path: string, options?: RequestOptions): Promise<T> {
+  requestText(path: string, options?: Omit<BaseRequestOptions, "responseType">): Promise<string | undefined> {
+    return this.request(path, { ...options, responseType: "text" } as TextRequestOptions);
+  }
+
+  get<T>(path: string, options?: JsonRequestOptions): Promise<T | undefined> {
     return this.request<T>(path, { ...options, method: "GET" });
   }
 
-  post<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
+  post<T>(path: string, body?: unknown, options?: JsonRequestOptions): Promise<T | undefined> {
     return this.request<T>(path, { ...options, method: "POST", body });
   }
 
-  put<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
+  put<T>(path: string, body?: unknown, options?: JsonRequestOptions): Promise<T | undefined> {
     return this.request<T>(path, { ...options, method: "PUT", body });
   }
 
-  delete<T>(path: string, options?: RequestOptions): Promise<T> {
+  delete<T>(path: string, options?: JsonRequestOptions): Promise<T | undefined> {
     return this.request<T>(path, { ...options, method: "DELETE" });
   }
 }

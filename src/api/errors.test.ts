@@ -133,23 +133,41 @@ describe("normalizeError", () => {
   });
 
   it("normalizeDetail guard: JSON.stringify returning undefined handled", async () => {
-    const res = new Response(JSON.stringify({ detail: { x: 1 } }), {
+    const orig = JSON.stringify.bind(JSON);
+    vi.spyOn(JSON, "stringify").mockImplementation((...args: unknown[]) => {
+      const val = args[0];
+      if (typeof val === "object" && val !== null && "x" in val) {
+        return undefined as unknown as string;
+      }
+      return orig(...(args as [unknown]));
+    });
+    const res = new Response('{"detail":{"x":1}}', {
       status: 400,
       headers: { "content-type": "application/json" },
     });
     const err = await normalizeError(res);
     expect(typeof err.message).toBe("string");
-    expect(err.message.length).toBeLessThanOrEqual(200);
+    expect(err.message).toBe("structured error detail");
+    vi.restoreAllMocks();
   });
 
   it("normalizeDetail guard: JSON.stringify throw caught", async () => {
-    const res = new Response('{"detail":{"name":"loop"}}', {
+    const orig = JSON.stringify.bind(JSON);
+    vi.spyOn(JSON, "stringify").mockImplementation((...args: unknown[]) => {
+      const val = args[0];
+      if (typeof val === "object" && val !== null && "x" in val) {
+        throw new Error("mock failure");
+      }
+      return orig(...(args as [unknown]));
+    });
+    const res = new Response('{"detail":{"x":1}}', {
       status: 400,
       headers: { "content-type": "application/json" },
     });
     const err = await normalizeError(res);
     expect(typeof err.message).toBe("string");
-    expect(err.message.length).toBeLessThanOrEqual(200);
+    expect(err.message).toBe("structured error detail");
+    vi.restoreAllMocks();
   });
 
   it("returns INVALID_RESPONSE for unrecognized JSON on error", async () => {
