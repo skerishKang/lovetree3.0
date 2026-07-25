@@ -1,50 +1,76 @@
-export const ALLOWED_ROUTES = [
-  { method: 'GET', path: '/api/community/trees', paramNames: [] },
-  { method: 'GET', path: '/api/community/growing-trees', paramNames: [] },
-  { method: 'GET', path: '/api/community/memories', paramNames: [] },
-  { method: 'GET', path: '/api/trees', paramNames: [] },
-  { method: 'POST', path: '/api/trees', paramNames: [] },
-  { method: 'PUT', path: '/api/trees/:treeId/hub-layout', paramNames: ['treeId'] },
-  { method: 'POST', path: '/api/trees/:treeId/views', paramNames: ['treeId'] },
-  { method: 'GET', path: '/api/trees/:treeId', paramNames: ['treeId'] },
-  { method: 'PUT', path: '/api/trees/:treeId', paramNames: ['treeId'] },
-  { method: 'DELETE', path: '/api/trees/:treeId', paramNames: ['treeId'] },
-  { method: 'GET', path: '/api/memories', paramNames: [] },
-  { method: 'POST', path: '/api/memories', paramNames: [] },
-  { method: 'GET', path: '/api/memories/:memoryId', paramNames: ['memoryId'] },
-  { method: 'PUT', path: '/api/memories/:memoryId', paramNames: ['memoryId'] },
-  { method: 'DELETE', path: '/api/memories/:memoryId', paramNames: ['memoryId'] },
-  { method: 'GET', path: '/api/youtube/oembed', paramNames: [] },
+const _routes = [
+  { method: 'GET', path: '/api/community/trees' },
+  { method: 'GET', path: '/api/community/growing-trees' },
+  { method: 'GET', path: '/api/community/memories' },
+  { method: 'GET', path: '/api/trees' },
+  { method: 'POST', path: '/api/trees' },
+  { method: 'GET', path: '/api/trees/:treeId' },
+  { method: 'PUT', path: '/api/trees/:treeId' },
+  { method: 'DELETE', path: '/api/trees/:treeId' },
+  { method: 'GET', path: '/api/trees/:treeId/hub-layout' },
+  { method: 'PUT', path: '/api/trees/:treeId/hub-layout' },
+  { method: 'POST', path: '/api/trees/:treeId/views' },
+  { method: 'POST', path: '/api/trees/:treeId/fork' },
+  { method: 'GET', path: '/api/trees/:treeId/comments' },
+  { method: 'POST', path: '/api/trees/:treeId/comments' },
+  { method: 'GET', path: '/api/trees/:treeId/likes' },
+  { method: 'POST', path: '/api/trees/:treeId/likes' },
+  { method: 'GET', path: '/api/trees/:treeId/memories/:memoryId/comments' },
+  { method: 'POST', path: '/api/trees/:treeId/memories/:memoryId/comments' },
+  { method: 'DELETE', path: '/api/comments/:commentId' },
+  { method: 'GET', path: '/api/trees/:treeId/memories/:memoryId/reactions' },
+  { method: 'POST', path: '/api/trees/:treeId/memories/:memoryId/reactions' },
+  { method: 'GET', path: '/api/memories' },
+  { method: 'POST', path: '/api/memories' },
+  { method: 'GET', path: '/api/memories/:memoryId' },
+  { method: 'PUT', path: '/api/memories/:memoryId' },
+  { method: 'DELETE', path: '/api/memories/:memoryId' },
+  { method: 'GET', path: '/api/youtube/oembed' },
 ];
 
-export const ALLOWED_METHODS_PER_PATH = new Map();
-for (const route of ALLOWED_ROUTES) {
-  const key = route.path;
-  const set = ALLOWED_METHODS_PER_PATH.get(key) || new Set();
+for (const route of _routes) {
+  Object.freeze(route);
+}
+Object.freeze(_routes);
+
+export const ALLOWED_ROUTES = _routes;
+
+const _methodsMap = new Map();
+for (const route of _routes) {
+  const set = _methodsMap.get(route.path) || new Set();
   set.add(route.method);
-  ALLOWED_METHODS_PER_PATH.set(key, set);
+  _methodsMap.set(route.path, set);
 }
 
-export const ALLOWED_HEADERS = new Set([
+export const ALLOWED_METHODS_PER_PATH = Object.freeze({
+  get(path) { return _methodsMap.get(path); },
+  has(path) { return _methodsMap.has(path); },
+  [Symbol.iterator]() { return _methodsMap[Symbol.iterator](); },
+});
+
+export const ALLOWED_HEADERS = Object.freeze(new Set([
   'authorization',
   'idempotency-key',
   'content-type',
   'accept',
   'x-lovebud-request-id',
-]);
+]));
 
-export const BLOCKED_HEADERS = new Set([
+export const BLOCKED_HEADERS = Object.freeze(new Set([
   'host',
   'cookie',
   'set-cookie',
   'content-length',
-]);
+  'transfer-encoding',
+]));
 
-export const CF_OR_X_FORWARDED_PREFIXES = ['cf-', 'x-forwarded-'];
+export const CF_OR_X_FORWARDED_PREFIXES = Object.freeze(['cf-', 'x-forwarded-']);
 
 export const MAX_WRITE_BODY_BYTES = 128 * 1024;
 
 export const DEFAULT_TIMEOUT_MS = 25000;
+export const MIN_TIMEOUT_MS = 1;
+export const MAX_TIMEOUT_MS = 60000;
 
 export const MAX_PATH_SEGMENT_LENGTH = 256;
 

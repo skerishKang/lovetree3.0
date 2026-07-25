@@ -5,8 +5,10 @@ import {
   BLOCKED_HEADERS,
   CF_OR_X_FORWARDED_PREFIXES,
   MAX_WRITE_BODY_BYTES,
+  DEFAULT_TIMEOUT_MS,
+  MIN_TIMEOUT_MS,
+  MAX_TIMEOUT_MS,
   MAX_PATH_SEGMENT_LENGTH,
-  PATH_PARAMETER_PATTERN,
   REQUEST_ID_HEADER,
   MAX_REQUEST_ID_LENGTH,
   SAFE_REQUEST_ID_PATTERN,
@@ -22,10 +24,13 @@ function assertValidUrlString(value) {
     return false;
   }
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false;
+  if (parsed.protocol === 'http:' && parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') return false;
   if (parsed.username) return false;
   if (parsed.password) return false;
   if (parsed.search) return false;
   if (parsed.hash) return false;
+  const pathWithoutSlash = parsed.pathname.replace(/\/$/, '');
+  if (pathWithoutSlash !== '') return false;
   return true;
 }
 
@@ -44,13 +49,35 @@ export function validateUpstreamEnv(env) {
   return { valid: true, origin: url.origin };
 }
 
-function parseRequestPath(request) {
+export function parseTimeoutMs(value) {
+  if (value === undefined || value === null || value === '') return DEFAULT_TIMEOUT_MS;
+  const n = Number(value);
+  if (!Number.isFinite(n)) return DEFAULT_TIMEOUT_MS;
+  if (!Number.isInteger(n)) return DEFAULT_TIMEOUT_MS;
+  if (n < MIN_TIMEOUT_MS || n > MAX_TIMEOUT_MS) return DEFAULT_TIMEOUT_MS;
+  return n;
+}
+
+export function validateDecodedSegment(segment) {
+  if (typeof segment !== 'string') return null;
+  if (!segment) return null;
+  if (segment.length > MAX_PATH_SEGMENT_LENGTH) return null;
+
+  let decoded;
   try {
-    const url = new URL(request.url);
-    return url.pathname;
+    decoded = decodeURIComponent(segment);
   } catch (_) {
     return null;
   }
+
+  if (decoded.includes('/') || decoded.includes('\\')) return null;
+  if (decoded === '.' || decoded === '..') return null;
+  if (/[\0-\x1f\x7f]/.test(decoded)) return null;
+  if (/%2[eEfF]/i.test(decoded)) return null;
+  if (/%5[cC]/i.test(decoded)) return null;
+  if (!decoded) return null;
+
+  return decoded;
 }
 
 function splitPath(pathname) {
@@ -58,65 +85,18 @@ function splitPath(pathname) {
   return pathname.split('/').filter(Boolean);
 }
 
-function extractRawPath(requestUrl) {
-  try {
-    const originEnd = requestUrl.indexOf('/', requestUrl.indexOf('//') + 2);
-    if (originEnd === -1) return '/';
-    let end = requestUrl.indexOf('?', originEnd);
-    if (end === -1) end = requestUrl.indexOf('#', originEnd);
-    if (end === -1) end = requestUrl.length;
-    return requestUrl.slice(originEnd, end) || '/';
-  } catch (_) {
-    return null;
+export function matchRoute(request, pathParams) {
+  if (!Array.isArray(pathParams)) return null;
+
+  const decodedSegments = [];
+  for (const seg of pathParams) {
+    const d = validateDecodedSegment(seg);
+    if (d === null) return null;
+    decodedSegments.push(d);
   }
-}
 
-export function isValidPathname(pathname) {
-  if (typeof pathname !== 'string') return false;
-  if (pathname.includes('//')) return false;
-  const segments = splitPath(pathname);
-  for (const seg of segments) {
-    if (seg === '.' || seg === '..') return false;
-  }
-  return true;
-}
-
-function isPathSafe(request) {
-  const pathname = parseRequestPath(request);
-  if (!pathname) return false;
-  if (!isValidPathname(pathname)) return false;
-  const rawPath = extractRawPath(request.url);
-  if (!rawPath) return false;
-  const rawSegments = rawPath.split('/');
-  for (const seg of rawSegments) {
-    if (seg === '.' || seg === '..') return false;
-  }
-  return true;
-}
-
-export function validatePathSegment(value) {
-  if (typeof value !== 'string') return false;
-  if (!value) return false;
-  if (value.length > MAX_PATH_SEGMENT_LENGTH) return false;
-  if (value === '.') return false;
-  if (value === '..') return false;
-  if (value.includes('/')) return false;
-  if (value.includes('\\')) return false;
-  if (!PATH_PARAMETER_PATTERN.test(value)) return false;
-  return true;
-}
-
-export function canonicalizePathSegment(value) {
-  return encodeURIComponent(value);
-}
-
-export function matchRoute(request) {
-  if (!isPathSafe(request)) return null;
-  const pathname = parseRequestPath(request);
-  if (!pathname) return null;
-
-  const normalized = pathname.replace(/\/+$/, '') || '/';
-  const segments = splitPath(normalized);
+  const canonicalPath = '/api/' + decodedSegments.map(s => encodeURIComponent(s)).join('/');
+  const segments = splitPath(canonicalPath);
 
   for (const route of ALLOWED_ROUTES) {
     const routeSegments = splitPath(route.path);
@@ -131,10 +111,6 @@ export function matchRoute(request) {
 
       if (rs.startsWith(':')) {
         const paramName = rs.slice(1);
-        if (!validatePathSegment(seg)) {
-          matched = false;
-          break;
-        }
         paramValues[paramName] = seg;
       } else if (rs !== seg) {
         matched = false;
@@ -150,13 +126,18 @@ export function matchRoute(request) {
   return null;
 }
 
-export function matchRouteAnyMethod(request) {
-  if (!isPathSafe(request)) return null;
-  const pathname = parseRequestPath(request);
-  if (!pathname) return null;
+export function matchRouteAnyMethod(request, pathParams) {
+  if (!Array.isArray(pathParams)) return null;
 
-  const normalized = pathname.replace(/\/+$/, '') || '/';
-  const segments = splitPath(normalized);
+  const decodedSegments = [];
+  for (const seg of pathParams) {
+    const d = validateDecodedSegment(seg);
+    if (d === null) return null;
+    decodedSegments.push(d);
+  }
+
+  const canonicalPath = '/api/' + decodedSegments.map(s => encodeURIComponent(s)).join('/');
+  const segments = splitPath(canonicalPath);
 
   for (const route of ALLOWED_ROUTES) {
     const routeSegments = splitPath(route.path);
@@ -171,10 +152,6 @@ export function matchRouteAnyMethod(request) {
 
       if (rs.startsWith(':')) {
         const paramName = rs.slice(1);
-        if (!validatePathSegment(seg)) {
-          matched = false;
-          break;
-        }
         paramValues[paramName] = seg;
       } else if (rs !== seg) {
         matched = false;
@@ -190,13 +167,18 @@ export function matchRouteAnyMethod(request) {
   return null;
 }
 
-export function getAllowedMethod(request) {
-  if (!isPathSafe(request)) return null;
-  const pathname = parseRequestPath(request);
-  if (!pathname) return null;
+export function getAllowedMethod(request, pathParams) {
+  if (!Array.isArray(pathParams)) return null;
 
-  const normalized = pathname.replace(/\/+$/, '') || '/';
-  const segments = splitPath(normalized);
+  const decodedSegments = [];
+  for (const seg of pathParams) {
+    const d = validateDecodedSegment(seg);
+    if (d === null) return null;
+    decodedSegments.push(d);
+  }
+
+  const canonicalPath = '/api/' + decodedSegments.map(s => encodeURIComponent(s)).join('/');
+  const segments = splitPath(canonicalPath);
 
   for (const route of ALLOWED_ROUTES) {
     const routeSegments = splitPath(route.path);
@@ -207,7 +189,7 @@ export function getAllowedMethod(request) {
       const rs = routeSegments[i];
       const seg = segments[i];
       if (rs.startsWith(':')) {
-        if (!validatePathSegment(seg)) { matched = false; break; }
+        continue;
       } else if (rs !== seg) {
         matched = false;
         break;
@@ -254,24 +236,19 @@ export async function readBoundedBody(request) {
     return { tooLarge: true, body: null };
   }
 
-  let bodyText;
+  let buffer;
   try {
-    bodyText = await request.text();
+    buffer = await request.arrayBuffer();
   } catch (_) {
+    return { error: 'BODY_READ_FAILED', body: null };
+  }
+
+  const bytes = new Uint8Array(buffer);
+  if (bytes.byteLength > MAX_WRITE_BODY_BYTES) {
     return { tooLarge: true, body: null };
   }
 
-  if (!bodyText) {
-    return { tooLarge: false, body: null };
-  }
-
-  const encoder = new TextEncoder();
-  const encoded = encoder.encode(bodyText);
-  if (encoded.byteLength > MAX_WRITE_BODY_BYTES) {
-    return { tooLarge: true, body: null };
-  }
-
-  return { tooLarge: false, body: encoded };
+  return { tooLarge: false, body: bytes };
 }
 
 export function generateRequestId(request) {
@@ -285,17 +262,39 @@ export function generateRequestId(request) {
   return 'req-' + crypto.randomUUID();
 }
 
-export function createProxyErrorEnvelope(code, message, requestId, status) {
+export function createProxyErrorEnvelope(code, message, requestId, status, extraHeaders) {
   const body = JSON.stringify({ error: message, code });
   const headers = new Headers();
   headers.set('content-type', 'application/json; charset=utf-8');
   if (requestId) headers.set(REQUEST_ID_HEADER, requestId);
+  if (extraHeaders) {
+    for (const [k, v] of Object.entries(extraHeaders)) {
+      headers.set(k, v);
+    }
+  }
   return new Response(body, { status: status || 500, headers });
 }
 
 export async function fetchUpstream(upstreamUrl, request, requestId, timeoutMs) {
+  if (request.signal && request.signal.aborted) {
+    return { error: 'CLIENT_ABORTED', body: null, requestId };
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  let onAbort;
+  if (request.signal) {
+    onAbort = () => controller.abort();
+    request.signal.addEventListener('abort', onAbort, { once: true });
+  }
+
+  const cleanup = () => {
+    clearTimeout(timeoutId);
+    if (request.signal && onAbort) {
+      request.signal.removeEventListener('abort', onAbort);
+    }
+  };
 
   const headers = forwardHeaders(request);
   headers.set(REQUEST_ID_HEADER, requestId);
@@ -310,8 +309,12 @@ export async function fetchUpstream(upstreamUrl, request, requestId, timeoutMs) 
   const method = request.method.toUpperCase();
   if (method !== 'GET' && method !== 'HEAD') {
     const bodyCheck = await readBoundedBody(request);
+    if (bodyCheck.error) {
+      cleanup();
+      return { error: bodyCheck.error, body: null, requestId };
+    }
     if (bodyCheck.tooLarge) {
-      clearTimeout(timeoutId);
+      cleanup();
       return { status: 413, body: null, requestId };
     }
     if (bodyCheck.body) {
@@ -321,63 +324,58 @@ export async function fetchUpstream(upstreamUrl, request, requestId, timeoutMs) 
 
   try {
     const response = await fetch(upstreamUrl, fetchOptions);
-    clearTimeout(timeoutId);
+    cleanup();
 
     if (response.status >= 300 && response.status < 400) {
       return { status: 502, body: null, requestId };
     }
 
-    return { status: response.status, body: response.body, headers: response.headers, requestId };
+    return { response, requestId };
   } catch (error) {
-    clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      return { error: 'UPSTREAM_TIMEOUT', status: 504, body: null, requestId };
+    cleanup();
+    if (controller.signal.aborted && request.signal && request.signal.aborted) {
+      return { error: 'CLIENT_ABORTED', body: null, requestId };
     }
-    return { error: 'UPSTREAM_UNAVAILABLE', status: 502, body: null, requestId };
+    if (error.name === 'AbortError') {
+      return { error: 'UPSTREAM_TIMEOUT', body: null, requestId };
+    }
+    return { error: 'UPSTREAM_UNAVAILABLE', body: null, requestId };
   }
 }
 
-export function forwardResponse(response, requestId) {
-  const headers = new Headers(response.headers);
+export function forwardResponse(upstreamResponse, requestId) {
+  const headers = new Headers();
+  for (const [name, value] of upstreamResponse.headers) {
+    const lower = name.toLowerCase();
+    if (BLOCKED_HEADERS.has(lower)) continue;
+    if (CF_OR_X_FORWARDED_PREFIXES.some((p) => lower.startsWith(p))) continue;
+    if (lower === 'transfer-encoding') continue;
+    headers.set(name, value);
+  }
   headers.set(REQUEST_ID_HEADER, requestId);
 
-  headers.delete('set-cookie');
-  headers.delete('content-length');
-
-  for (const prefix of CF_OR_X_FORWARDED_PREFIXES) {
-    for (const name of [...headers.keys()]) {
-      if (name.toLowerCase().startsWith(prefix)) {
-        headers.delete(name);
-      }
-    }
-  }
-
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
+  return new Response(upstreamResponse.body, {
+    status: upstreamResponse.status,
+    statusText: upstreamResponse.statusText,
     headers,
   });
 }
 
-export function buildUpstreamUrl(request, env) {
-  const validation = validateUpstreamEnv(env);
-  if (!validation.valid) return null;
+export function buildUpstreamUrl(request, origin, pathParams) {
+  if (!Array.isArray(pathParams)) return null;
 
-  const pathname = parseRequestPath(request);
-  if (!pathname) return null;
+  const decodedSegments = [];
+  for (const seg of pathParams) {
+    const d = validateDecodedSegment(seg);
+    if (d === null) return null;
+    decodedSegments.push(d);
+  }
 
-  const match = matchRoute(request);
+  const canonicalPath = '/api/' + decodedSegments.map(s => encodeURIComponent(s)).join('/');
+  const match = matchRoute(request, pathParams);
   if (!match) return null;
 
-  const canonicalParts = match.canonicalPath.split('/').map((segment) => {
-    if (segment.startsWith(':') && match.paramValues[segment.slice(1)]) {
-      return canonicalizePathSegment(match.paramValues[segment.slice(1)]);
-    }
-    return segment;
-  });
-
-  const canonicalPath = '/' + canonicalParts.filter(Boolean).join('/');
-  const url = new URL(validation.origin);
+  const url = new URL(origin);
   url.pathname = canonicalPath;
 
   const sourceUrl = new URL(request.url);

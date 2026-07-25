@@ -8,65 +8,66 @@ import {
   matchRouteAnyMethod,
   getAllowedMethod,
   checkContentLength,
+  parseTimeoutMs,
 } from '../_shared/api-proxy.js';
 
-import {
-  DEFAULT_TIMEOUT_MS,
-  REQUEST_ID_HEADER,
-} from '../_shared/api-proxy-routes.js';
+export async function handleApiProxy(request, context) {
+  const requestId = generateRequestId(request);
+  const pathParams = context.params && context.params.path;
 
-async function handleApiProxy(request, env) {
-  const upstreamEnv = {
-    LOVEBUD_API_BASE_URL: env.LOVEBUD_API_BASE_URL || '',
-    LOVEBUD_API_TIMEOUT_MS: env.LOVEBUD_API_TIMEOUT_MS || '',
-  };
-
-  const validation = validateUpstreamEnv(upstreamEnv);
-  if (!validation.valid) {
-    return createProxyErrorEnvelope(
-      'UPSTREAM_NOT_CONFIGURED',
-      'LoveBud API upstream is not configured',
-      generateRequestId(request),
-      503
-    );
-  }
-
-  const timeoutMs = Number(upstreamEnv.LOVEBUD_API_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS;
-
-  const pathMatch = matchRouteAnyMethod(request);
+  const pathMatch = matchRouteAnyMethod(request, pathParams);
   if (!pathMatch) {
     return createProxyErrorEnvelope(
       'PROXY_ROUTE_NOT_ALLOWED',
       'Route not allowed',
-      generateRequestId(request),
+      requestId,
       404
     );
   }
 
-  const allowedMethods = getAllowedMethod(request);
+  const allowedMethods = getAllowedMethod(request, pathParams);
   if (allowedMethods && !allowedMethods.includes(request.method.toUpperCase())) {
-    const allowHeader = allowedMethods.join(', ');
-    const headers = new Headers();
-    headers.set('allow', allowHeader);
-    headers.set(REQUEST_ID_HEADER, generateRequestId(request));
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers,
-    });
-  }
-
-  const bodyCheck = checkContentLength(request);
-  if (bodyCheck && bodyCheck.tooLarge) {
     return createProxyErrorEnvelope(
-      'PAYLOAD_TOO_LARGE',
-      'Request body too large',
-      generateRequestId(request),
-      413
+      'METHOD_NOT_ALLOWED',
+      'Method not allowed',
+      requestId,
+      405,
+      { Allow: allowedMethods.join(', ') }
     );
   }
 
-  const requestId = generateRequestId(request);
-  const upstreamUrl = buildUpstreamUrl(request, upstreamEnv);
+  const method = request.method.toUpperCase();
+  if (method !== 'GET' && method !== 'HEAD') {
+    const bodyCheck = checkContentLength(request);
+    if (bodyCheck && bodyCheck.tooLarge) {
+      return createProxyErrorEnvelope(
+        'PAYLOAD_TOO_LARGE',
+        'Request body too large',
+        requestId,
+        413
+      );
+    }
+  }
+
+  const env = context.env || {};
+  const upstreamEnv = {
+    LOVEBUD_API_BASE_URL: env.LOVEBUD_API_BASE_URL || '',
+    LOVEBUD_API_TIMEOUT_MS: env.LOVEBUD_API_TIMEOUT_MS || '',
+  };
+  const validation = validateUpstreamEnv(upstreamEnv);
+  if (!validation.valid) {
+    return createProxyErrorEnvelope(
+      validation.error,
+      validation.error === 'UPSTREAM_NOT_CONFIGURED'
+        ? 'LoveBud API upstream is not configured'
+        : 'Invalid upstream configuration',
+      requestId,
+      503
+    );
+  }
+
+  const timeoutMs = parseTimeoutMs(upstreamEnv.LOVEBUD_API_TIMEOUT_MS);
+  const upstreamUrl = buildUpstreamUrl(request, validation.origin, pathParams);
 
   if (!upstreamUrl) {
     return createProxyErrorEnvelope(
@@ -79,21 +80,25 @@ async function handleApiProxy(request, env) {
 
   const result = await fetchUpstream(upstreamUrl, request, requestId, timeoutMs);
 
-  if (result.error === 'UPSTREAM_TIMEOUT') {
+  if (result.error) {
+    const statusMap = {
+      UPSTREAM_TIMEOUT: 504,
+      UPSTREAM_UNAVAILABLE: 502,
+      CLIENT_ABORTED: 400,
+      BODY_READ_FAILED: 400,
+    };
+    const status = statusMap[result.error] || 502;
+    const messageMap = {
+      UPSTREAM_TIMEOUT: 'Upstream request timed out',
+      UPSTREAM_UNAVAILABLE: 'Upstream service unavailable',
+      CLIENT_ABORTED: 'Client disconnected',
+      BODY_READ_FAILED: 'Failed to read request body',
+    };
     return createProxyErrorEnvelope(
-      'UPSTREAM_TIMEOUT',
-      'LoveBud API upstream timed out',
+      result.error,
+      messageMap[result.error] || 'Proxy error',
       requestId,
-      504
-    );
-  }
-
-  if (result.error === 'UPSTREAM_UNAVAILABLE') {
-    return createProxyErrorEnvelope(
-      'UPSTREAM_UNAVAILABLE',
-      'LoveBud API upstream unavailable',
-      requestId,
-      502
+      status
     );
   }
 
@@ -106,21 +111,9 @@ async function handleApiProxy(request, env) {
     );
   }
 
-  if (!result.body) {
-    return createProxyErrorEnvelope(
-      'UPSTREAM_UNAVAILABLE',
-      'LoveBud API upstream unavailable',
-      requestId,
-      result.status || 502
-    );
-  }
-
-  return forwardResponse(
-    new Response(result.body, { status: result.status, headers: result.headers || new Headers() }),
-    requestId
-  );
+  return forwardResponse(result.response, requestId);
 }
 
 export async function onRequest(context) {
-  return handleApiProxy(context.request, context.env || {});
+  return handleApiProxy(context.request, context);
 }
