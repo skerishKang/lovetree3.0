@@ -104,12 +104,16 @@ export interface ClientConfig {
   accessTokenProvider?: AccessTokenProvider;
 }
 
-export const MANAGED_HEADERS = new Set([
+const MANAGED_HEADERS = new Set([
   "authorization",
+  "content-type",
   "idempotency-key",
   "x-lovebud-request-id",
-  "content-type",
 ]);
+
+export function isManagedHeader(name: string): boolean {
+  return MANAGED_HEADERS.has(name.toLowerCase());
+}
 
 export const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{8,128}$/;
 

@@ -2,6 +2,14 @@ export { ApiClient, createClient } from "./client";
 export { normalizeError, normalizeNetworkError } from "./errors";
 export { generateIdempotencyKey } from "./idempotency";
 export {
+  getFirebaseApp,
+  getFirebaseAuth,
+  ensureFirebaseAuthReady,
+  firebaseAccessTokenProvider,
+  signOutFirebase,
+  getFirebaseAuthConfigStatus,
+} from "./auth";
+export {
   ApiErrorImpl,
   NULL_ACCESS_TOKEN_PROVIDER,
   IDEMPOTENCY_KEY_PATTERN,

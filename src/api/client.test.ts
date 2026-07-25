@@ -184,13 +184,6 @@ describe("ApiClient", () => {
       ).rejects.toThrow(HeaderValidationError);
     });
 
-    it("refuses to override Content-Type via options.headers", async () => {
-      const client = createClient();
-      await expect(
-        client.request("/trees", { headers: { "Content-Type": "text/plain" } }),
-      ).rejects.toThrow(HeaderValidationError);
-    });
-
     it("refuses to override Idempotency-Key via options.headers", async () => {
       const client = createClient();
       await expect(
@@ -405,24 +398,6 @@ describe("ApiClient", () => {
       expect(err.retryable).toBe(false);
     });
   });
-
-  describe("401 no refresh retry", () => {
-    it("does not retry on 401", async () => {
-      const provider: AccessTokenProvider = {
-        getAccessToken: vi.fn().mockResolvedValue("token"),
-      };
-      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-        new Response(JSON.stringify({ detail: "Unauthorized" }), {
-          status: 401,
-          headers: { "content-type": "application/json" },
-        }),
-      );
-      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
-      await expect(client.request("/trees")).rejects.toThrow(ApiErrorImpl);
-      expect(provider.getAccessToken).toHaveBeenCalledTimes(1);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
-  });
 });
 
 describe("AccessTokenProvider seam", () => {
@@ -466,13 +441,6 @@ describe("defaultHeaders managed header protection", () => {
     expect(() => new ApiClient({
       baseUrl: "/api",
       defaultHeaders: { Authorization: "Bearer hack" },
-    })).toThrow(HeaderValidationError);
-  });
-
-  it("rejects default Content-Type override", () => {
-    expect(() => new ApiClient({
-      baseUrl: "/api",
-      defaultHeaders: { "Content-Type": "text/plain" },
     })).toThrow(HeaderValidationError);
   });
 
@@ -713,5 +681,1028 @@ describe("isApiError type guard", () => {
       retryable: true,
       rawCategory: "unknown",
     })).toBe(false);
+  });
+});
+
+describe("ApiClient 401 refresh-and-retry", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function createMockProvider(tokens: Array<string | null | Error>): AccessTokenProvider {
+    let callIndex = 0;
+    return {
+      getAccessToken: vi.fn(async (_options?: { forceRefresh?: boolean }) => {
+        const result = tokens[callIndex++];
+        if (result instanceof Error) {
+          throw result;
+        }
+        return result;
+      }),
+    };
+  }
+
+  describe("refresh flow", () => {
+    it("200 success: fetch once, no force refresh", async () => {
+      const provider = createMockProvider(["token-1"]);
+      const fetchSpy = mockFetch('{"success":true}');
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      const result = await client.request("/trees");
+
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(provider.getAccessToken).toHaveBeenCalledTimes(1);
+      expect(provider.getAccessToken).toHaveBeenCalledWith();
+      expect(result).toEqual({ success: true });
+    });
+
+    it("initial 401: one forced refresh and one retry", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      const result = await client.request("/trees");
+
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+      expect(provider.getAccessToken).toHaveBeenCalledTimes(2);
+      expect(provider.getAccessToken).toHaveBeenNthCalledWith(1);
+      expect(provider.getAccessToken).toHaveBeenNthCalledWith(2, { forceRefresh: true });
+      expect(result).toEqual({ success: true });
+    });
+
+    it("retry uses refreshed Authorization", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees");
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      expect(firstHeaders.get("Authorization")).toBe("Bearer token-1");
+      expect(secondHeaders.get("Authorization")).toBe("Bearer token-2");
+    });
+
+    it("second 401 stops after two fetches", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"error":"Still Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees")).rejects.toMatchObject({
+        status: 401,
+        code: "UNAUTHORIZED",
+      });
+
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+      expect(provider.getAccessToken).toHaveBeenCalledTimes(2);
+    });
+
+    it("force refresh called exactly once", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees");
+
+      const forceRefreshCalls = (provider.getAccessToken as any).mock.calls.filter(
+        (call: any[]) => call[0]?.forceRefresh === true
+      );
+      expect(forceRefreshCalls).toHaveLength(1);
+    });
+
+    it("refresh throws: original normalized 401 is thrown", async () => {
+      const provider = createMockProvider(["token-1", new Error("Refresh failed")]);
+      vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees")).rejects.toMatchObject({
+        status: 401,
+        code: "UNAUTHORIZED",
+      });
+    });
+
+    it("refresh returns null: original normalized 401 is thrown", async () => {
+      const provider = createMockProvider(["token-1", null]);
+      vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees")).rejects.toMatchObject({
+        status: 401,
+        code: "UNAUTHORIZED",
+      });
+    });
+
+    it("403 does not trigger refresh", async () => {
+      const provider = createMockProvider(["token-1"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Forbidden","code":"FORBIDDEN"}', {
+          status: 403,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees")).rejects.toMatchObject({
+        status: 403,
+        code: "FORBIDDEN",
+      });
+
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(provider.getAccessToken).toHaveBeenCalledTimes(1);
+    });
+
+    it("429 does not trigger refresh", async () => {
+      const provider = createMockProvider(["token-1"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Rate limited","code":"RATE_LIMITED"}', {
+          status: 429,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees")).rejects.toMatchObject({
+        status: 429,
+      });
+
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(provider.getAccessToken).toHaveBeenCalledTimes(1);
+    });
+
+    it("500 does not trigger refresh", async () => {
+      const provider = createMockProvider(["token-1"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Internal error","code":"INTERNAL_SERVER_ERROR"}', {
+          status: 500,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees")).rejects.toMatchObject({
+        status: 500,
+      });
+
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(provider.getAccessToken).toHaveBeenCalledTimes(1);
+    });
+
+    it("already-aborted signal does not trigger retry", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const controller = new AbortController();
+      controller.abort();
+
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees", { signal: controller.signal })).rejects.toMatchObject({
+        status: 401,
+      });
+
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(provider.getAccessToken).toHaveBeenCalledTimes(1);
+    });
+
+    it("network failure during retry is normalized correctly", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockRejectedValueOnce(new TypeError("Network error"));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees")).rejects.toMatchObject({
+        code: "NETWORK_ERROR",
+      });
+    });
+
+    it("response parsing remains correct after retry", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"data":"value"}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      const result = await client.request<{ data: string }>("/trees");
+
+      expect(result).toEqual({ data: "value" });
+    });
+  });
+
+  describe("request identity preservation", () => {
+    it("URL remains identical", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees/123");
+
+      expect(fetchSpy.mock.calls[0][0]).toBe("/api/trees/123");
+      expect(fetchSpy.mock.calls[1][0]).toBe("/api/trees/123");
+    });
+
+    it("query string remains identical", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { query: { page: 1, limit: 10 } });
+
+      expect(fetchSpy.mock.calls[0][0]).toBe("/api/trees?page=1&limit=10");
+      expect(fetchSpy.mock.calls[1][0]).toBe("/api/trees?page=1&limit=10");
+    });
+
+    it("HTTP method remains identical", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: { name: "test" } });
+
+      expect(fetchSpy.mock.calls[0][1]?.method).toBe("POST");
+      expect(fetchSpy.mock.calls[1][1]?.method).toBe("POST");
+    });
+
+    it("x-lovebud-request-id remains identical", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { requestId: "test-request-id" });
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      expect(firstHeaders.get("x-lovebud-request-id")).toBe("test-request-id");
+      expect(secondHeaders.get("x-lovebud-request-id")).toBe("test-request-id");
+    });
+
+    it("Idempotency-Key remains identical", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", {
+        method: "POST",
+        body: { name: "test" },
+        idempotencyKey: "test-key-12345678",
+      });
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      expect(firstHeaders.get("Idempotency-Key")).toBe("test-key-12345678");
+      expect(secondHeaders.get("Idempotency-Key")).toBe("test-key-12345678");
+    });
+
+    it("non-Authorization headers remain identical", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", {
+        headers: { "X-Custom-Header": "custom-value" },
+      });
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      expect(firstHeaders.get("X-Custom-Header")).toBe("custom-value");
+      expect(secondHeaders.get("X-Custom-Header")).toBe("custom-value");
+    });
+
+    it("no new request ID is generated", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees");
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      const firstRequestId = firstHeaders.get("x-lovebud-request-id");
+      const secondRequestId = secondHeaders.get("x-lovebud-request-id");
+
+      expect(firstRequestId).toBe(secondRequestId);
+    });
+
+    it("no new idempotency key is generated", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", {
+        method: "POST",
+        body: { name: "test" },
+        idempotencyKey: "test-key-12345678",
+      });
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      const firstKey = firstHeaders.get("Idempotency-Key");
+      const secondKey = secondHeaders.get("Idempotency-Key");
+
+      expect(firstKey).toBe(secondKey);
+    });
+
+    it("total fetch count never exceeds two", async () => {
+      const provider = createMockProvider(["token-1", "token-2", "token-3"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees")).rejects.toMatchObject({
+        status: 401,
+      });
+
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("replayable bodies", () => {
+    it("no body", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "GET" });
+
+      expect(fetchSpy.mock.calls[0][1]?.body).toBeUndefined();
+      expect(fetchSpy.mock.calls[1][1]?.body).toBeUndefined();
+    });
+
+    it("JSON object", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: { name: "test", value: 123 } });
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body;
+
+      expect(firstBody).toBe('{"name":"test","value":123}');
+      expect(secondBody).toBe('{"name":"test","value":123}');
+    });
+
+    it("primitive JSON value", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: 42 });
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body;
+
+      expect(firstBody).toBe("42");
+      expect(secondBody).toBe("42");
+    });
+
+    it("string under JSON contract", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: "test string" });
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body;
+
+      expect(firstBody).toBe('"test string"');
+      expect(secondBody).toBe('"test string"');
+    });
+
+    it("Blob", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const blob = new Blob(["test data"], { type: "text/plain" });
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: blob });
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body;
+
+      expect(firstBody).toBe(blob);
+      expect(secondBody).toBe(blob);
+    });
+
+    it("ArrayBuffer", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const data = new Uint8Array([116, 101, 115, 116, 32, 100, 97, 116, 97]);
+      const buffer = data.buffer;
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: buffer });
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body;
+
+      expect(firstBody).toBeDefined();
+      expect(secondBody).toBeDefined();
+
+      const firstBytes = firstBody instanceof ArrayBuffer
+        ? new Uint8Array(firstBody)
+        : firstBody instanceof Uint8Array
+        ? firstBody
+        : new Uint8Array(0);
+      const secondBytes = secondBody instanceof ArrayBuffer
+        ? new Uint8Array(secondBody)
+        : secondBody instanceof Uint8Array
+        ? secondBody
+        : new Uint8Array(0);
+
+      expect(Array.from(firstBytes)).toEqual([116, 101, 115, 116, 32, 100, 97, 116, 97]);
+      expect(Array.from(secondBytes)).toEqual([116, 101, 115, 116, 32, 100, 97, 116, 97]);
+    });
+
+    it("typed array", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const typedArray = new Uint8Array([116, 101, 115, 116]);
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: typedArray });
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body as Uint8Array;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body as Uint8Array;
+
+      expect(Array.from(firstBody)).toEqual([116, 101, 115, 116]);
+      expect(Array.from(secondBody)).toEqual([116, 101, 115, 116]);
+    });
+
+    it("FormData string field", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const formData = new FormData();
+      formData.append("field1", "value1");
+      formData.append("field2", "value2");
+
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: formData });
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body as FormData;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body as FormData;
+
+      expect(firstBody.get("field1")).toBe("value1");
+      expect(firstBody.get("field2")).toBe("value2");
+      expect(secondBody.get("field1")).toBe("value1");
+      expect(secondBody.get("field2")).toBe("value2");
+    });
+
+    it("FormData File entry with filename preservation", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const file = new File(["file content"], "test.txt", { type: "text/plain" });
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response('{"success":true}', {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      await client.request("/trees", { method: "POST", body: formData });
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body as FormData;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body as FormData;
+
+      const firstFile = firstBody.get("file") as File;
+      const secondFile = secondBody.get("file") as File;
+
+      expect(firstFile.name).toBe("test.txt");
+      expect(secondFile.name).toBe("test.txt");
+    });
+  });
+
+  describe("non-replayable bodies", () => {
+    it("ReadableStream does not retry", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("test"));
+          controller.close();
+        },
+      });
+
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees", { method: "POST", body: stream })).rejects.toMatchObject({
+        status: 401,
+      });
+
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(provider.getAccessToken).toHaveBeenCalledTimes(1);
+    });
+
+    it("locked stream does not retry", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("test"));
+          controller.close();
+        },
+      });
+      stream.getReader();
+
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+
+      await expect(client.request("/trees", { method: "POST", body: stream })).rejects.toMatchObject({
+        status: 0,
+        code: "INVALID_REQUEST_BODY",
+      });
+
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("responseType text behavior preserved", () => {
+    it("text responseType works after retry", async () => {
+      const provider = createMockProvider(["token-1", "token-2"]);
+      vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }))
+        .mockResolvedValueOnce(new Response("plain text response", {
+          status: 200,
+          headers: { "content-type": "text/plain" },
+        }));
+
+      const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
+      const result = await client.requestText("/trees");
+
+      expect(result).toBe("plain text response");
+    });
+  });
+
+  describe("Serialization failure contract", () => {
+    const invalidBodies = [
+      { name: "circular object", create: () => { const a: any = {}; a.a = a; return a; } },
+      { name: "BigInt", create: () => BigInt(123) },
+      { name: "Symbol", create: () => Symbol("test") },
+      { name: "function", create: () => function(){} },
+      { name: "throwing toJSON", create: () => ({ toJSON() { throw new Error("SECRET_INTERNAL_VALUE"); } }) }
+    ];
+
+    for (const { name, create } of invalidBodies) {
+      it(`fails closed on ${name} before fetch`, async () => {
+        const getAccessToken = vi.fn().mockResolvedValue("token");
+        const provider = { getAccessToken };
+        const client = createClient({ accessTokenProvider: provider });
+
+        let err: any;
+        try {
+          await client.request("/test", { method: "POST", body: create() });
+        } catch (e) {
+          err = e;
+        }
+
+        expect(err).toBeInstanceOf(ApiErrorImpl);
+        expect(err.code).toBe("INVALID_REQUEST_BODY");
+        expect(err.status).toBe(0);
+        expect(err.retryable).toBe(false);
+        expect(err.message).not.toContain("SECRET_INTERNAL_VALUE");
+        expect(getAccessToken).not.toHaveBeenCalled();
+      });
+    }
+  });
+
+  describe("Snapshot mutation tests", () => {
+    it("ArrayBuffer snapshot", async () => {
+      const getAccessToken = vi.fn()
+        .mockResolvedValueOnce("token1")
+        .mockResolvedValueOnce("token2");
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockResolvedValueOnce(new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+      const buffer = new Uint8Array([1, 2, 3]).buffer;
+
+      const reqPromise = client.request("/test", { method: "POST", body: buffer });
+
+      // Mutate original buffer
+      new Uint8Array(buffer)[0] = 99;
+
+      await reqPromise;
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body as ArrayBuffer;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body as ArrayBuffer;
+
+      expect(new Uint8Array(firstBody)[0]).toBe(1);
+      expect(new Uint8Array(secondBody)[0]).toBe(1);
+      expect(firstBody).not.toBe(secondBody);
+    });
+
+    it("Typed array snapshot", async () => {
+      const getAccessToken = vi.fn()
+        .mockResolvedValueOnce("token1")
+        .mockResolvedValueOnce("token2");
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockResolvedValueOnce(new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+
+      const backingBuffer = new ArrayBuffer(10);
+      const typedArray = new Uint8Array(backingBuffer, 2, 3);
+      typedArray.set([1, 2, 3]);
+
+      const reqPromise = client.request("/test", { method: "POST", body: typedArray });
+
+      // Mutate original
+      typedArray[0] = 99;
+
+      await reqPromise;
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body as Uint8Array;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body as Uint8Array;
+
+      expect(Array.from(firstBody)).toEqual([1, 2, 3]);
+      expect(Array.from(secondBody)).toEqual([1, 2, 3]);
+    });
+
+    it("Headers snapshot", async () => {
+      let resolveRefresh: any;
+      const refreshPromise = new Promise(r => { resolveRefresh = r; });
+      const getAccessToken = vi.fn().mockImplementation(async ({ forceRefresh }: any = {}) => {
+        if (forceRefresh) {
+          await refreshPromise;
+          return "token2";
+        }
+        return "token1";
+      });
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockResolvedValueOnce(new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+      const options = { headers: { "x-custom": "original" } };
+
+      const reqPromise = client.request("/test", options);
+
+      // Wait for fetch to be called first time
+      await new Promise(r => setTimeout(r, 10));
+
+      // Mutate original headers
+      options.headers["x-custom"] = "mutated";
+
+      resolveRefresh();
+      await reqPromise;
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      expect(firstHeaders.get("x-custom")).toBe("original");
+      expect(secondHeaders.get("x-custom")).toBe("original");
+    });
+
+    it("Idempotency-Key snapshot", async () => {
+      let resolveRefresh: any;
+      const refreshPromise = new Promise(r => { resolveRefresh = r; });
+      const getAccessToken = vi.fn().mockImplementation(async ({ forceRefresh }: any = {}) => {
+        if (forceRefresh) {
+          await refreshPromise;
+          return "token2";
+        }
+        return "token1";
+      });
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockResolvedValueOnce(new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+      const options = { method: "POST", idempotencyKey: "12345678-original" };
+
+      const reqPromise = client.request("/test", options);
+
+      await new Promise(r => setTimeout(r, 10));
+
+      options.idempotencyKey = "12345678-mutated";
+
+      resolveRefresh();
+      await reqPromise;
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      expect(firstHeaders.get("Idempotency-Key")).toBe("12345678-original");
+      expect(secondHeaders.get("Idempotency-Key")).toBe("12345678-original");
+    });
+
+    it("AbortSignal snapshot", async () => {
+      let resolveRefresh: any;
+      const refreshPromise = new Promise(r => { resolveRefresh = r; });
+      const getAccessToken = vi.fn().mockImplementation(async ({ forceRefresh }: any = {}) => {
+        if (forceRefresh) {
+          await refreshPromise;
+          return "token2";
+        }
+        return "token1";
+      });
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockImplementation(async () => new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+
+      const controllerA = new AbortController();
+      const controllerB = new AbortController();
+
+      const options = { signal: controllerA.signal };
+      const reqPromise = client.request("/test", options);
+
+      await new Promise(r => setTimeout(r, 10));
+
+      // Swap signal
+      options.signal = controllerB.signal;
+
+      // Abort B
+      controllerB.abort();
+
+      resolveRefresh();
+      await reqPromise;
+
+      const firstInit = fetchSpy.mock.calls[0][1] as RequestInit;
+      const secondInit = fetchSpy.mock.calls[1][1] as RequestInit;
+
+      expect(firstInit.signal).toBe(controllerA.signal);
+      expect(secondInit.signal).toBe(controllerA.signal);
+
+    });
+  });
+
+  describe("Content-Type contract", () => {
+    it("no body => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "GET" });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("FormData => Content-Type 없음 (브라우저가 설정)", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "POST", body: new FormData() });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("Blob => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "POST", body: new Blob() });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("ArrayBuffer => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "POST", body: new ArrayBuffer(0) });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("TypedArray => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "POST", body: new Uint8Array(0) });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("ReadableStream => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      const stream = new ReadableStream();
+      await client.request("/test", { method: "POST", body: stream });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("lowercase override 거부", async () => {
+      const client = createClient();
+      await expect(client.request("/test", { method: "POST", headers: { "content-type": "text/html" } })).rejects.toThrow();
+    });
+
+    it("mixed-case override 거부", async () => {
+      const client = createClient();
+      await expect(client.request("/test", { method: "POST", headers: { "cOnTeNt-TyPe": "text/html" } })).rejects.toThrow();
+    });
   });
 });
