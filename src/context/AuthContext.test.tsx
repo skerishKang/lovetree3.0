@@ -1,5 +1,6 @@
 import { StrictMode, useState } from "react";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as firebaseAuth from "firebase/auth";
 import { AuthProvider, useAuthContext } from "./AuthContext";
@@ -121,12 +122,14 @@ describe("AuthContext", () => {
     );
     await listener.emit(user);
 
-    const serialized = screen.getByTestId("context").textContent ?? "";
-    expect(serialized).toContain('"uid":"test-uid"');
-    expect(serialized).toContain('"tier":"premium"');
-    expect(serialized).not.toContain("rawToken");
-    expect(serialized).not.toContain("idToken");
-    expect(serialized).not.toContain("refreshToken");
+    await waitFor(() => {
+      const serialized = screen.getByTestId("context").textContent ?? "";
+      expect(serialized).toContain('"uid":"test-uid"');
+      expect(serialized).toContain('"tier":"premium"');
+      expect(serialized).not.toContain("rawToken");
+      expect(serialized).not.toContain("idToken");
+      expect(serialized).not.toContain("refreshToken");
+    });
   });
 
   it("exposes the minimal UI methods and calls Google sign-in once", async () => {
@@ -148,9 +151,7 @@ describe("AuthContext", () => {
       </AuthProvider>
     );
 
-    await act(async () => {
-      screen.getByRole("button", { name: "Google" }).click();
-    });
+    await userEvent.setup().click(screen.getByRole("button", { name: "Google" }));
 
     expect(authApiMocks.signInWithGoogle).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("keys")).toHaveTextContent(
@@ -192,17 +193,17 @@ describe("AuthContext", () => {
     await listener.emit(user);
 
     authApiMocks.signOutFirebase.mockRejectedValueOnce(new Error("raw"));
-    await act(async () => {
-      screen.getByRole("button", { name: "Logout" }).click();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Logout" }));
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("test-uid");
+      expect(screen.getByTestId("error")).toHaveTextContent("failed");
     });
-    expect(screen.getByTestId("user")).toHaveTextContent("test-uid");
-    expect(screen.getByTestId("error")).toHaveTextContent("failed");
 
     authApiMocks.signOutFirebase.mockResolvedValueOnce(undefined);
-    await act(async () => {
-      screen.getByRole("button", { name: "Logout" }).click();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Logout" }));
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("none");
     });
-    expect(screen.getByTestId("user")).toHaveTextContent("none");
   });
 
   it("expires an unusable session even when Firebase signOut rejects", async () => {
@@ -226,12 +227,12 @@ describe("AuthContext", () => {
     );
     await listener.emit(createMockUser());
 
-    await act(async () => {
-      screen.getByRole("button", { name: "Expire" }).click();
-    });
+    await userEvent.setup().click(screen.getByRole("button", { name: "Expire" }));
 
-    expect(authApiMocks.signOutFirebase).toHaveBeenCalledTimes(1);
-    expect(screen.getByTestId("user")).toHaveTextContent("none");
+    await waitFor(() => {
+      expect(authApiMocks.signOutFirebase).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("user")).toHaveTextContent("none");
+    });
   });
 
   it("suppresses stale tier results after a newer auth callback", async () => {
@@ -263,10 +264,13 @@ describe("AuthContext", () => {
 
     await listener.emit(first);
     await listener.emit(second);
-    expect(screen.getByTestId("state")).toHaveTextContent("second:second");
+    await waitFor(() => {
+      expect(screen.getByTestId("state")).toHaveTextContent("second:second");
+    });
 
     await act(async () => {
       resolveFirst({ claims: { tier: "first" } });
+      await Promise.resolve();
     });
     expect(screen.getByTestId("state")).toHaveTextContent("second:second");
   });
