@@ -1,9 +1,11 @@
 import {
   ALLOWED_ROUTES,
-  ALLOWED_METHODS_PER_PATH,
-  ALLOWED_HEADERS,
-  BLOCKED_HEADERS,
-  CF_OR_X_FORWARDED_PREFIXES,
+  getRouteMethods,
+  ALLOWED_FORWARD_HEADERS,
+  BLOCKED_REQUEST_HEADERS,
+  BLOCKED_RESPONSE_HEADERS,
+  BLOCKED_HEADER_PREFIXES,
+  ALLOWED_RESPONSE_HEADERS,
   MAX_WRITE_BODY_BYTES,
   DEFAULT_TIMEOUT_MS,
   MIN_TIMEOUT_MS,
@@ -85,8 +87,53 @@ function splitPath(pathname) {
   return pathname.split('/').filter(Boolean);
 }
 
+export function verifyPathConsistency(request, pathParams) {
+  if (!Array.isArray(pathParams)) return false;
+  const decodedSegments = [];
+  for (const seg of pathParams) {
+    const d = validateDecodedSegment(seg);
+    if (d === null) return false;
+    decodedSegments.push(d);
+  }
+  const expectedPath = '/api/' + decodedSegments.map(s => encodeURIComponent(s)).join('/');
+  try {
+    const url = new URL(request.url);
+    const requestPath = url.pathname.replace(/\/+$/, '') || '/';
+    return requestPath === expectedPath;
+  } catch (_) {
+    return false;
+  }
+}
+
+function matchSegments(routeSegments, segments) {
+  if (routeSegments.length !== segments.length) return null;
+  const paramValues = {};
+  for (let i = 0; i < routeSegments.length; i++) {
+    const rs = routeSegments[i];
+    const seg = segments[i];
+    if (rs.startsWith(':')) {
+      paramValues[rs.slice(1)] = seg;
+    } else if (rs !== seg) {
+      return null;
+    }
+  }
+  return paramValues;
+}
+
+function buildCanonicalPath(pathParams) {
+  if (!Array.isArray(pathParams)) return null;
+  const decodedSegments = [];
+  for (const seg of pathParams) {
+    const d = validateDecodedSegment(seg);
+    if (d === null) return null;
+    decodedSegments.push(d);
+  }
+  return '/api/' + decodedSegments.map(s => encodeURIComponent(s)).join('/');
+}
+
 export function matchRoute(request, pathParams) {
   if (!Array.isArray(pathParams)) return null;
+  if (!verifyPathConsistency(request, pathParams)) return null;
 
   const decodedSegments = [];
   for (const seg of pathParams) {
@@ -100,26 +147,9 @@ export function matchRoute(request, pathParams) {
 
   for (const route of ALLOWED_ROUTES) {
     const routeSegments = splitPath(route.path);
-    if (routeSegments.length !== segments.length) continue;
-
-    const paramValues = {};
-    let matched = true;
-
-    for (let i = 0; i < routeSegments.length; i++) {
-      const rs = routeSegments[i];
-      const seg = segments[i];
-
-      if (rs.startsWith(':')) {
-        const paramName = rs.slice(1);
-        paramValues[paramName] = seg;
-      } else if (rs !== seg) {
-        matched = false;
-        break;
-      }
-    }
-
-    if (matched && route.method === request.method.toUpperCase()) {
-      return { route, paramValues, canonicalPath: route.path };
+    const params = matchSegments(routeSegments, segments);
+    if (params !== null && route.method === request.method.toUpperCase()) {
+      return { route, paramValues: params, canonicalPath: route.path };
     }
   }
 
@@ -128,6 +158,7 @@ export function matchRoute(request, pathParams) {
 
 export function matchRouteAnyMethod(request, pathParams) {
   if (!Array.isArray(pathParams)) return null;
+  if (!verifyPathConsistency(request, pathParams)) return null;
 
   const decodedSegments = [];
   for (const seg of pathParams) {
@@ -141,26 +172,9 @@ export function matchRouteAnyMethod(request, pathParams) {
 
   for (const route of ALLOWED_ROUTES) {
     const routeSegments = splitPath(route.path);
-    if (routeSegments.length !== segments.length) continue;
-
-    const paramValues = {};
-    let matched = true;
-
-    for (let i = 0; i < routeSegments.length; i++) {
-      const rs = routeSegments[i];
-      const seg = segments[i];
-
-      if (rs.startsWith(':')) {
-        const paramName = rs.slice(1);
-        paramValues[paramName] = seg;
-      } else if (rs !== seg) {
-        matched = false;
-        break;
-      }
-    }
-
-    if (matched) {
-      return { route, paramValues, canonicalPath: route.path };
+    const params = matchSegments(routeSegments, segments);
+    if (params !== null) {
+      return { route, paramValues: params, canonicalPath: route.path };
     }
   }
 
@@ -169,6 +183,7 @@ export function matchRouteAnyMethod(request, pathParams) {
 
 export function getAllowedMethod(request, pathParams) {
   if (!Array.isArray(pathParams)) return null;
+  if (!verifyPathConsistency(request, pathParams)) return null;
 
   const decodedSegments = [];
   for (const seg of pathParams) {
@@ -197,8 +212,8 @@ export function getAllowedMethod(request, pathParams) {
     }
 
     if (matched) {
-      const methods = ALLOWED_METHODS_PER_PATH.get(route.path);
-      if (methods) return Array.from(methods);
+      const methods = getRouteMethods(route.path);
+      if (methods) return methods;
     }
   }
 
@@ -209,9 +224,9 @@ export function forwardHeaders(request) {
   const outgoing = new Headers();
   for (const [name, value] of request.headers) {
     const lower = name.toLowerCase();
-    if (BLOCKED_HEADERS.has(lower)) continue;
-    if (CF_OR_X_FORWARDED_PREFIXES.some((p) => lower.startsWith(p))) continue;
-    if (ALLOWED_HEADERS.has(lower)) {
+    if (BLOCKED_REQUEST_HEADERS.includes(lower)) continue;
+    if (BLOCKED_HEADER_PREFIXES.some((p) => lower.startsWith(p))) continue;
+    if (ALLOWED_FORWARD_HEADERS.includes(lower)) {
       if (value && typeof value === 'string') {
         if (/[\r\n]/.test(value)) continue;
         outgoing.set(name, value);
@@ -219,6 +234,25 @@ export function forwardHeaders(request) {
     }
   }
   return outgoing;
+}
+
+export function forwardResponse(upstreamResponse, requestId) {
+  const headers = new Headers();
+  for (const [name, value] of upstreamResponse.headers) {
+    const lower = name.toLowerCase();
+    if (BLOCKED_RESPONSE_HEADERS.includes(lower)) continue;
+    if (BLOCKED_HEADER_PREFIXES.some((p) => lower.startsWith(p))) continue;
+    if (ALLOWED_RESPONSE_HEADERS.includes(lower)) {
+      headers.set(name, value);
+    }
+  }
+  headers.set(REQUEST_ID_HEADER, requestId);
+
+  return new Response(upstreamResponse.body, {
+    status: upstreamResponse.status,
+    statusText: upstreamResponse.statusText,
+    headers,
+  });
 }
 
 export function checkContentLength(request) {
@@ -277,7 +311,7 @@ export function createProxyErrorEnvelope(code, message, requestId, status, extra
 
 export async function fetchUpstream(upstreamUrl, request, requestId, timeoutMs) {
   if (request.signal && request.signal.aborted) {
-    return { error: 'CLIENT_ABORTED', body: null, requestId };
+    return { error: 'CLIENT_ABORTED', requestId };
   }
 
   const controller = new AbortController();
@@ -311,13 +345,13 @@ export async function fetchUpstream(upstreamUrl, request, requestId, timeoutMs) 
     const bodyCheck = await readBoundedBody(request);
     if (bodyCheck.error) {
       cleanup();
-      return { error: bodyCheck.error, body: null, requestId };
+      return { error: bodyCheck.error, requestId };
     }
     if (bodyCheck.tooLarge) {
       cleanup();
-      return { status: 413, body: null, requestId };
+      return { status: 413, requestId };
     }
-    if (bodyCheck.body) {
+    if (bodyCheck.body && bodyCheck.body.byteLength > 0) {
       fetchOptions.body = bodyCheck.body;
     }
   }
@@ -327,51 +361,28 @@ export async function fetchUpstream(upstreamUrl, request, requestId, timeoutMs) 
     cleanup();
 
     if (response.status >= 300 && response.status < 400) {
-      return { status: 502, body: null, requestId };
+      return { error: 'UPSTREAM_REDIRECT', status: 502, requestId };
     }
 
     return { response, requestId };
   } catch (error) {
     cleanup();
     if (controller.signal.aborted && request.signal && request.signal.aborted) {
-      return { error: 'CLIENT_ABORTED', body: null, requestId };
+      return { error: 'CLIENT_ABORTED', requestId };
     }
     if (error.name === 'AbortError') {
-      return { error: 'UPSTREAM_TIMEOUT', body: null, requestId };
+      return { error: 'UPSTREAM_TIMEOUT', requestId };
     }
-    return { error: 'UPSTREAM_UNAVAILABLE', body: null, requestId };
+    return { error: 'UPSTREAM_UNAVAILABLE', requestId };
   }
-}
-
-export function forwardResponse(upstreamResponse, requestId) {
-  const headers = new Headers();
-  for (const [name, value] of upstreamResponse.headers) {
-    const lower = name.toLowerCase();
-    if (BLOCKED_HEADERS.has(lower)) continue;
-    if (CF_OR_X_FORWARDED_PREFIXES.some((p) => lower.startsWith(p))) continue;
-    if (lower === 'transfer-encoding') continue;
-    headers.set(name, value);
-  }
-  headers.set(REQUEST_ID_HEADER, requestId);
-
-  return new Response(upstreamResponse.body, {
-    status: upstreamResponse.status,
-    statusText: upstreamResponse.statusText,
-    headers,
-  });
 }
 
 export function buildUpstreamUrl(request, origin, pathParams) {
   if (!Array.isArray(pathParams)) return null;
 
-  const decodedSegments = [];
-  for (const seg of pathParams) {
-    const d = validateDecodedSegment(seg);
-    if (d === null) return null;
-    decodedSegments.push(d);
-  }
+  const canonicalPath = buildCanonicalPath(pathParams);
+  if (!canonicalPath) return null;
 
-  const canonicalPath = '/api/' + decodedSegments.map(s => encodeURIComponent(s)).join('/');
   const match = matchRoute(request, pathParams);
   if (!match) return null;
 

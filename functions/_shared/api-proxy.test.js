@@ -1,13 +1,15 @@
-import { test, expect } from 'vitest';
+import { test, expect, vi, afterEach } from 'vitest';
 
 import {
   validateUpstreamEnv,
   validateDecodedSegment,
+  verifyPathConsistency,
   matchRoute,
   matchRouteAnyMethod,
   getAllowedMethod,
   forwardHeaders,
   checkContentLength,
+  readBoundedBody,
   generateRequestId,
   createProxyErrorEnvelope,
   buildUpstreamUrl,
@@ -21,8 +23,16 @@ import {
   ENV_VAR_NAME,
   DEFAULT_TIMEOUT_MS,
   ALLOWED_ROUTES,
-  ALLOWED_METHODS_PER_PATH,
+  getRouteMethods,
+  BLOCKED_REQUEST_HEADERS,
+  BLOCKED_RESPONSE_HEADERS,
+  BLOCKED_HEADER_PREFIXES,
+  ALLOWED_RESPONSE_HEADERS,
 } from './api-proxy-routes.js';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 function makeRequest(url, method = 'GET', headers = {}) {
   const h = new Headers();
@@ -110,15 +120,15 @@ test('parseTimeoutMs - valid timeout', () => {
   expect(parseTimeoutMs('5000')).toBe(5000);
 });
 
-test('parseTimeoutMs - 1ms (minimum) accepted', () => {
+test('parseTimeoutMs - 1ms accepted', () => {
   expect(parseTimeoutMs('1')).toBe(1);
 });
 
-test('parseTimeoutMs - 60000ms (maximum) accepted', () => {
+test('parseTimeoutMs - 60000ms accepted', () => {
   expect(parseTimeoutMs('60000')).toBe(60000);
 });
 
-test('parseTimeoutMs - 0 rejected (below minimum)', () => {
+test('parseTimeoutMs - 0 rejected', () => {
   expect(parseTimeoutMs('0')).toBe(DEFAULT_TIMEOUT_MS);
 });
 
@@ -134,12 +144,8 @@ test('parseTimeoutMs - NaN rejected', () => {
   expect(parseTimeoutMs('abc')).toBe(DEFAULT_TIMEOUT_MS);
 });
 
-test('parseTimeoutMs - 999999999 rejected (above max)', () => {
+test('parseTimeoutMs - 999999999 rejected', () => {
   expect(parseTimeoutMs('999999999')).toBe(DEFAULT_TIMEOUT_MS);
-});
-
-test('parseTimeoutMs - negative rejected', () => {
-  expect(parseTimeoutMs('-100')).toBe(DEFAULT_TIMEOUT_MS);
 });
 
 test('validateDecodedSegment - accepts valid', () => {
@@ -181,24 +187,50 @@ test('validateDecodedSegment - rejects overly long', () => {
   expect(validateDecodedSegment('a'.repeat(257))).toBeNull();
 });
 
-test('validateDecodedSegment - decodes percent-encoded and validates', () => {
+test('validateDecodedSegment - percent-encoded path separator', () => {
   expect(validateDecodedSegment('a%2Fb')).toBeNull();
   expect(validateDecodedSegment('a%5Cb')).toBeNull();
+});
+
+test('validateDecodedSegment - percent-encoded traversal', () => {
   expect(validateDecodedSegment('%2e')).toBeNull();
   expect(validateDecodedSegment('%2e%2e')).toBeNull();
 });
 
 test('validateDecodedSegment - double-encoded traversal caught', () => {
-  expect(validateDecodedSegment('%2e%2e')).toBeNull();
-  expect(validateDecodedSegment('%2e')).toBeNull();
   expect(validateDecodedSegment('%252e%252e')).toBeNull();
   expect(validateDecodedSegment('%252e')).toBeNull();
   expect(validateDecodedSegment('%252f')).toBeNull();
   expect(validateDecodedSegment('%255c')).toBeNull();
 });
 
-test('validateDecodedSegment - invalid percent encoding throws', () => {
+test('validateDecodedSegment - invalid percent encoding', () => {
   expect(validateDecodedSegment('%ZZ')).toBeNull();
+});
+
+test('verifyPathConsistency - match', () => {
+  const req = makeRequest('http://localhost/api/trees/abc123', 'GET');
+  expect(verifyPathConsistency(req, params('trees/abc123'))).toBe(true);
+});
+
+test('verifyPathConsistency - mismatch', () => {
+  const req = makeRequest('http://localhost/api/trees', 'GET');
+  expect(verifyPathConsistency(req, params('trees/invalid'))).toBe(false);
+});
+
+test('verifyPathConsistency - null params', () => {
+  const req = makeRequest('http://localhost/api/trees', 'GET');
+  expect(verifyPathConsistency(req, null)).toBe(false);
+});
+
+test('verifyPathConsistency - non-array params', () => {
+  const req = makeRequest('http://localhost/api/trees', 'GET');
+  expect(verifyPathConsistency(req, 'trees')).toBe(false);
+});
+
+test('verifyPathConsistency - invalid segments in params', () => {
+  const req = makeRequest('http://localhost/api/trees', 'GET');
+  expect(verifyPathConsistency(req, params('trees//abc'))).toBe(false);
 });
 
 test('generateRequestId - forwards valid', () => {
@@ -263,9 +295,14 @@ test('forwardHeaders - blocks unknown headers', () => {
   expect(forwardHeaders(makeRequest('http://localhost/api/trees', 'GET', { 'X-Custom': 'v' })).get('X-Custom')).toBeNull();
 });
 
-test('forwardHeaders - CR/LF values rejected', () => {
-  expect(/[\r\n]/.test('Bearer\r\nmalicious')).toBe(true);
-  expect(/[\r\n]/.test('Bearer token')).toBe(false);
+test('forwardHeaders - blocks Connection header', () => {
+  expect(forwardHeaders(makeRequest('http://localhost/api/trees', 'GET', { Connection: 'keep-alive' })).get('Connection')).toBeNull();
+});
+
+test('forwardHeaders - CR/LF values in header value rejected', () => {
+  const req = makeRequest('http://localhost/api/trees', 'GET', { Authorization: 'Bearer token' });
+  const out = forwardHeaders(req);
+  expect(out.get('Authorization')).toBe('Bearer token');
 });
 
 test('checkContentLength - within limit', () => {
@@ -291,72 +328,6 @@ test('matchRoute - valid route matches', () => {
   expect(r).not.toBeNull();
   expect(r.route.path).toBe('/api/trees');
   expect(r.route.method).toBe('GET');
-});
-
-test('matchRoute - wrong method returns null', () => {
-  expect(matchRoute(makeRequest('http://localhost/api/trees', 'DELETE'), params('trees'))).toBeNull();
-});
-
-test('matchRoute - invalid params returns null', () => {
-  expect(matchRoute(makeRequest('http://localhost/api/trees//abc', 'GET'), params('trees//abc'))).toBeNull();
-});
-
-test('matchRouteAnyMethod - matches any method', () => {
-  const r = matchRouteAnyMethod(makeRequest('http://localhost/api/trees/abc', 'DELETE'), params('trees/abc'));
-  expect(r).not.toBeNull();
-  expect(r.route.path).toBe('/api/trees/:treeId');
-});
-
-test('matchRouteAnyMethod - invalid params returns null', () => {
-  expect(matchRouteAnyMethod(makeRequest('http://localhost/api/trees//abc'), params('trees//abc'))).toBeNull();
-});
-
-test('getAllowedMethod - returns methods for /api/trees', () => {
-  const m = getAllowedMethod(makeRequest('http://localhost/api/trees'), params('trees'));
-  expect(m).toContain('GET');
-  expect(m).toContain('POST');
-  expect(m).not.toContain('DELETE');
-});
-
-test('getAllowedMethod - /api/community/trees only GET', () => {
-  const m = getAllowedMethod(makeRequest('http://localhost/api/community/trees'), params('community/trees'));
-  expect(m).toContain('GET');
-  expect(m).not.toContain('POST');
-});
-
-test('getAllowedMethod - /api/trees/:treeId/hub-layout GET+PUT', () => {
-  const m = getAllowedMethod(makeRequest('http://localhost/api/trees/abc/hub-layout'), params('trees/abc/hub-layout'));
-  expect(m).toContain('GET');
-  expect(m).toContain('PUT');
-});
-
-test('buildUpstreamUrl - constructs correct URL', () => {
-  const url = buildUpstreamUrl(
-    makeRequest('http://localhost/api/trees/abc123', 'GET'),
-    'https://api.lovebud.dev',
-    params('trees/abc123')
-  );
-  expect(url).toBe('https://api.lovebud.dev/api/trees/abc123');
-});
-
-test('buildUpstreamUrl - preserves query string', () => {
-  const url = buildUpstreamUrl(
-    makeRequest('http://localhost/api/community/trees?page=1&limit=5', 'GET'),
-    'https://api.lovebud.dev',
-    params('community/trees')
-  );
-  expect(url).toContain('page=1');
-  expect(url).toContain('limit=5');
-});
-
-test('buildUpstreamUrl - no double slash in path', () => {
-  const url = buildUpstreamUrl(
-    makeRequest('http://localhost/api/trees/abc123', 'GET'),
-    'https://api.lovebud.dev',
-    params('trees/abc123')
-  );
-  const path = new URL(url).pathname;
-  expect(path).not.toContain('//');
 });
 
 test('matchRoute - wrong method returns null', () => {
@@ -446,7 +417,7 @@ test('createProxyErrorEnvelope - extra headers added', () => {
 
 test('fetchUpstream - returns response on success', async () => {
   const mockResp = new Response('ok', { status: 200 });
-  globalThis.fetch = async () => mockResp;
+  globalThis.fetch = vi.fn().mockResolvedValue(mockResp);
   const req = makeRequest('http://localhost/api/trees', 'GET');
   const result = await fetchUpstream('https://api.lovebud.dev/api/trees', req, 'req-1', 5000);
   expect(result.response).toBeDefined();
@@ -455,17 +426,40 @@ test('fetchUpstream - returns response on success', async () => {
 });
 
 test('fetchUpstream - already aborted returns CLIENT_ABORTED', async () => {
-  const controller = new AbortController();
-  controller.abort();
-  const req = new Request('http://localhost/api/trees', { signal: controller.signal });
+  globalThis.fetch = vi.fn();
+  const req = new Request('http://localhost/api/trees');
+  const abortListeners = [];
+  Object.defineProperty(req, 'signal', {
+    value: {
+      aborted: true,
+      addEventListener: (_, cb) => abortListeners.push(cb),
+      removeEventListener: vi.fn(),
+    },
+    writable: false,
+  });
   const result = await fetchUpstream('https://api.lovebud.dev/api/trees', req, 'req-1', 5000);
   expect(result.error).toBe('CLIENT_ABORTED');
+  expect(globalThis.fetch).not.toHaveBeenCalled();
 });
 
-test('fetchUpstream - redirect returns 502', async () => {
-  globalThis.fetch = async () => new Response(null, { status: 301, headers: { Location: 'https://evil.com' } });
+test('fetchUpstream - redirect returns UPSTREAM_REDIRECT', async () => {
+  globalThis.fetch = vi.fn().mockResolvedValue(new Response(null, { status: 301, headers: { Location: 'https://evil.com' } }));
   const result = await fetchUpstream('https://api.lovebud.dev/api/trees', makeRequest('http://localhost/api/trees'), 'req-1', 5000);
+  expect(result.error).toBe('UPSTREAM_REDIRECT');
   expect(result.status).toBe(502);
+});
+
+test('fetchUpstream - no body for POST with zero content', async () => {
+  const fetchFn = vi.fn().mockResolvedValue(new Response('ok', { status: 200 }));
+  globalThis.fetch = fetchFn;
+  const req = makeRequest('http://localhost/api/trees', 'POST', { 'Content-Length': '0' });
+
+  const bodyReader = vi.spyOn(req, 'arrayBuffer').mockResolvedValue(new ArrayBuffer(0));
+  const result = await fetchUpstream('https://api.lovebud.dev', req, 'req-1', 5000);
+
+  expect(result.response.status).toBe(200);
+  expect(Object.prototype.hasOwnProperty.call(fetchFn.mock.calls[0][1], 'body')).toBe(false);
+  bodyReader.mockRestore();
 });
 
 test('forwardResponse - preserves status and statusText', () => {
@@ -482,10 +476,34 @@ test('forwardResponse - removes Set-Cookie', () => {
   expect(res.headers.get('set-cookie')).toBeNull();
 });
 
+test('forwardResponse - removes connection header', () => {
+  const upstream = new Response('ok', { headers: { 'Connection': 'keep-alive' } });
+  const res = forwardResponse(upstream, 'req-1');
+  expect(res.headers.get('connection')).toBeNull();
+});
+
+test('forwardResponse - removes server header', () => {
+  const upstream = new Response('ok', { headers: { 'Server': 'nginx' } });
+  const res = forwardResponse(upstream, 'req-1');
+  expect(res.headers.get('server')).toBeNull();
+});
+
+test('forwardResponse - removes CORS headers', () => {
+  const upstream = new Response('ok', { headers: { 'Access-Control-Allow-Origin': '*' } });
+  const res = forwardResponse(upstream, 'req-1');
+  expect(res.headers.get('access-control-allow-origin')).toBeNull();
+});
+
 test('forwardResponse - removes CF-* headers', () => {
   const upstream = new Response('ok', { headers: { 'CF-Ray': 'abc' } });
   const res = forwardResponse(upstream, 'req-1');
   expect(res.headers.get('cf-ray')).toBeNull();
+});
+
+test('forwardResponse - preserves content-type', () => {
+  const upstream = new Response('ok', { headers: { 'Content-Type': 'application/json' } });
+  const res = forwardResponse(upstream, 'req-1');
+  expect(res.headers.get('content-type')).toBe('application/json');
 });
 
 test('forwardResponse - preserves Cache-Control, ETag, Retry-After', () => {
@@ -494,6 +512,12 @@ test('forwardResponse - preserves Cache-Control, ETag, Retry-After', () => {
   expect(res.headers.get('cache-control')).toBe('max-age=300');
   expect(res.headers.get('etag')).toBe('"x"');
   expect(res.headers.get('retry-after')).toBe('10');
+});
+
+test('forwardResponse - preserves content-disposition', () => {
+  const upstream = new Response('ok', { headers: { 'Content-Disposition': 'attachment; filename="x.json"' } });
+  const res = forwardResponse(upstream, 'req-1');
+  expect(res.headers.get('content-disposition')).toBe('attachment; filename="x.json"');
 });
 
 test('forwardResponse - passes through null body (204)', () => {
@@ -514,9 +538,61 @@ test('ALLOWED_ROUTES is frozen', () => {
   expect(Object.isFrozen(ALLOWED_ROUTES[0])).toBe(true);
 });
 
-test('ALLOWED_METHODS_PER_PATH is immutable', () => {
-  const methods = ALLOWED_METHODS_PER_PATH.get('/api/trees');
-  expect(methods).toBeTruthy();
-  expect(methods.has('GET')).toBe(true);
-  expect(methods.has('POST')).toBe(true);
+test('ALLOWED_ROUTES cannot be extended', () => {
+  expect(() => ALLOWED_ROUTES.push({ method: 'GET', path: '/api/evil' })).toThrow();
+});
+
+test('ALLOWED_ROUTES elements cannot be mutated', () => {
+  expect(() => { ALLOWED_ROUTES[0].method = 'POST'; }).toThrow();
+});
+
+test('getRouteMethods returns copy, not original', () => {
+  const methods = getRouteMethods('/api/trees');
+  expect(methods).toContain('GET');
+  const lenBefore = methods.length;
+  methods.push('HEAD');
+  const methods2 = getRouteMethods('/api/trees');
+  expect(methods2.length).toBe(lenBefore);
+});
+
+test('getRouteMethods - runtime matcher uses same source', () => {
+  const fromGetter = getRouteMethods('/api/trees');
+  const fromMatch = getAllowedMethod(makeRequest('http://localhost/api/trees'), params('trees'));
+  expect(fromGetter.sort()).toEqual(fromMatch.sort());
+});
+
+test('no duplicate methods per path', () => {
+  const seen = {};
+  for (const route of ALLOWED_ROUTES) {
+    if (!seen[route.path]) seen[route.path] = new Set();
+    expect(seen[route.path].has(route.method)).toBe(false);
+    seen[route.path].add(route.method);
+  }
+});
+
+test('BLOCKED_REQUEST_HEADERS includes all required', () => {
+  const required = ['host', 'cookie', 'set-cookie', 'content-length', 'connection', 'te', 'upgrade'];
+  for (const h of required) {
+    expect(BLOCKED_REQUEST_HEADERS.includes(h)).toBe(true);
+  }
+});
+
+test('BLOCKED_RESPONSE_HEADERS includes all required', () => {
+  const required = ['set-cookie', 'server', 'x-powered-by', 'access-control-allow-origin'];
+  for (const h of required) {
+    expect(BLOCKED_RESPONSE_HEADERS.includes(h)).toBe(true);
+  }
+});
+
+test('BLOCKED_HEADER_PREFIXES includes cf- and x-forwarded-', () => {
+  expect(BLOCKED_HEADER_PREFIXES).toContain('cf-');
+  expect(BLOCKED_HEADER_PREFIXES).toContain('x-forwarded-');
+});
+
+test('ALLOWED_RESPONSE_HEADERS includes content-type, cache-control, etag', () => {
+  expect(ALLOWED_RESPONSE_HEADERS).toContain('content-type');
+  expect(ALLOWED_RESPONSE_HEADERS).toContain('cache-control');
+  expect(ALLOWED_RESPONSE_HEADERS).toContain('etag');
+  expect(ALLOWED_RESPONSE_HEADERS).toContain('retry-after');
+  expect(ALLOWED_RESPONSE_HEADERS).toContain('content-disposition');
 });

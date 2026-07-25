@@ -9,11 +9,21 @@ import {
   getAllowedMethod,
   checkContentLength,
   parseTimeoutMs,
+  verifyPathConsistency,
 } from '../_shared/api-proxy.js';
 
 export async function handleApiProxy(request, context) {
   const requestId = generateRequestId(request);
   const pathParams = context.params && context.params.path;
+
+  if (!verifyPathConsistency(request, pathParams)) {
+    return createProxyErrorEnvelope(
+      'INVALID_PROXY_REQUEST',
+      'Invalid proxy request',
+      requestId,
+      400
+    );
+  }
 
   const pathMatch = matchRouteAnyMethod(request, pathParams);
   if (!pathMatch) {
@@ -86,6 +96,7 @@ export async function handleApiProxy(request, context) {
       UPSTREAM_UNAVAILABLE: 502,
       CLIENT_ABORTED: 400,
       BODY_READ_FAILED: 400,
+      UPSTREAM_REDIRECT: 502,
     };
     const status = statusMap[result.error] || 502;
     const messageMap = {
@@ -93,6 +104,7 @@ export async function handleApiProxy(request, context) {
       UPSTREAM_UNAVAILABLE: 'Upstream service unavailable',
       CLIENT_ABORTED: 'Client disconnected',
       BODY_READ_FAILED: 'Failed to read request body',
+      UPSTREAM_REDIRECT: 'Unexpected upstream redirect',
     };
     return createProxyErrorEnvelope(
       result.error,
