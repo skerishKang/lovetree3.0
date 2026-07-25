@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import authSource from "./auth.ts?raw";
 import * as firebaseApp from "firebase/app";
 import * as firebaseAuth from "firebase/auth";
 
@@ -423,15 +424,12 @@ describe("Firebase auth module", () => {
   });
 
   describe("no forbidden imports", () => {
-    it("does not import compat/analytics/firestore", async () => {
-      const fs = await import("fs");
-      const path = await import("path");
-      const authPath = path.join(process.cwd(), "src/api/auth.ts");
-      const authSource = fs.readFileSync(authPath, "utf-8");
-
+    it("does not import compat/analytics/firestore", () => {
       expect(authSource).not.toContain("firebase/compat");
       expect(authSource).not.toContain("firebase/analytics");
       expect(authSource).not.toContain("firebase/firestore");
+      expect(authSource).not.toContain("firebase/performance");
+      expect(authSource).not.toContain("firebase/app-check");
     });
   });
 
