@@ -15,6 +15,23 @@ import {
 import App from "../App";
 import { MOCK_MY_TREES } from "../data/myTreesMockData";
 
+vi.mock("../hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: {
+      uid: "presentation-test-user",
+      displayName: null,
+      email: null,
+      photoURL: null,
+      emailVerified: true,
+    },
+    loading: false,
+    tier: null,
+    signInWithGoogle: vi.fn(),
+    signOut: vi.fn(),
+    expireSession: vi.fn(),
+  }),
+}));
+
 const TREE_TITLES = MOCK_MY_TREES.trees.map((t) => t.title);
 
 function renderAppAt(path: string) {
