@@ -434,4 +434,147 @@ describe("Firebase auth module", () => {
       expect(authSource).not.toContain("firebase/firestore");
     });
   });
+
+  describe("controlled persistence tests", () => {
+    it("concurrent ensureFirebaseAuthReady returns exact same Promise", async () => {
+      vi.stubEnv("VITE_FIREBASE_API_KEY", "test-key");
+      vi.stubEnv("VITE_FIREBASE_AUTH_DOMAIN", "test.firebaseapp.com");
+      vi.stubEnv("VITE_FIREBASE_PROJECT_ID", "test-project");
+      vi.stubEnv("VITE_FIREBASE_APP_ID", "test-app-id");
+
+      const mockApp = { name: "[DEFAULT]" };
+      const mockAuth = { currentUser: null };
+      vi.mocked(firebaseApp.getApps).mockReturnValue([]);
+      vi.mocked(firebaseApp.initializeApp).mockReturnValue(mockApp as any);
+      vi.mocked(firebaseAuth.getAuth).mockReturnValue(mockAuth as any);
+
+      let resolvePersistence: any;
+      const persistencePromise = new Promise((resolve) => { resolvePersistence = resolve; });
+      vi.mocked(firebaseAuth.setPersistence).mockReturnValue(persistencePromise as any);
+
+      const { ensureFirebaseAuthReady } = await import("./auth");
+      const p1 = ensureFirebaseAuthReady();
+      const p2 = ensureFirebaseAuthReady();
+
+      expect(p1).toBe(p2);
+      expect(firebaseAuth.setPersistence).toHaveBeenCalledTimes(1);
+
+      resolvePersistence();
+      await p1;
+    });
+
+    it("persistence pending delays getIdToken", async () => {
+      vi.stubEnv("VITE_FIREBASE_API_KEY", "test-key");
+      vi.stubEnv("VITE_FIREBASE_AUTH_DOMAIN", "test.firebaseapp.com");
+      vi.stubEnv("VITE_FIREBASE_PROJECT_ID", "test-project");
+      vi.stubEnv("VITE_FIREBASE_APP_ID", "test-app-id");
+
+      const mockUser = { getIdToken: vi.fn().mockResolvedValue("token") };
+      const mockApp = { name: "[DEFAULT]" };
+      const mockAuth = { currentUser: mockUser };
+      vi.mocked(firebaseApp.getApps).mockReturnValue([]);
+      vi.mocked(firebaseApp.initializeApp).mockReturnValue(mockApp as any);
+      vi.mocked(firebaseAuth.getAuth).mockReturnValue(mockAuth as any);
+
+      let resolvePersistence: any;
+      const persistencePromise = new Promise((resolve) => { resolvePersistence = resolve; });
+      vi.mocked(firebaseAuth.setPersistence).mockReturnValue(persistencePromise as any);
+
+      const { firebaseAccessTokenProvider } = await import("./auth");
+
+      let tokenResolved = false;
+      const tokenPromise = firebaseAccessTokenProvider.getAccessToken().then(t => {
+        tokenResolved = true;
+        return t;
+      });
+
+      await new Promise(r => setTimeout(r, 10));
+      expect(tokenResolved).toBe(false);
+      expect(mockUser.getIdToken).not.toHaveBeenCalled();
+
+      resolvePersistence();
+      const token = await tokenPromise;
+
+      expect(tokenResolved).toBe(true);
+      expect(mockUser.getIdToken).toHaveBeenCalledTimes(1);
+      expect(token).toBe("token");
+    });
+
+    it("persistence pending delays signOut", async () => {
+      vi.stubEnv("VITE_FIREBASE_API_KEY", "test-key");
+      vi.stubEnv("VITE_FIREBASE_AUTH_DOMAIN", "test.firebaseapp.com");
+      vi.stubEnv("VITE_FIREBASE_PROJECT_ID", "test-project");
+      vi.stubEnv("VITE_FIREBASE_APP_ID", "test-app-id");
+
+      const mockApp = { name: "[DEFAULT]" };
+      const mockAuth = { currentUser: null };
+      vi.mocked(firebaseApp.getApps).mockReturnValue([]);
+      vi.mocked(firebaseApp.initializeApp).mockReturnValue(mockApp as any);
+      vi.mocked(firebaseAuth.getAuth).mockReturnValue(mockAuth as any);
+
+      let resolvePersistence: any;
+      const persistencePromise = new Promise((resolve) => { resolvePersistence = resolve; });
+      vi.mocked(firebaseAuth.setPersistence).mockReturnValue(persistencePromise as any);
+      vi.mocked(firebaseAuth.signOut).mockResolvedValue(undefined);
+
+      const { signOutFirebase } = await import("./auth");
+
+      let signoutResolved = false;
+      const signoutPromise = signOutFirebase().then(() => { signoutResolved = true; });
+
+      await new Promise(r => setTimeout(r, 10));
+      expect(signoutResolved).toBe(false);
+      expect(firebaseAuth.signOut).not.toHaveBeenCalled();
+
+      resolvePersistence();
+      await signoutPromise;
+
+      expect(signoutResolved).toBe(true);
+      expect(firebaseAuth.signOut).toHaveBeenCalledTimes(1);
+    });
+
+    it("persistence rejection exposes only generic message and caches rejection", async () => {
+      vi.stubEnv("VITE_FIREBASE_API_KEY", "test-key");
+      vi.stubEnv("VITE_FIREBASE_AUTH_DOMAIN", "test.firebaseapp.com");
+      vi.stubEnv("VITE_FIREBASE_PROJECT_ID", "test-project");
+      vi.stubEnv("VITE_FIREBASE_APP_ID", "test-app-id");
+
+      const mockApp = { name: "[DEFAULT]" };
+      const mockAuth = { currentUser: null };
+      vi.mocked(firebaseApp.getApps).mockReturnValue([]);
+      vi.mocked(firebaseApp.initializeApp).mockReturnValue(mockApp as any);
+      vi.mocked(firebaseAuth.getAuth).mockReturnValue(mockAuth as any);
+
+      vi.mocked(firebaseAuth.setPersistence).mockRejectedValue(new Error("SECRET_INTERNAL_FIREBASE_ERROR"));
+
+      const { ensureFirebaseAuthReady, firebaseAccessTokenProvider, signOutFirebase } = await import("./auth");
+
+      const p1 = ensureFirebaseAuthReady();
+      await expect(p1).rejects.toThrow("Firebase authentication persistence initialization failed");
+
+      const err = await p1.catch(e => e);
+      expect(err.message).not.toContain("SECRET_INTERNAL_FIREBASE_ERROR");
+
+      const p2 = ensureFirebaseAuthReady();
+      await expect(p2).rejects.toThrow("Firebase authentication persistence initialization failed");
+      expect(firebaseAuth.setPersistence).toHaveBeenCalledTimes(1);
+
+      await expect(firebaseAccessTokenProvider.getAccessToken()).rejects.toThrow("Firebase authentication persistence initialization failed");
+
+      await expect(signOutFirebase()).rejects.toThrow("Firebase authentication persistence initialization failed");
+    });
+
+    it("empty/whitespace env keys are treated as missing", async () => {
+      vi.stubEnv("VITE_FIREBASE_API_KEY", "   \t\n ");
+      vi.stubEnv("VITE_FIREBASE_AUTH_DOMAIN", "test.firebaseapp.com");
+      vi.stubEnv("VITE_FIREBASE_PROJECT_ID", "test-project");
+      vi.stubEnv("VITE_FIREBASE_APP_ID", "test-app-id");
+
+      const { getFirebaseAuthConfigStatus } = await import("./auth");
+      const status = getFirebaseAuthConfigStatus();
+
+      expect(status.configured).toBe(false);
+      expect(status.missingKeys).toContain("VITE_FIREBASE_API_KEY");
+    });
+  });
 });

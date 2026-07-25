@@ -37,10 +37,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
     let unsubscribe: (() => void) | undefined;
+    let isMounted = true;
 
     ensureFirebaseAuthReady()
       .then((auth) => {
-        if (!active) {
+        if (!active || !isMounted) {
           return;
         }
 
@@ -48,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const callbackGeneration = ++callbackGenerationRef.current;
 
           if (!firebaseUser) {
-            if (active && callbackGeneration === callbackGenerationRef.current) {
+            if (active && isMounted && callbackGeneration === callbackGenerationRef.current) {
               setUser(null);
               setTier(null);
               setLoading(false);
@@ -59,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const authUser = mapFirebaseUserToAuthUser(firebaseUser);
           const userTier = await extractTierFromUser(firebaseUser);
 
-          if (active && callbackGeneration === callbackGenerationRef.current) {
+          if (active && isMounted && callbackGeneration === callbackGenerationRef.current) {
             setUser(authUser);
             setTier(userTier);
             setLoading(false);
@@ -67,15 +68,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       })
       .catch(() => {
-        if (active) {
+        if (active && isMounted) {
+          setUser(null);
+          setTier(null);
           setLoading(false);
         }
       });
 
     return () => {
       active = false;
-      callbackGenerationRef.current += 1;
-      unsubscribe?.();
+      isMounted = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, []);
 

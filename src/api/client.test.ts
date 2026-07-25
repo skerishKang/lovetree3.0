@@ -1447,4 +1447,262 @@ describe("ApiClient 401 refresh-and-retry", () => {
       expect(result).toBe("plain text response");
     });
   });
+
+  describe("Serialization failure contract", () => {
+    const invalidBodies = [
+      { name: "circular object", create: () => { const a: any = {}; a.a = a; return a; } },
+      { name: "BigInt", create: () => BigInt(123) },
+      { name: "Symbol", create: () => Symbol("test") },
+      { name: "function", create: () => function(){} },
+      { name: "throwing toJSON", create: () => ({ toJSON() { throw new Error("SECRET_INTERNAL_VALUE"); } }) }
+    ];
+
+    for (const { name, create } of invalidBodies) {
+      it(`fails closed on ${name} before fetch`, async () => {
+        const getAccessToken = vi.fn().mockResolvedValue("token");
+        const provider = { getAccessToken };
+        const client = createClient({ accessTokenProvider: provider });
+
+        let err: any;
+        try {
+          await client.request("/test", { method: "POST", body: create() });
+        } catch (e) {
+          err = e;
+        }
+
+        expect(err).toBeInstanceOf(ApiErrorImpl);
+        expect(err.code).toBe("INVALID_REQUEST_BODY");
+        expect(err.status).toBe(0);
+        expect(err.retryable).toBe(false);
+        expect(err.message).not.toContain("SECRET_INTERNAL_VALUE");
+        expect(getAccessToken).not.toHaveBeenCalled();
+      });
+    }
+  });
+
+  describe("Snapshot mutation tests", () => {
+    it("ArrayBuffer snapshot", async () => {
+      const getAccessToken = vi.fn()
+        .mockResolvedValueOnce("token1")
+        .mockResolvedValueOnce("token2");
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockResolvedValueOnce(new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+      const buffer = new Uint8Array([1, 2, 3]).buffer;
+
+      const reqPromise = client.request("/test", { method: "POST", body: buffer });
+
+      // Mutate original buffer
+      new Uint8Array(buffer)[0] = 99;
+
+      await reqPromise;
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body as ArrayBuffer;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body as ArrayBuffer;
+
+      expect(new Uint8Array(firstBody)[0]).toBe(1);
+      expect(new Uint8Array(secondBody)[0]).toBe(1);
+      expect(firstBody).not.toBe(secondBody);
+    });
+
+    it("Typed array snapshot", async () => {
+      const getAccessToken = vi.fn()
+        .mockResolvedValueOnce("token1")
+        .mockResolvedValueOnce("token2");
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockResolvedValueOnce(new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+
+      const backingBuffer = new ArrayBuffer(10);
+      const typedArray = new Uint8Array(backingBuffer, 2, 3);
+      typedArray.set([1, 2, 3]);
+
+      const reqPromise = client.request("/test", { method: "POST", body: typedArray });
+
+      // Mutate original
+      typedArray[0] = 99;
+
+      await reqPromise;
+
+      const firstBody = fetchSpy.mock.calls[0][1]?.body as Uint8Array;
+      const secondBody = fetchSpy.mock.calls[1][1]?.body as Uint8Array;
+
+      expect(Array.from(firstBody)).toEqual([1, 2, 3]);
+      expect(Array.from(secondBody)).toEqual([1, 2, 3]);
+    });
+
+    it("Headers snapshot", async () => {
+      let resolveRefresh: any;
+      const refreshPromise = new Promise(r => { resolveRefresh = r; });
+      const getAccessToken = vi.fn().mockImplementation(async ({ forceRefresh }: any = {}) => {
+        if (forceRefresh) {
+          await refreshPromise;
+          return "token2";
+        }
+        return "token1";
+      });
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockResolvedValueOnce(new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+      const options = { headers: { "x-custom": "original" } };
+
+      const reqPromise = client.request("/test", options);
+
+      // Wait for fetch to be called first time
+      await new Promise(r => setTimeout(r, 10));
+
+      // Mutate original headers
+      options.headers["x-custom"] = "mutated";
+
+      resolveRefresh();
+      await reqPromise;
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      expect(firstHeaders.get("x-custom")).toBe("original");
+      expect(secondHeaders.get("x-custom")).toBe("original");
+    });
+
+    it("Idempotency-Key snapshot", async () => {
+      let resolveRefresh: any;
+      const refreshPromise = new Promise(r => { resolveRefresh = r; });
+      const getAccessToken = vi.fn().mockImplementation(async ({ forceRefresh }: any = {}) => {
+        if (forceRefresh) {
+          await refreshPromise;
+          return "token2";
+        }
+        return "token1";
+      });
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockResolvedValueOnce(new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+      const options = { method: "POST", idempotencyKey: "12345678-original" };
+
+      const reqPromise = client.request("/test", options);
+
+      await new Promise(r => setTimeout(r, 10));
+
+      options.idempotencyKey = "12345678-mutated";
+
+      resolveRefresh();
+      await reqPromise;
+
+      const firstHeaders = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      const secondHeaders = fetchSpy.mock.calls[1][1]?.headers as Headers;
+
+      expect(firstHeaders.get("Idempotency-Key")).toBe("12345678-original");
+      expect(secondHeaders.get("Idempotency-Key")).toBe("12345678-original");
+    });
+
+    it("AbortSignal snapshot", async () => {
+      let resolveRefresh: any;
+      const refreshPromise = new Promise(r => { resolveRefresh = r; });
+      const getAccessToken = vi.fn().mockImplementation(async ({ forceRefresh }: any = {}) => {
+        if (forceRefresh) {
+          await refreshPromise;
+          return "token2";
+        }
+        return "token1";
+      });
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(new Response('{"error":"Unauthorized"}', { status: 401, headers: { "content-type": "application/json" } }))
+        .mockImplementation(async () => new Response('{"success":true}', { status: 200, headers: { "content-type": "application/json" } }));
+
+      const client = createClient({ accessTokenProvider: { getAccessToken } });
+
+      const controllerA = new AbortController();
+      const controllerB = new AbortController();
+
+      const options = { signal: controllerA.signal };
+      const reqPromise = client.request("/test", options);
+
+      await new Promise(r => setTimeout(r, 10));
+
+      // Swap signal
+      options.signal = controllerB.signal;
+
+      // Abort B
+      controllerB.abort();
+
+      resolveRefresh();
+      await reqPromise;
+
+      const firstInit = fetchSpy.mock.calls[0][1] as RequestInit;
+      const secondInit = fetchSpy.mock.calls[1][1] as RequestInit;
+
+      expect(firstInit.signal).toBe(controllerA.signal);
+      expect(secondInit.signal).toBe(controllerA.signal);
+
+    });
+  });
+
+  describe("Content-Type contract", () => {
+    it("no body => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "GET" });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("FormData => Content-Type 없음 (브라우저가 설정)", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "POST", body: new FormData() });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("Blob => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "POST", body: new Blob() });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("ArrayBuffer => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "POST", body: new ArrayBuffer(0) });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("TypedArray => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      await client.request("/test", { method: "POST", body: new Uint8Array(0) });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("ReadableStream => Content-Type 없음", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}', { status: 200, headers: { "content-type": "application/json" } }));
+      const client = createClient();
+      const stream = new ReadableStream();
+      await client.request("/test", { method: "POST", body: stream });
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Headers;
+      expect(headers.has("Content-Type")).toBe(false);
+    });
+
+    it("lowercase override 거부", async () => {
+      const client = createClient();
+      await expect(client.request("/test", { method: "POST", headers: { "content-type": "text/html" } })).rejects.toThrow();
+    });
+
+    it("mixed-case override 거부", async () => {
+      const client = createClient();
+      await expect(client.request("/test", { method: "POST", headers: { "cOnTeNt-TyPe": "text/html" } })).rejects.toThrow();
+    });
+  });
 });

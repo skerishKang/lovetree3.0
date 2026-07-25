@@ -1,6 +1,6 @@
 import {
   NULL_ACCESS_TOKEN_PROVIDER,
-  MANAGED_HEADERS,
+  isManagedHeader,
   type AccessTokenProvider,
   type ClientConfig,
   type BaseRequestOptions,
@@ -182,8 +182,7 @@ export class ApiClient {
     this.accessTokenProvider = config.accessTokenProvider ?? NULL_ACCESS_TOKEN_PROVIDER;
 
     for (const [key, value] of Object.entries(this.defaultHeaders)) {
-      const lowerKey = key.toLowerCase();
-      if (MANAGED_HEADERS.has(lowerKey)) {
+      if (isManagedHeader(key)) {
         throw new HeaderValidationError(key,
           `managed header "${key}" cannot be set in defaultHeaders`);
       }
@@ -212,6 +211,9 @@ export class ApiClient {
       }
     }
 
+    const snapshotIdempotencyKey = options.idempotencyKey;
+    const snapshotSignal = options.signal;
+
     const method = (options.method ?? "GET").toUpperCase();
     const url = `${this.baseUrl}${path}${options.query ? buildQueryString(options.query as Record<string, string | number | boolean | undefined | null>) : ""}`;
 
@@ -224,8 +226,7 @@ export class ApiClient {
 
     if (options.headers) {
       for (const [key, value] of Object.entries(options.headers)) {
-        const lowerKey = key.toLowerCase();
-        if (MANAGED_HEADERS.has(lowerKey)) {
+        if (isManagedHeader(key)) {
           throw new HeaderValidationError(key,
             `managed header "${key}" cannot be overridden per-request`);
         }
@@ -236,7 +237,7 @@ export class ApiClient {
     }
 
     const executeRequest = async (token: string | null, isFirstAttempt: boolean): Promise<Response> => {
-      const headers = buildManagedHeaders(requestId, options.idempotencyKey, token);
+      const headers = buildManagedHeaders(requestId, snapshotIdempotencyKey, token);
 
       if (bodyPlan.requiresJsonContentType) {
         headers["Content-Type"] = "application/json";
@@ -253,7 +254,7 @@ export class ApiClient {
       const fetchInit: RequestInit = {
         method,
         headers: new Headers(headers),
-        signal: options.signal,
+        signal: snapshotSignal,
       };
 
       const body = isFirstAttempt ? bodyPlan.createFirstBody() : bodyPlan.createRetryBody();
@@ -344,7 +345,7 @@ export class ApiClient {
       throw originalError;
     }
 
-    if (options.signal?.aborted) {
+    if (snapshotSignal?.aborted) {
       throw originalError;
     }
 
@@ -359,7 +360,7 @@ export class ApiClient {
       throw originalError;
     }
 
-    if (options.signal?.aborted) {
+    if (snapshotSignal?.aborted) {
       throw originalError;
     }
 

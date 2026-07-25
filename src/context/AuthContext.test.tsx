@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor, act, cleanup } from "@testing-library/react";
 import { StrictMode, useState } from "react";
 import * as firebaseAuth from "firebase/auth";
 import { AuthProvider, useAuthContext } from "./AuthContext";
@@ -21,6 +21,7 @@ describe("AuthContext", () => {
   });
 
   afterEach(() => {
+    cleanup();
     vi.restoreAllMocks();
   });
 
@@ -503,6 +504,130 @@ describe("AuthContext", () => {
         expect(screen.getByTestId("user").textContent).toBe("has user");
         expect(screen.getByTestId("error").textContent).toBe("Sign out failed");
       });
+    });
+  });
+  describe("Stale async result suppression - null and signOut", () => {
+    it("A -> null", async () => {
+      const { triggerCallback } = setupOnIdTokenChanged();
+
+      let resolveUserA: (value: any) => void;
+      const userAPromise = new Promise((resolve) => { resolveUserA = resolve; });
+
+      const userA = createMockUser({
+        uid: "user-a",
+        getIdTokenResult: vi.fn().mockReturnValue(userAPromise),
+      });
+
+      function TestComponent() {
+        const { user } = useAuth();
+        return <div data-testid="uid">{user?.uid ?? "null"}</div>;
+      }
+
+      render(<AuthProvider><TestComponent /></AuthProvider>);
+
+      await triggerCallback(userA);
+      await triggerCallback(null);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("uid").textContent).toBe("null");
+      });
+
+      await act(async () => {
+        resolveUserA({ claims: { tier: "a" } });
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(screen.getByTestId("uid").textContent).toBe("null");
+    });
+
+    it("A -> signOut", async () => {
+      const { triggerCallback } = setupOnIdTokenChanged();
+      const { signOutFirebase } = await import("../api/auth");
+      vi.mocked(signOutFirebase).mockResolvedValue(undefined);
+
+      let resolveUserA: (value: any) => void;
+      const userAPromise = new Promise((resolve) => { resolveUserA = resolve; });
+
+      const userA = createMockUser({
+        uid: "user-a",
+        getIdTokenResult: vi.fn().mockReturnValue(userAPromise),
+      });
+
+      function TestComponent() {
+        const { user, signOut } = useAuth();
+        return (
+          <div>
+            <div data-testid="uid">{user?.uid ?? "null"}</div>
+            <button onClick={signOut}>Sign Out</button>
+          </div>
+        );
+      }
+
+      render(<AuthProvider><TestComponent /></AuthProvider>);
+
+      await triggerCallback(userA);
+
+      await act(async () => {
+        screen.getByText("Sign Out").click();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId("uid").textContent).toBe("null");
+      });
+
+      await act(async () => {
+        resolveUserA({ claims: { tier: "a" } });
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(screen.getByTestId("uid").textContent).toBe("null");
+    });
+  });
+
+  describe("StrictMode listener accounting", () => {
+    it("tracks exact subscription counts", async () => {
+      let subCount = 0;
+      let unsubCount = 0;
+      let activeListeners = 0;
+
+      vi.mocked(firebaseAuth.onIdTokenChanged).mockImplementation((_auth, _cb) => {
+        subCount++;
+        activeListeners++;
+        let unsubscribed = false;
+        return () => {
+          if (!unsubscribed) {
+            unsubscribed = true;
+            unsubCount++;
+            activeListeners--;
+          }
+        };
+      });
+
+      function TestComponent() {
+        useAuth();
+        return <div>test</div>;
+      }
+
+      const { unmount } = render(
+        <StrictMode>
+          <AuthProvider>
+            <TestComponent />
+          </AuthProvider>
+        </StrictMode>
+      );
+
+      await waitFor(() => {
+        expect(activeListeners).toBe(1);
+      });
+
+      expect(subCount).toBeGreaterThanOrEqual(1);
+
+      unmount();
+
+      expect(activeListeners).toBe(0);
+      expect(subCount).toEqual(unsubCount);
     });
   });
 });
