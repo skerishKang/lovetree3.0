@@ -213,9 +213,9 @@ describe("Firebase auth module", () => {
       vi.mocked(firebaseAuth.getAuth).mockReturnValue(mockAuth as any);
       vi.mocked(firebaseAuth.setPersistence).mockResolvedValue(undefined);
 
-      const { getFirebaseAuth } = await import("./auth");
-      getFirebaseAuth();
-      getFirebaseAuth();
+      const { ensureFirebaseAuthReady } = await import("./auth");
+      await ensureFirebaseAuthReady();
+      await ensureFirebaseAuthReady();
 
       expect(firebaseAuth.setPersistence).toHaveBeenCalledTimes(1);
     });
@@ -233,8 +233,8 @@ describe("Firebase auth module", () => {
       vi.mocked(firebaseAuth.getAuth).mockReturnValue(mockAuth as any);
       vi.mocked(firebaseAuth.setPersistence).mockResolvedValue(undefined);
 
-      const { getFirebaseAuth } = await import("./auth");
-      getFirebaseAuth();
+      const { ensureFirebaseAuthReady } = await import("./auth");
+      await ensureFirebaseAuthReady();
 
       expect(firebaseAuth.setPersistence).toHaveBeenCalledWith(
         mockAuth,

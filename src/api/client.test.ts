@@ -1415,19 +1415,16 @@ describe("ApiClient 401 refresh-and-retry", () => {
       });
       stream.getReader();
 
-      const fetchSpy = vi.spyOn(globalThis, "fetch")
-        .mockResolvedValueOnce(new Response('{"error":"Unauthorized","code":"UNAUTHORIZED"}', {
-          status: 401,
-          headers: { "content-type": "application/json" },
-        }));
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
 
       const client = new ApiClient({ baseUrl: "/api", accessTokenProvider: provider });
 
       await expect(client.request("/trees", { method: "POST", body: stream })).rejects.toMatchObject({
-        status: 401,
+        status: 0,
+        code: "NETWORK_ERROR",
       });
 
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).not.toHaveBeenCalled();
     });
   });
 

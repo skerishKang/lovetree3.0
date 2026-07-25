@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from "react";
 import { onIdTokenChanged, type User } from "firebase/auth";
-import { getFirebaseAuth, signOutFirebase } from "../api/auth";
+import { ensureFirebaseAuthReady, signOutFirebase } from "../api/auth";
 import type { AuthUser, AuthTier, AuthContextValue } from "../types/auth";
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -32,50 +32,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [tier, setTier] = useState<AuthTier>(null);
-  const [generation, setGeneration] = useState(0);
+  const callbackGenerationRef = useRef(0);
 
   useEffect(() => {
-    const auth = getFirebaseAuth();
-    let currentGeneration = generation;
+    let active = true;
+    let unsubscribe: (() => void) | undefined;
 
-    const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
-      const thisGeneration = currentGeneration;
+    ensureFirebaseAuthReady()
+      .then((auth) => {
+        if (!active) {
+          return;
+        }
 
-      if (!firebaseUser) {
-        if (thisGeneration === generation) {
-          setUser(null);
-          setTier(null);
+        unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+          const callbackGeneration = ++callbackGenerationRef.current;
+
+          if (!firebaseUser) {
+            if (active && callbackGeneration === callbackGenerationRef.current) {
+              setUser(null);
+              setTier(null);
+              setLoading(false);
+            }
+            return;
+          }
+
+          const authUser = mapFirebaseUserToAuthUser(firebaseUser);
+          const userTier = await extractTierFromUser(firebaseUser);
+
+          if (active && callbackGeneration === callbackGenerationRef.current) {
+            setUser(authUser);
+            setTier(userTier);
+            setLoading(false);
+          }
+        });
+      })
+      .catch(() => {
+        if (active) {
           setLoading(false);
         }
-        return;
-      }
-
-      const authUser = mapFirebaseUserToAuthUser(firebaseUser);
-      const userTier = await extractTierFromUser(firebaseUser);
-
-      if (thisGeneration === generation) {
-        setUser(authUser);
-        setTier(userTier);
-        setLoading(false);
-      }
-    });
+      });
 
     return () => {
-      currentGeneration++;
-      setGeneration(currentGeneration);
-      unsubscribe();
+      active = false;
+      callbackGenerationRef.current += 1;
+      unsubscribe?.();
     };
-  }, [generation]);
+  }, []);
 
   const signOut = useCallback(async () => {
-    try {
-      await signOutFirebase();
-      setUser(null);
-      setTier(null);
-    } catch {
-      // Do not create false logout state on failure
-      // Firebase auth state remains unchanged
-    }
+    await signOutFirebase();
+    setUser(null);
+    setTier(null);
   }, []);
 
   const value = useMemo<AuthContextValue>(

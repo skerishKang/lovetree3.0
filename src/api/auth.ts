@@ -13,10 +13,10 @@ interface FirebaseConfig {
 }
 
 function getFirebaseConfig(): FirebaseConfig | null {
-  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-  const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN;
-  const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
-  const appId = import.meta.env.VITE_FIREBASE_APP_ID;
+  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY?.trim();
+  const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN?.trim();
+  const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID?.trim();
+  const appId = import.meta.env.VITE_FIREBASE_APP_ID?.trim();
 
   if (!apiKey || !authDomain || !projectId || !appId) {
     return null;
@@ -29,17 +29,17 @@ function getFirebaseConfig(): FirebaseConfig | null {
     appId,
   };
 
-  const storageBucket = import.meta.env.VITE_FIREBASE_STORAGE_BUCKET;
+  const storageBucket = import.meta.env.VITE_FIREBASE_STORAGE_BUCKET?.trim();
   if (storageBucket) {
     config.storageBucket = storageBucket;
   }
 
-  const messagingSenderId = import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID;
+  const messagingSenderId = import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim();
   if (messagingSenderId) {
     config.messagingSenderId = messagingSenderId;
   }
 
-  const measurementId = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID;
+  const measurementId = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID?.trim();
   if (measurementId) {
     config.measurementId = measurementId;
   }
@@ -53,28 +53,33 @@ export function getFirebaseAuthConfigStatus(): {
 } {
   const missingKeys: string[] = [];
 
-  if (!import.meta.env.VITE_FIREBASE_API_KEY) {
+  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY?.trim();
+  const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN?.trim();
+  const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID?.trim();
+  const appId = import.meta.env.VITE_FIREBASE_APP_ID?.trim();
+
+  if (!apiKey) {
     missingKeys.push("VITE_FIREBASE_API_KEY");
   }
-  if (!import.meta.env.VITE_FIREBASE_AUTH_DOMAIN) {
+  if (!authDomain) {
     missingKeys.push("VITE_FIREBASE_AUTH_DOMAIN");
   }
-  if (!import.meta.env.VITE_FIREBASE_PROJECT_ID) {
+  if (!projectId) {
     missingKeys.push("VITE_FIREBASE_PROJECT_ID");
   }
-  if (!import.meta.env.VITE_FIREBASE_APP_ID) {
+  if (!appId) {
     missingKeys.push("VITE_FIREBASE_APP_ID");
   }
 
   return {
     configured: missingKeys.length === 0,
-    missingKeys,
+    missingKeys: Object.freeze(missingKeys),
   };
 }
 
 let firebaseApp: FirebaseApp | null = null;
 let firebaseAuth: Auth | null = null;
-let persistencePromise: Promise<void> | null = null;
+let authReadyPromise: Promise<Auth> | null = null;
 
 export function getFirebaseApp(): FirebaseApp {
   if (firebaseApp) {
@@ -106,17 +111,30 @@ export function getFirebaseAuth(): Auth {
 
   const app = getFirebaseApp();
   firebaseAuth = getAuth(app);
+  return firebaseAuth;
+}
 
-  if (!persistencePromise) {
-    persistencePromise = setPersistence(firebaseAuth, browserLocalPersistence);
+export function ensureFirebaseAuthReady(): Promise<Auth> {
+  if (authReadyPromise) {
+    return authReadyPromise;
   }
 
-  return firebaseAuth;
+  const auth = getFirebaseAuth();
+  authReadyPromise = setPersistence(auth, browserLocalPersistence)
+    .then(() => auth)
+    .catch((error) => {
+      authReadyPromise = null;
+      throw new Error(
+        `Firebase persistence setup failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    });
+
+  return authReadyPromise;
 }
 
 export const firebaseAccessTokenProvider: AccessTokenProvider = {
   async getAccessToken(options?: { forceRefresh?: boolean }): Promise<string | null> {
-    const auth = getFirebaseAuth();
+    const auth = await ensureFirebaseAuthReady();
     const user = auth.currentUser;
 
     if (!user) {
@@ -138,7 +156,7 @@ export const firebaseAccessTokenProvider: AccessTokenProvider = {
 };
 
 export async function signOutFirebase(): Promise<void> {
-  const auth = getFirebaseAuth();
+  const auth = await ensureFirebaseAuthReady();
   const { signOut } = await import("firebase/auth");
   await signOut(auth);
 }

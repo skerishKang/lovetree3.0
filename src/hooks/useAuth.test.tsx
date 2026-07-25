@@ -10,6 +10,7 @@ vi.mock("firebase/auth", () => ({
 
 vi.mock("../api/auth", () => ({
   getFirebaseAuth: vi.fn(() => ({})),
+  ensureFirebaseAuthReady: vi.fn(() => Promise.resolve({})),
   signOutFirebase: vi.fn(),
 }));
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import * as firebaseAuth from "firebase/auth";
 import { AuthProvider, useAuthContext } from "./AuthContext";
 import { useAuth } from "../hooks/useAuth";
@@ -11,6 +11,7 @@ vi.mock("firebase/auth", () => ({
 
 vi.mock("../api/auth", () => ({
   getFirebaseAuth: vi.fn(() => ({})),
+  ensureFirebaseAuthReady: vi.fn(() => Promise.resolve({})),
   signOutFirebase: vi.fn(),
 }));
 
@@ -45,9 +46,12 @@ describe("AuthContext", () => {
     });
 
     return {
-      triggerCallback: (user: firebaseAuth.User | null) => {
+      triggerCallback: async (user: firebaseAuth.User | null) => {
+        await waitFor(() => {
+          expect(callback).not.toBeNull();
+        });
         if (callback) {
-          act(() => {
+          await act(async () => {
             callback!(user);
           });
         }
@@ -95,7 +99,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(null);
+      await triggerCallback(null);
 
       await waitFor(() => {
         expect(screen.getByTestId("loading").textContent).toBe("not loading");
@@ -124,7 +128,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         const userText = screen.getByTestId("user").textContent;
@@ -159,7 +163,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         const contextText = screen.getByTestId("context").textContent;
@@ -190,7 +194,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         expect(screen.getByTestId("tier").textContent).toBe("premium");
@@ -214,7 +218,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         expect(screen.getByTestId("tier").textContent).toBe("null");
@@ -238,7 +242,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         expect(screen.getByTestId("tier").textContent).toBe("null");
@@ -262,7 +266,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         expect(screen.getByTestId("tier").textContent).toBe("null");
@@ -293,13 +297,13 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         expect(screen.getByTestId("tier").textContent).toBe("premium");
       });
 
-      triggerCallback(null);
+      await triggerCallback(null);
 
       await waitFor(() => {
         expect(screen.getByTestId("user").textContent).toBe("no user");
@@ -343,9 +347,9 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(userA);
+      await triggerCallback(userA);
 
-      triggerCallback(userB);
+      await triggerCallback(userB);
 
       await waitFor(() => {
         expect(screen.getByTestId("uid").textContent).toBe("user-b");
@@ -364,7 +368,7 @@ describe("AuthContext", () => {
   });
 
   describe("unmount cleanup", () => {
-    it("calls unsubscribe exactly once on unmount", () => {
+    it("calls unsubscribe exactly once on unmount", async () => {
       const { unsubscribe } = setupOnIdTokenChanged();
 
       function TestComponent() {
@@ -378,6 +382,10 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
+      await waitFor(() => {
+        expect(firebaseAuth.onIdTokenChanged).toHaveBeenCalled();
+      });
+
       unmount();
 
       expect(unsubscribe).toHaveBeenCalledTimes(1);
@@ -385,7 +393,7 @@ describe("AuthContext", () => {
   });
 
   describe("StrictMode", () => {
-    it("does not leak subscriptions in StrictMode", () => {
+    it("does not leak subscriptions in StrictMode", async () => {
       const { unsubscribe } = setupOnIdTokenChanged();
 
       function TestComponent() {
@@ -400,6 +408,10 @@ describe("AuthContext", () => {
           </AuthProvider>
         </StrictMode>
       );
+
+      await waitFor(() => {
+        expect(firebaseAuth.onIdTokenChanged).toHaveBeenCalled();
+      });
 
       unmount();
 
@@ -431,7 +443,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         expect(screen.getByTestId("user").textContent).toBe("has user");
@@ -455,10 +467,18 @@ describe("AuthContext", () => {
 
       function TestComponent() {
         const { user, signOut } = useAuth();
+        const [error, setError] = useState<string | null>(null);
         return (
           <div>
             <div data-testid="user">{user ? "has user" : "no user"}</div>
-            <button onClick={signOut}>Sign Out</button>
+            <div data-testid="error">{error ?? "no error"}</div>
+            <button onClick={async () => {
+              try {
+                await signOut();
+              } catch (e) {
+                setError(e instanceof Error ? e.message : "Unknown error");
+              }
+            }}>Sign Out</button>
           </div>
         );
       }
@@ -469,7 +489,7 @@ describe("AuthContext", () => {
         </AuthProvider>
       );
 
-      triggerCallback(mockUser);
+      await triggerCallback(mockUser);
 
       await waitFor(() => {
         expect(screen.getByTestId("user").textContent).toBe("has user");
@@ -481,6 +501,7 @@ describe("AuthContext", () => {
 
       await waitFor(() => {
         expect(screen.getByTestId("user").textContent).toBe("has user");
+        expect(screen.getByTestId("error").textContent).toBe("Sign out failed");
       });
     });
   });

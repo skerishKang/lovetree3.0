@@ -57,30 +57,52 @@ function isTextOptions(options: RequestOptions): boolean {
   return options.responseType === "text";
 }
 
-type ReplayableBody =
-  | { type: "none" }
-  | { type: "json"; serialized: string }
-  | { type: "blob"; blob: Blob }
-  | { type: "arraybuffer"; buffer: ArrayBuffer }
-  | { type: "typedarray"; view: ArrayBufferView }
-  | { type: "formdata"; entries: Array<[string, string | File]> }
-  | { type: "non-replayable" };
+interface BodyPlan {
+  replayable: boolean;
+  createFirstBody(): BodyInit | undefined;
+  createRetryBody(): BodyInit | undefined;
+  requiresJsonContentType: boolean;
+}
 
-function classifyBody(body: unknown, method: string): ReplayableBody {
+function classifyBody(body: unknown, method: string): BodyPlan {
   if (method === "GET" || method === "HEAD" || body === undefined) {
-    return { type: "none" };
+    return {
+      replayable: true,
+      createFirstBody: () => undefined,
+      createRetryBody: () => undefined,
+      requiresJsonContentType: false,
+    };
   }
 
   if (body instanceof Blob) {
-    return { type: "blob", blob: body };
+    return {
+      replayable: true,
+      createFirstBody: () => body,
+      createRetryBody: () => body,
+      requiresJsonContentType: false,
+    };
   }
 
   if (body instanceof ArrayBuffer) {
-    return { type: "arraybuffer", buffer: body };
+    const snapshot = new Uint8Array(body.slice(0));
+    return {
+      replayable: true,
+      createFirstBody: () => snapshot.slice().buffer,
+      createRetryBody: () => snapshot.slice().buffer,
+      requiresJsonContentType: false,
+    };
   }
 
   if (ArrayBuffer.isView(body)) {
-    return { type: "typedarray", view: body };
+    const snapshot = new Uint8Array(
+      body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength)
+    );
+    return {
+      replayable: true,
+      createFirstBody: () => snapshot.slice() as BodyInit,
+      createRetryBody: () => snapshot.slice() as BodyInit,
+      requiresJsonContentType: false,
+    };
   }
 
   if (body instanceof FormData) {
@@ -88,39 +110,9 @@ function classifyBody(body: unknown, method: string): ReplayableBody {
     body.forEach((value, key) => {
       entries.push([key, value]);
     });
-    return { type: "formdata", entries };
-  }
-
-  if (body instanceof ReadableStream) {
-    return { type: "non-replayable" };
-  }
-
-  try {
-    const serialized = JSON.stringify(body);
-    return { type: "json", serialized };
-  } catch {
-    return { type: "non-replayable" };
-  }
-}
-
-function createBodyFromPlan(plan: ReplayableBody): BodyInit | undefined {
-  switch (plan.type) {
-    case "none":
-      return undefined;
-    case "json":
-      return plan.serialized;
-    case "blob":
-      return plan.blob;
-    case "arraybuffer":
-      return plan.buffer.slice(0);
-    case "typedarray": {
-      const view = plan.view;
-      const buffer = view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength);
-      return new Uint8Array(buffer) as BodyInit;
-    }
-    case "formdata": {
+    const createFormData = () => {
       const formData = new FormData();
-      for (const [key, value] of plan.entries) {
+      for (const [key, value] of entries) {
         if (value instanceof File) {
           formData.append(key, value, value.name);
         } else {
@@ -128,14 +120,55 @@ function createBodyFromPlan(plan: ReplayableBody): BodyInit | undefined {
         }
       }
       return formData;
-    }
-    case "non-replayable":
-      return undefined;
+    };
+    return {
+      replayable: true,
+      createFirstBody: createFormData,
+      createRetryBody: createFormData,
+      requiresJsonContentType: false,
+    };
   }
-}
 
-function shouldSetJsonContentType(plan: ReplayableBody): boolean {
-  return plan.type === "json";
+  if (body instanceof ReadableStream) {
+    if (body.locked) {
+      throw new ApiErrorImpl({
+        status: 0,
+        code: "NETWORK_ERROR",
+        message: "Request body stream is locked and cannot be used",
+        retryable: false,
+        rawCategory: "network",
+      });
+    }
+    return {
+      replayable: false,
+      createFirstBody: () => body,
+      createRetryBody: () => undefined,
+      requiresJsonContentType: false,
+    };
+  }
+
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(body);
+    if (serialized === undefined) {
+      throw new Error("JSON.stringify returned undefined");
+    }
+  } catch (error) {
+    throw new ApiErrorImpl({
+      status: 0,
+      code: "NETWORK_ERROR",
+      message: `Request body serialization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      retryable: false,
+      rawCategory: "network",
+    });
+  }
+
+  return {
+    replayable: true,
+    createFirstBody: () => serialized,
+    createRetryBody: () => serialized,
+    requiresJsonContentType: true,
+  };
 }
 
 export class ApiClient {
@@ -184,10 +217,28 @@ export class ApiClient {
 
     const bodyPlan = classifyBody(options.body, method);
 
-    const executeRequest = async (token: string | null): Promise<Response> => {
+    const snapshotHeaders: Record<string, string> = {};
+    for (const [key, value] of Object.entries(this.defaultHeaders)) {
+      snapshotHeaders[key] = value;
+    }
+
+    if (options.headers) {
+      for (const [key, value] of Object.entries(options.headers)) {
+        const lowerKey = key.toLowerCase();
+        if (MANAGED_HEADERS.has(lowerKey)) {
+          throw new HeaderValidationError(key,
+            `managed header "${key}" cannot be overridden per-request`);
+        }
+        validateHeaderName(key);
+        validateHeaderValue(value, `request header "${key}"`);
+        snapshotHeaders[key] = value;
+      }
+    }
+
+    const executeRequest = async (token: string | null, isFirstAttempt: boolean): Promise<Response> => {
       const headers = buildManagedHeaders(requestId, options.idempotencyKey, token);
 
-      if (shouldSetJsonContentType(bodyPlan)) {
+      if (bodyPlan.requiresJsonContentType) {
         headers["Content-Type"] = "application/json";
       }
 
@@ -195,22 +246,8 @@ export class ApiClient {
         validateHeaderValue(value, `managed header "${key}"`);
       }
 
-      for (const [key, value] of Object.entries(this.defaultHeaders)) {
-        validateHeaderValue(value, `default header "${key}"`);
+      for (const [key, value] of Object.entries(snapshotHeaders)) {
         headers[key] = value;
-      }
-
-      if (options.headers) {
-        for (const [key, value] of Object.entries(options.headers)) {
-          const lowerKey = key.toLowerCase();
-          if (MANAGED_HEADERS.has(lowerKey)) {
-            throw new HeaderValidationError(key,
-              `managed header "${key}" cannot be overridden per-request`);
-          }
-          validateHeaderName(key);
-          validateHeaderValue(value, `request header "${key}"`);
-          headers[key] = value;
-        }
       }
 
       const fetchInit: RequestInit = {
@@ -219,7 +256,7 @@ export class ApiClient {
         signal: options.signal,
       };
 
-      const body = createBodyFromPlan(bodyPlan);
+      const body = isFirstAttempt ? bodyPlan.createFirstBody() : bodyPlan.createRetryBody();
       if (body !== undefined) {
         fetchInit.body = body;
       }
@@ -282,7 +319,7 @@ export class ApiClient {
 
     let response: Response;
     try {
-      response = await executeRequest(token);
+      response = await executeRequest(token, true);
     } catch (cause) {
       if (cause instanceof HeaderValidationError) {
         throw cause;
@@ -294,9 +331,16 @@ export class ApiClient {
       return parseResponse(response);
     }
 
-    const originalError = await normalizeError(response, await response.text());
+    let originalErrorBodyText: string;
+    try {
+      originalErrorBodyText = await response.text();
+    } catch (cause) {
+      throw normalizeNetworkError(cause);
+    }
 
-    if (bodyPlan.type === "non-replayable") {
+    const originalError = await normalizeError(response, originalErrorBodyText);
+
+    if (!bodyPlan.replayable) {
       throw originalError;
     }
 
@@ -315,9 +359,13 @@ export class ApiClient {
       throw originalError;
     }
 
+    if (options.signal?.aborted) {
+      throw originalError;
+    }
+
     let retryResponse: Response;
     try {
-      retryResponse = await executeRequest(refreshedToken);
+      retryResponse = await executeRequest(refreshedToken, false);
     } catch (cause) {
       if (cause instanceof HeaderValidationError) {
         throw cause;

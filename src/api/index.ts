@@ -4,6 +4,7 @@ export { generateIdempotencyKey } from "./idempotency";
 export {
   getFirebaseApp,
   getFirebaseAuth,
+  ensureFirebaseAuthReady,
   firebaseAccessTokenProvider,
   signOutFirebase,
   getFirebaseAuthConfigStatus,
