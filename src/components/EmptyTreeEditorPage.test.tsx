@@ -8,6 +8,23 @@ import { cleanup, screen, fireEvent, within } from "@testing-library/react";
 import { render } from "@testing-library/react";
 import App from "../App";
 
+vi.mock("../hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: {
+      uid: "presentation-test-user",
+      displayName: null,
+      email: null,
+      photoURL: null,
+      emailVerified: true,
+    },
+    loading: false,
+    tier: null,
+    signInWithGoogle: vi.fn(),
+    signOut: vi.fn(),
+    expireSession: vi.fn(),
+  }),
+}));
+
 function renderAppAt(path: string) {
   window.history.pushState({}, "", path);
   render(<App />);
