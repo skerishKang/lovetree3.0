@@ -4,33 +4,18 @@ interface Props {
   icon: string;
   label: string;
   variant: "primary" | "secondary";
-  disabled?: boolean;
-  pending?: boolean;
-  describedBy?: string;
-  onClick?: () => void;
 }
 
-export default function SocialLoginButton({
-  icon,
-  label,
-  variant,
-  disabled = false,
-  pending = false,
-  describedBy,
-  onClick,
-}: Props) {
+export default function SocialLoginButton({ icon, label, variant }: Props) {
   return (
     <button
       type="button"
       className={`${styles.socialBtn} ${styles[variant]}`}
       aria-label={label}
-      aria-busy={pending || undefined}
-      aria-describedby={describedBy}
-      disabled={disabled || pending}
-      onClick={onClick}
+      disabled
     >
       <span className={styles.btnIcon}>{icon}</span>
-      <span>{pending ? "로그인 중..." : label}</span>
+      {label}
     </button>
   );
 }

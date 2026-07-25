@@ -6,13 +6,6 @@ import {
 import SocialLoginButton from "./SocialLoginButton";
 import styles from "./LoginPanel.module.css";
 
-interface LoginPanelProps {
-  configured: boolean;
-  pending: boolean;
-  statusMessage: string | null;
-  onGoogleSignIn(): void;
-}
-
 const FeatureIcon = () => (
   <svg
     width="16"
@@ -27,41 +20,20 @@ const FeatureIcon = () => (
   </svg>
 );
 
-export default function LoginPanel({
-  configured,
-  pending,
-  statusMessage,
-  onGoogleSignIn,
-}: LoginPanelProps) {
+export default function LoginPanel() {
   return (
     <div className={styles.loginPanel}>
-      {LOGIN_BUTTONS.map((button) => {
-        const isGoogle = button.id === "google";
+      {/* Login buttons */}
+      {LOGIN_BUTTONS.map((btn) => (
+        <SocialLoginButton
+          key={btn.id}
+          icon={btn.icon}
+          label={btn.label}
+          variant={btn.variant}
+        />
+      ))}
 
-        return (
-          <SocialLoginButton
-            key={button.id}
-            icon={button.icon}
-            label={button.label}
-            variant={button.variant}
-            disabled={isGoogle ? !configured : true}
-            pending={isGoogle && pending}
-            describedBy={isGoogle ? undefined : "email-login-availability"}
-            onClick={isGoogle ? onGoogleSignIn : undefined}
-          />
-        );
-      })}
-
-      <p id="email-login-availability" className={styles.availabilityNote}>
-        이메일 로그인은 준비 중입니다.
-      </p>
-
-      {statusMessage ? (
-        <p role="status" aria-live="polite" className={styles.statusMessage}>
-          {statusMessage}
-        </p>
-      ) : null}
-
+      {/* Profile preview */}
       <div className={styles.profilePreview}>
         <div className={styles.avatar}>{PREVIEW_PROFILE.avatarInitial}</div>
         <div className={styles.previewInfo}>
@@ -71,12 +43,13 @@ export default function LoginPanel({
         <span className={styles.previewBadge}>프로필 미리보기</span>
       </div>
 
+      {/* Feature list */}
       <div className={styles.featureList}>
         <p className={styles.featureTitle}>로그인하면 이용할 수 있는 기능</p>
         <div className={styles.featureItems}>
-          {AUTH_FEATURES.map((feature) => (
+          {AUTH_FEATURES.map((f) => (
             <div
-              key={feature.id}
+              key={f.id}
               className={styles.featureItem}
               data-testid="auth-value-item"
             >
@@ -84,8 +57,8 @@ export default function LoginPanel({
                 <FeatureIcon />
               </span>
               <div>
-                <p className={styles.featureLabel}>{feature.label}</p>
-                <p className={styles.featureDescription}>{feature.description}</p>
+                <p className={styles.featureLabel}>{f.label}</p>
+                <p className={styles.featureDescription}>{f.description}</p>
               </div>
             </div>
           ))}
