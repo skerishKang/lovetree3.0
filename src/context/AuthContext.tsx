@@ -9,11 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { onIdTokenChanged, type User } from "firebase/auth";
-import {
-  ensureFirebaseAuthReady,
-  signInWithGoogle as signInWithGoogleFirebase,
-  signOutFirebase,
-} from "../api/auth";
+import * as authApi from "../api/auth";
 import type { AuthUser, AuthTier, AuthContextValue } from "../types/auth";
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -58,7 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let active = true;
     let unsubscribe: (() => void) | undefined;
 
-    ensureFirebaseAuthReady()
+    authApi
+      .ensureFirebaseAuthReady()
       .then((auth) => {
         if (!active) {
           return;
@@ -100,17 +97,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearAuthState]);
 
   const signInWithGoogle = useCallback(async () => {
-    await signInWithGoogleFirebase();
+    await authApi.signInWithGoogle();
   }, []);
 
   const signOut = useCallback(async () => {
-    await signOutFirebase();
+    await authApi.signOutFirebase();
     clearAuthState();
   }, [clearAuthState]);
 
   const expireSession = useCallback(async () => {
     try {
-      await signOutFirebase();
+      await authApi.signOutFirebase();
     } catch {
       // A persistent unauthorized response already means the session is unusable.
       // The application state must still be cleared to prevent a redirect loop.
