@@ -11,6 +11,7 @@ vi.mock("firebase/auth", () => ({
 vi.mock("../api/auth", () => ({
   getFirebaseAuth: vi.fn(() => ({})),
   ensureFirebaseAuthReady: vi.fn(() => Promise.resolve({})),
+  signInWithGoogle: vi.fn(),
   signOutFirebase: vi.fn(),
 }));
 
@@ -32,7 +33,9 @@ describe("useAuth", () => {
           <div data-testid="loading">{auth.loading ? "loading" : "not loading"}</div>
           <div data-testid="user">{auth.user ? "has user" : "no user"}</div>
           <div data-testid="tier">{auth.tier ?? "null"}</div>
+          <div data-testid="signInWithGoogle">{typeof auth.signInWithGoogle}</div>
           <div data-testid="signOut">{typeof auth.signOut}</div>
+          <div data-testid="expireSession">{typeof auth.expireSession}</div>
         </div>
       );
     }
@@ -46,7 +49,9 @@ describe("useAuth", () => {
     expect(screen.getByTestId("loading").textContent).toBe("loading");
     expect(screen.getByTestId("user").textContent).toBe("no user");
     expect(screen.getByTestId("tier").textContent).toBe("null");
+    expect(screen.getByTestId("signInWithGoogle").textContent).toBe("function");
     expect(screen.getByTestId("signOut").textContent).toBe("function");
+    expect(screen.getByTestId("expireSession").textContent).toBe("function");
   });
 
   it("throws clear developer error outside provider", () => {
