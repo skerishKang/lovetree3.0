@@ -108,7 +108,6 @@ export const MANAGED_HEADERS = new Set([
   "authorization",
   "idempotency-key",
   "x-lovebud-request-id",
-  "content-type",
 ]);
 
 export const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{8,128}$/;
