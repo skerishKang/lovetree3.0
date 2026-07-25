@@ -12,7 +12,9 @@ export interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   tier: AuthTier;
+  signInWithGoogle(): Promise<void>;
   signOut(): Promise<void>;
+  expireSession(): Promise<void>;
 }
 
 export function isAuthExemptPath(pathname: string): boolean {

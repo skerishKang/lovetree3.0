@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { NavigationHistoryProvider } from "./hooks/NavigationHistory";
 import { HashScrollRestoration } from "./components/HashScrollRestoration";
+import { AuthProvider } from "./context/AuthContext";
+import AuthSessionController from "./components/AuthSessionController";
+import RequireAuth from "./components/RequireAuth";
 import HomePage from "./components/HomePage";
 import CommunityPage from "./components/CommunityPage";
 import AuthLoginPage from "./components/AuthLoginPage";
@@ -22,14 +25,65 @@ export function AppRoutes() {
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/login" element={<AuthLoginPage />} />
         <Route path="/tree/community-demo" element={<TreeDetailPage />} />
-        <Route path="/memory/connect-demo" element={<MemoryConnectPage />} />
-        <Route path="/my-trees" element={<MyTreesPage />} />
-        <Route path="/tree/edit-demo" element={<TreeEditorPage />} />
-        <Route path="/tree/new-demo" element={<EmptyTreeEditorPage />} />
         <Route path="/memory/detail-demo" element={<MemoryDetailPage />} />
-        <Route path="/media/search-demo" element={<MediaSearchPage />} />
-        <Route path="/settings/visibility-demo" element={<VisibilitySettingsPage />} />
-        <Route path="/my-trees/empty-demo" element={<MyTreesEmptyPage />} />
+
+        <Route
+          path="/memory/connect-demo"
+          element={
+            <RequireAuth>
+              <MemoryConnectPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/my-trees"
+          element={
+            <RequireAuth>
+              <MyTreesPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/tree/edit-demo"
+          element={
+            <RequireAuth>
+              <TreeEditorPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/tree/new-demo"
+          element={
+            <RequireAuth>
+              <EmptyTreeEditorPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/media/search-demo"
+          element={
+            <RequireAuth>
+              <MediaSearchPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/settings/visibility-demo"
+          element={
+            <RequireAuth>
+              <VisibilitySettingsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/my-trees/empty-demo"
+          element={
+            <RequireAuth>
+              <MyTreesEmptyPage />
+            </RequireAuth>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </NavigationHistoryProvider>
@@ -39,8 +93,11 @@ export function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <HashScrollRestoration />
-      <AppRoutes />
+      <AuthProvider>
+        <HashScrollRestoration />
+        <AuthSessionController />
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

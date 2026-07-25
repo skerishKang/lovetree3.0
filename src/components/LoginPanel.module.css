@@ -5,6 +5,25 @@
   gap: 0.75rem;
 }
 
+.availabilityNote {
+  margin: -0.35rem 0 0;
+  text-align: center;
+  color: #8a7a6a;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.statusMessage {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #e7d7c7;
+  border-radius: 12px;
+  background: #fffaf4;
+  color: #5c4938;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .profilePreview {
   background: #fef8f0;
   border: 1px solid #ece0d0;

@@ -1,5 +1,13 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, setPersistence, browserLocalPersistence, type Auth } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  type Auth,
+} from "firebase/auth";
 import type { AccessTokenProvider } from "../types/api";
 
 interface FirebaseConfig {
@@ -10,6 +18,23 @@ interface FirebaseConfig {
   storageBucket?: string;
   messagingSenderId?: string;
   measurementId?: string;
+}
+
+export type GoogleSignInFailureReason =
+  | "popup-closed"
+  | "popup-cancelled"
+  | "popup-blocked"
+  | "config-unavailable"
+  | "auth-failed";
+
+export class GoogleSignInError extends Error {
+  readonly reason: GoogleSignInFailureReason;
+
+  constructor(reason: GoogleSignInFailureReason) {
+    super("Google sign-in could not be completed");
+    this.name = "GoogleSignInError";
+    this.reason = reason;
+  }
 }
 
 function getFirebaseConfig(): FirebaseConfig | null {
@@ -129,6 +154,57 @@ export function ensureFirebaseAuthReady(): Promise<Auth> {
   return authReadyPromise;
 }
 
+function readFirebaseErrorCode(error: unknown): string | null {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string"
+  ) {
+    return error.code;
+  }
+
+  return null;
+}
+
+function classifyGoogleSignInError(error: unknown): GoogleSignInFailureReason {
+  const code = readFirebaseErrorCode(error);
+
+  switch (code) {
+    case "auth/popup-closed-by-user":
+      return "popup-closed";
+    case "auth/cancelled-popup-request":
+      return "popup-cancelled";
+    case "auth/popup-blocked":
+      return "popup-blocked";
+    case "auth/invalid-api-key":
+    case "auth/invalid-auth-domain":
+    case "auth/configuration-not-found":
+    case "auth/operation-not-allowed":
+      return "config-unavailable";
+    default:
+      return "auth-failed";
+  }
+}
+
+export async function signInWithGoogle(): Promise<void> {
+  if (!getFirebaseAuthConfigStatus().configured) {
+    throw new GoogleSignInError("config-unavailable");
+  }
+
+  try {
+    const auth = await ensureFirebaseAuthReady();
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    if (error instanceof GoogleSignInError) {
+      throw error;
+    }
+
+    throw new GoogleSignInError(classifyGoogleSignInError(error));
+  }
+}
+
 export const firebaseAccessTokenProvider: AccessTokenProvider = {
   async getAccessToken(options?: { forceRefresh?: boolean }): Promise<string | null> {
     const auth = await ensureFirebaseAuthReady();
@@ -154,6 +230,5 @@ export const firebaseAccessTokenProvider: AccessTokenProvider = {
 
 export async function signOutFirebase(): Promise<void> {
   const auth = await ensureFirebaseAuthReady();
-  const { signOut } = await import("firebase/auth");
   await signOut(auth);
 }
