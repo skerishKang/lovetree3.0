@@ -81,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await signOutFirebase();
+    callbackGenerationRef.current += 1;
     setUser(null);
     setTier(null);
   }, []);

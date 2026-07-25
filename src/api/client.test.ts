@@ -1421,7 +1421,7 @@ describe("ApiClient 401 refresh-and-retry", () => {
 
       await expect(client.request("/trees", { method: "POST", body: stream })).rejects.toMatchObject({
         status: 0,
-        code: "NETWORK_ERROR",
+        code: "INVALID_REQUEST_BODY",
       });
 
       expect(fetchSpy).not.toHaveBeenCalled();

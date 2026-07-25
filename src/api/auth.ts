@@ -122,11 +122,8 @@ export function ensureFirebaseAuthReady(): Promise<Auth> {
   const auth = getFirebaseAuth();
   authReadyPromise = setPersistence(auth, browserLocalPersistence)
     .then(() => auth)
-    .catch((error) => {
-      authReadyPromise = null;
-      throw new Error(
-        `Firebase persistence setup failed: ${error instanceof Error ? error.message : "Unknown error"}`
-      );
+    .catch(() => {
+      throw new Error("Firebase authentication persistence initialization failed");
     });
 
   return authReadyPromise;

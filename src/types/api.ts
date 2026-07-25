@@ -106,6 +106,7 @@ export interface ClientConfig {
 
 export const MANAGED_HEADERS = new Set([
   "authorization",
+  "content-type",
   "idempotency-key",
   "x-lovebud-request-id",
 ]);

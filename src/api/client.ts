@@ -133,10 +133,10 @@ function classifyBody(body: unknown, method: string): BodyPlan {
     if (body.locked) {
       throw new ApiErrorImpl({
         status: 0,
-        code: "NETWORK_ERROR",
-        message: "Request body stream is locked and cannot be used",
+        code: "INVALID_REQUEST_BODY",
+        message: "Request body stream is locked",
         retryable: false,
-        rawCategory: "network",
+        rawCategory: "unknown",
       });
     }
     return {
@@ -153,13 +153,13 @@ function classifyBody(body: unknown, method: string): BodyPlan {
     if (serialized === undefined) {
       throw new Error("JSON.stringify returned undefined");
     }
-  } catch (error) {
+  } catch {
     throw new ApiErrorImpl({
       status: 0,
-      code: "NETWORK_ERROR",
-      message: `Request body serialization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      code: "INVALID_REQUEST_BODY",
+      message: "Request body could not be serialized",
       retryable: false,
-      rawCategory: "network",
+      rawCategory: "unknown",
     });
   }
 
