@@ -36,7 +36,7 @@ const publicRoutes = [
   ["/tree/new-demo/edit", "공개 데모 러브트리 편집"],
   ["/tree/new-demo/memory/new", "첫 기억 추가"],
   ["/tree/new-demo/memory/missing/edit", "기억을 찾을 수 없습니다"],
-  ["/tree/new-demo/preview", "제목 없는 러브트리"],
+  ["/tree/new-demo/preview", "미리보기를 완료할 수 없습니다"],
 ] as const;
 
 const protectedRoutes = [
