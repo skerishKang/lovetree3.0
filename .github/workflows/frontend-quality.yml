@@ -13,13 +13,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tests-by-letter:
-    name: Diagnostic tests ${{ matrix.letter }}
+  tests-by-prefix:
+    name: Diagnostic tests ${{ matrix.prefix }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        letter: [M, N, O, P, Q, R]
+        prefix: [Media, Memory, My]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,8 +30,8 @@ jobs:
       - name: Run matching test files
         shell: bash
         env:
-          TEST_LETTER: ${{ matrix.letter }}
+          TEST_PREFIX: ${{ matrix.prefix }}
         run: |
-          mapfile -t files < <(find src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) | sort | awk -F/ -v target="$TEST_LETTER" '{ c=toupper(substr($NF,1,1)); if (c == target) print }')
+          mapfile -t files < <(find src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) | sort | awk -F/ -v prefix="$TEST_PREFIX" 'index($NF, prefix) == 1 { print }')
           printf '%s\n' "${files[@]}"
           if ((${#files[@]})); then npx vitest --run "${files[@]}"; fi
