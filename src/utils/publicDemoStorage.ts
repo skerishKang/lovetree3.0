@@ -21,6 +21,28 @@ interface StorageLike {
   removeItem(key: string): void;
 }
 
+const DRAFT_KEYS = new Set(["schemaVersion", "tree", "nodes", "selectedNodeId"]);
+const TREE_KEYS = new Set(["title", "description"]);
+const NODE_KEYS = new Set([
+  "id",
+  "parentId",
+  "title",
+  "date",
+  "emotion",
+  "memo",
+  "youtubeUrl",
+  "videoId",
+]);
+
+function isExactRecord(value: unknown, allowedKeys: ReadonlySet<string>): value is Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) return false;
+  if (Object.getOwnPropertySymbols(value).length > 0) return false;
+  const keys = Object.getOwnPropertyNames(value);
+  return keys.length === allowedKeys.size && keys.every((key) => allowedKeys.has(key));
+}
+
 function boundedString(value: unknown, max: number, required = false) {
   if (typeof value !== "string") return false;
   const trimmed = value.trim();
@@ -33,40 +55,47 @@ function isEmotion(value: unknown): value is PublicDemoEmotion {
 }
 
 function isValidNode(value: unknown): value is PublicDemoNode {
-  if (!value || typeof value !== "object") return false;
-  const node = value as Record<string, unknown>;
-  const parentValid = node.parentId === null || typeof node.parentId === "string";
-  const normalized = normalizeYouTubeUrl(node.youtubeUrl);
+  if (!isExactRecord(value, NODE_KEYS)) return false;
+  const parentValid = value.parentId === null || typeof value.parentId === "string";
+  const normalized = normalizeYouTubeUrl(value.youtubeUrl);
 
   return (
-    typeof node.id === "string" && node.id.length > 0 &&
+    typeof value.id === "string" && value.id.length > 0 &&
     parentValid &&
-    boundedString(node.title, PUBLIC_DEMO_MEMORY_TITLE_MAX, true) &&
-    boundedString(node.date, 20, true) &&
-    isEmotion(node.emotion) &&
-    boundedString(node.memo, PUBLIC_DEMO_MEMORY_MEMO_MAX, true) &&
+    boundedString(value.title, PUBLIC_DEMO_MEMORY_TITLE_MAX, true) &&
+    boundedString(value.date, 20, true) &&
+    isEmotion(value.emotion) &&
+    boundedString(value.memo, PUBLIC_DEMO_MEMORY_MEMO_MAX, true) &&
     Boolean(normalized) &&
-    node.videoId === normalized?.videoId &&
-    node.youtubeUrl === normalized?.watchUrl
+    value.videoId === normalized?.videoId &&
+    value.youtubeUrl === normalized?.watchUrl
   );
 }
 
 export function isValidPublicDemoDraft(value: unknown): value is PublicDemoDraft {
-  if (!value || typeof value !== "object") return false;
-  const draft = value as Record<string, unknown>;
-  if (draft.schemaVersion !== PUBLIC_DEMO_SCHEMA_VERSION) return false;
-  if (!draft.tree || typeof draft.tree !== "object") return false;
-  const tree = draft.tree as Record<string, unknown>;
-  if (!boundedString(tree.title, PUBLIC_DEMO_TREE_TITLE_MAX)) return false;
-  if (!boundedString(tree.description, PUBLIC_DEMO_TREE_DESCRIPTION_MAX)) return false;
-  if (!Array.isArray(draft.nodes) || !draft.nodes.every(isValidNode)) return false;
-  if (draft.selectedNodeId !== null && typeof draft.selectedNodeId !== "string") return false;
+  if (!isExactRecord(value, DRAFT_KEYS)) return false;
+  if (value.schemaVersion !== PUBLIC_DEMO_SCHEMA_VERSION) return false;
+  if (!isExactRecord(value.tree, TREE_KEYS)) return false;
+  if (!boundedString(value.tree.title, PUBLIC_DEMO_TREE_TITLE_MAX)) return false;
+  if (!boundedString(value.tree.description, PUBLIC_DEMO_TREE_DESCRIPTION_MAX)) return false;
+  if (!Array.isArray(value.nodes) || !value.nodes.every(isValidNode)) return false;
+  if (value.selectedNodeId !== null && typeof value.selectedNodeId !== "string") return false;
 
-  const nodes = draft.nodes as PublicDemoNode[];
+  const nodes = value.nodes as PublicDemoNode[];
+  const isExactEmptyDraft = (
+    value.tree.title === "" &&
+    value.tree.description === "" &&
+    nodes.length === 0 &&
+    value.selectedNodeId === null
+  );
+  if (!isExactEmptyDraft && !boundedString(value.tree.title, PUBLIC_DEMO_TREE_TITLE_MAX, true)) {
+    return false;
+  }
+
   if (!validatePublicDemoGraph(nodes).valid) return false;
   if (
-    draft.selectedNodeId !== null &&
-    !nodes.some((node) => node.id === draft.selectedNodeId)
+    value.selectedNodeId !== null &&
+    !nodes.some((node) => node.id === value.selectedNodeId)
   ) {
     return false;
   }
