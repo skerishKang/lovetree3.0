@@ -29,8 +29,8 @@ jobs:
         shell: bash
         run: |
           output="$(npx vitest --run src/components/PublicDemoEditorFlow.test.tsx --reporter=verbose 2>&1 || true)"
-          failed="$(printf '%s\n' "$output" | grep -m1 -E '×|✗|FAIL ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g' | cut -c1-200)"
-          error="$(printf '%s\n' "$output" | grep -m1 -E 'TestingLibraryElementError|AssertionError|Unable to find|Found multiple|expected ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g' | cut -c1-200)"
+          failed="$(printf '%s\n' "$output" | { grep -m1 -E '×|✗|FAIL ' || true; } | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g' | cut -c1-200)"
+          error="$(printf '%s\n' "$output" | { grep -m1 -E 'TestingLibraryElementError|AssertionError|Unable to find|Found multiple|expected ' || true; } | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g' | cut -c1-200)"
           [[ -n "$failed" ]] || failed="FAILED_TEST_NOT_PARSED"
           [[ -n "$error" ]] || error="ERROR_NOT_PARSED"
           echo "failed_test=$failed" >> "$GITHUB_OUTPUT"
