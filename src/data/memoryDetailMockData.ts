@@ -2,6 +2,7 @@ export interface MediaMeta {
   source: string;
   format: string;
   duration: string;
+  youtubeUrl: string;
 }
 
 export interface AuthorContext {
@@ -49,6 +50,7 @@ export const MOCK_MEMORY_DETAIL: MemoryDetailMockData = {
     source: "직캠 (직접 촬영)",
     format: "MP4 · 1080p",
     duration: "3분 42초",
+    youtubeUrl: "https://youtu.be/dQw4w9WgXcQ",
   },
   author: {
     name: "민지",
@@ -62,41 +64,9 @@ export const MOCK_MEMORY_DETAIL: MemoryDetailMockData = {
     shareCount: 5,
   },
   relatedMemories: [
-    {
-      id: "rel-1",
-      title: "콘서트 준비 과정",
-      date: "2023. 12. 24.",
-      type: "사진",
-      relation: "이전 기억",
-      description: "콘서트 가기 전에 설레서 잠이 안 왔던 순간",
-      thumbnailColorKey: "pink",
-    },
-    {
-      id: "rel-2",
-      title: "콘서트 굿즈 언박싱",
-      date: "2023. 12. 26.",
-      type: "사진",
-      relation: "이어진 기억",
-      description: "현장에서 구매한 굿즈들을 정리한 기록",
-      thumbnailColorKey: "green",
-    },
-    {
-      id: "rel-3",
-      title: "콘서트 후 일기",
-      date: "2023. 12. 27.",
-      type: "텍스트",
-      relation: "이어진 기억",
-      description: "콘서트가 끝나고 쓴 감동의 기록",
-      thumbnailColorKey: "brown",
-    },
-    {
-      id: "rel-4",
-      title: "팬미팅 초대장",
-      date: "2024. 01. 10.",
-      type: "문서",
-      relation: "관련 기억",
-      description: "콘서트에서 알게 된 팬분들이 초대해 준 팬미팅",
-      thumbnailColorKey: "blue",
-    },
+    { id: "rel-1", title: "콘서트 준비 과정", date: "2023. 12. 24.", type: "사진", relation: "이전 기억", description: "콘서트 가기 전에 설레서 잠이 안 왔던 순간", thumbnailColorKey: "pink" },
+    { id: "rel-2", title: "콘서트 굿즈 언박싱", date: "2023. 12. 26.", type: "사진", relation: "이어진 기억", description: "현장에서 구매한 굿즈들을 정리한 기록", thumbnailColorKey: "green" },
+    { id: "rel-3", title: "콘서트 후 일기", date: "2023. 12. 27.", type: "텍스트", relation: "이어진 기억", description: "콘서트가 끝나고 쓴 감동의 기록", thumbnailColorKey: "brown" },
+    { id: "rel-4", title: "팬미팅 초대장", date: "2024. 01. 10.", type: "문서", relation: "관련 기억", description: "콘서트에서 알게 된 팬분들이 초대해 준 팬미팅", thumbnailColorKey: "blue" },
   ],
 };
