@@ -423,10 +423,9 @@ describe("PublicDemoEditorFlow — typed final contract", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("편집된 설명")).toBeInTheDocument();
     expect(screen.getAllByTestId("preview-connector")).toHaveLength(1);
-    expect(screen.getByRole("button", { name: /미리보기 자식/ })).toHaveAttribute(
-      "data-selected",
-      "true",
-    );
+    expect(
+      screen.getByRole("button", { name: /미리보기 자식.*2026-07-26/ }),
+    ).toHaveAttribute("data-selected", "true");
     expect(screen.queryByTestId("youtube-player")).not.toBeInTheDocument();
     await user.click(
       screen.getByRole("button", { name: "미리보기 자식 재생" }),
