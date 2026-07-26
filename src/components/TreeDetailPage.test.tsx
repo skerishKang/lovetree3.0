@@ -79,14 +79,14 @@ describe("TreeDetailPage (LT3-TREE-DETAIL-001) - Comprehensive Audit", () => {
       connectionLabel: string;
       reactionText: string;
     }> = [
-      { title: "첫 만남 - 무대 영상", date: "2023-09-28", descPattern: /처음으로 본 무대 영상/, typeLabel: "무대 영상", mediaLabel: "YouTube 링크", connectionLabel: "우상향 입덕의 시작점", reactionText: "❤️ 반응 45" },
+      { title: "첫 만남 - 무대 영상", date: "2023-09-28", descPattern: /처음으로 본 무대 영상/, typeLabel: "무대 영상", mediaLabel: "공개 YouTube 공연 영상 예시", connectionLabel: "우상향 입덕의 시작점", reactionText: "❤️ 반응 45" },
       { title: "첫 앨범 구매 인증",   date: "2023-10-15", descPattern: /첫 앨범을 샀던 날/, typeLabel: "음반 수집", mediaLabel: "실물 앨범 사진", connectionLabel: "음악 감상의 깊이를 더함", reactionText: "❤️ 반응 32" },
-      { title: "콘서트 직캠",         date: "2023-11-20", descPattern: /직캠을 찍느라 정신없었지만/, typeLabel: "콘서트 현장", mediaLabel: "4K 직캠 영상", connectionLabel: "대표 기억이자 절정의 순간", reactionText: "❤️ 반응 98" },
+      { title: "콘서트 공연 영상",     date: "2023-11-20", descPattern: /공개 YouTube 공연 영상을 연결한 날/, typeLabel: "공개 공연 영상", mediaLabel: "공개 YouTube 아티스트 영상 예시", connectionLabel: "대표 기억이자 절정의 순간", reactionText: "❤️ 반응 98" },
       { title: "컴백 D-Day",          date: "2024-01-07", descPattern: /신곡을 처음 들었을 때의 전율/, typeLabel: "신보 발매", mediaLabel: "음원 스트리밍", connectionLabel: "신곡 분석과 무한 반복", reactionText: "❤️ 반응 64" },
       { title: "팬미팅 후기",          date: "2024-02-14", descPattern: /멤버들한테 직접 편지를 전달/, typeLabel: "오프라인 팬미팅", mediaLabel: "손편지 & 티켓 인증", connectionLabel: "양방향 소통의 소중한 감동", reactionText: "❤️ 반응 77" },
-      { title: "굿즈 수령",            date: "2024-04-01", descPattern: /시즌 그리팅과 MD 굿즈가 도착/, typeLabel: "공식 굿즈", mediaLabel: "언박싱 브이로그", connectionLabel: "덕질 방 인테리어 추가", reactionText: "❤️ 반응 19" },
+      { title: "굿즈 수령",            date: "2024-04-01", descPattern: /시즌 그리팅과 MD 굿즈가 도착/, typeLabel: "공식 굿즈", mediaLabel: "언박싱 사진 기록", connectionLabel: "덕질 방 인테리어 추가", reactionText: "❤️ 반응 19" },
       { title: "생일 카페 이벤트",     date: "2024-06-15", descPattern: /멤버 생일 기념 카페 이벤트/, typeLabel: "이벤트 참여", mediaLabel: "특전 컵홀더 & 엽서", connectionLabel: "팬덤 동료들과의 만남", reactionText: "❤️ 반응 50" },
-      { title: "앨범 작업 과정",       date: "2024-08-01", descPattern: /비하인드 영상을 보며 작업 과정을/, typeLabel: "다큐멘터리", mediaLabel: "비하인드 클립", connectionLabel: "창작의 고뇌 공감", reactionText: "❤️ 반응 41" },
+      { title: "앨범 작업 과정",       date: "2024-08-01", descPattern: /비하인드 영상을 보며 작업 과정을/, typeLabel: "다큐멘터리", mediaLabel: "비하인드 감상 메모", connectionLabel: "창작의 고뇌 공감", reactionText: "❤️ 반응 41" },
     ];
 
     // connectionLabel은 timeline-connection(카드 외부 sibling)에 렌더링되므로 screen 전체로 검증
@@ -202,4 +202,3 @@ describe("TreeDetailPage (LT3-TREE-DETAIL-001) - Comprehensive Audit", () => {
     vi.restoreAllMocks();
   });
 });
-
