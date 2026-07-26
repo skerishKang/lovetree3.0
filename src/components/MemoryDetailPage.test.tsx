@@ -104,22 +104,79 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     ).toBeInTheDocument();
   });
 
-  it("정적 미디어 영역이 존재해야 한다", () => {
+  it("실제 title 기반 재생 버튼과 안전한 외부 링크를 제공하며 초기 iframe은 없다", () => {
     renderRoute(["/memory/detail-demo"]);
-    const playButton = screen.getByRole("button", {
-      name: "기억 영상 재생",
-    });
-    expect(playButton).toBeInTheDocument();
+
+    expect(screen.queryByTestId("youtube-player")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "첫 콘서트 직캠 재생" }),
+    ).toBeInTheDocument();
+
+    const link = screen.getByRole("link", { name: "YouTube에서 보기" });
+    expect(link).toHaveAttribute(
+      "href",
+      "https://www.youtube.com/watch?v=c4V0FNZfEv0",
+    );
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("재생 버튼은 onClick 없이 클릭해도 location이 변하지 않아야 한다", () => {
+  it("재생 후 nocookie iframe 하나를 만들고 pathname, metadata, 카드, social, fetch/storage 상태를 보존한다", () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
+    const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
+    const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
+    const storageClearSpy = vi.spyOn(Storage.prototype, "clear");
+
     renderRoute(["/memory/detail-demo"]);
-    const playButton = screen.getByRole("button", {
-      name: "기억 영상 재생",
-    });
-    expect(playButton).not.toHaveAttribute("onClick");
-    fireEvent.click(playButton);
+
+    const articlesBefore = screen.getAllByRole("article").length;
+    fireEvent.click(
+      screen.getByRole("button", { name: "첫 콘서트 직캠 재생" }),
+    );
+
+    const players = screen.getAllByTestId("youtube-player");
+    expect(players).toHaveLength(1);
+    const player = players[0];
+    expect(player).toHaveAttribute(
+      "src",
+      "https://www.youtube-nocookie.com/embed/c4V0FNZfEv0",
+    );
+    expect(player.getAttribute("src")).not.toContain("autoplay");
+    expect(player).toHaveAttribute("title", "첫 콘서트 직캠 YouTube 영상");
+    expect(player).toHaveAttribute("loading", "lazy");
+    expect(player).toHaveAttribute(
+      "allow",
+      "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
+    );
+    expect(player).toHaveAttribute("allowfullscreen");
+    expect(player).toHaveAttribute(
+      "referrerpolicy",
+      "strict-origin-when-cross-origin",
+    );
+
     expect(currentLocation()).toBe("/memory/detail-demo");
+    expect(screen.getByText("첫 콘서트 직캠")).toBeInTheDocument();
+    expect(screen.getByText("2023. 12. 25.")).toBeInTheDocument();
+    expect(screen.getByText(/정말 행복했던 첫 콘서트 순간/)).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(articlesBefore);
+    expect(screen.getByRole("button", { name: "좋아요 128" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "댓글 17" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "공유" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "수정" })).toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    const appGetItemCalls = storageGetSpy.mock.calls.filter(
+      ([key]) => key !== "remix-router-transitions",
+    );
+    expect(appGetItemCalls).toHaveLength(0);
+    expect(storageSetSpy).not.toHaveBeenCalled();
+    expect(storageRemoveSpy).not.toHaveBeenCalled();
+    expect(storageClearSpy).not.toHaveBeenCalled();
   });
 
   it("관련 기억 섹션 heading이 있어야 한다", () => {
@@ -391,17 +448,17 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
   it("미디어 출처 정보가 표시되어야 한다", () => {
     renderRoute(["/memory/detail-demo"]);
-    expect(screen.getByText("직캠 (직접 촬영)")).toBeInTheDocument();
+    expect(screen.getByText("공개 YouTube 공연 영상 예시")).toBeInTheDocument();
   });
 
   it("미디어 형식 정보가 표시되어야 한다", () => {
     renderRoute(["/memory/detail-demo"]);
-    expect(screen.getAllByText("MP4 · 1080p").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("YouTube").length).toBeGreaterThanOrEqual(1);
   });
 
   it("미디어 길이 정보가 표시되어야 한다", () => {
     renderRoute(["/memory/detail-demo"]);
-    expect(screen.getAllByText("3분 42초").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("YouTube에서 확인").length).toBeGreaterThanOrEqual(1);
   });
 
   it("기억 유형 배지가 표시되어야 한다", () => {
@@ -479,10 +536,17 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     });
   });
 
-  it("navigation 링크가 없어야 한다", () => {
+  it("안전한 YouTube 외부 링크만 제공한다", () => {
     renderRoute(["/memory/detail-demo"]);
-    const links = screen.queryAllByRole("link");
-    expect(links).toHaveLength(0);
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAccessibleName("YouTube에서 보기");
+    expect(links[0]).toHaveAttribute(
+      "href",
+      "https://www.youtube.com/watch?v=c4V0FNZfEv0",
+    );
+    expect(links[0]).toHaveAttribute("target", "_blank");
+    expect(links[0]).toHaveAttribute("rel", "noopener noreferrer");
   });
 });
 
