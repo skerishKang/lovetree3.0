@@ -1,104 +1,135 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import CommunityPage from "./CommunityPage";
-import { communityTreeCards } from "../data/communityMockData";
 
-describe("CommunityPage (LT3-COMMUNITY-001)", () => {
-  beforeEach(() => {
-    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Network calls are forbidden during testing")));
+function snapshot(id: string, title: string, stage = "mature") {
+  return {
+    id,
+    title,
+    visibility: "public",
+    createdAt: "2026-07-20T10:00:00.000Z",
+    updatedAt: "2026-07-26T10:00:00.000Z",
+    representativeThumbnail: "",
+    representativeMemorySourceUrl: "",
+    memoryCount: stage === "growing" ? 1 : 3,
+    emotionTags: ["행복"],
+    stage,
+    theme: "",
+    timeRange: "",
+  };
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8" },
   });
+}
 
-  it("페이지 제목을 렌더링한다", () => {
-    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
-    expect(
-      screen.getByRole("heading", { name: "다른 팬들의 러브트리 구경하기" })
-    ).toBeInTheDocument();
-  });
+function requestUrl(input: RequestInfo | URL) {
+  return typeof input === "string" ? input : input instanceof Request ? input.url : input.toString();
+}
 
-  it("일반 카드 정확히 8개를 렌더링하고, 각 카드의 세부 메타데이터 필드를 검증한다", () => {
-    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
-    // 일반 카드 8개 개수 검증
-    expect(communityTreeCards).toHaveLength(8);
-
-    // 8개 개별 카드 각각의 메타데이터 검증
-    communityTreeCards.forEach((card) => {
-      // 1. Title 검증
-      expect(screen.getByText(card.title)).toBeInTheDocument();
-      // 2. Summary 검증
-      expect(screen.getByText(card.summary)).toBeInTheDocument();
-      // 3. memoryCount 검증
-      expect(screen.getByText(`🌳 기억 ${card.memoryCount}개`)).toBeInTheDocument();
-      // 4. updatedLabel 검증
-      expect(screen.getByText(card.updatedLabel)).toBeInTheDocument();
-      // 5. category 검증
-      expect(screen.getAllByText(card.category).length).toBeGreaterThanOrEqual(1);
-      // 6. visibilityLabel 검증
-      expect(screen.getAllByText(card.visibilityLabel).length).toBeGreaterThanOrEqual(1);
+describe("CommunityPage public browse integration", () => {
+  it("loads both public APIs without auth and renders no static mock or demo link", async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = requestUrl(input);
+      if (url === "/api/community/trees?view=summary&sort=latest&limit=12") {
+        return Promise.resolve(jsonResponse([snapshot("main-1", "메인 API 러브트리")]));
+      }
+      if (url === "/api/community/growing-trees?limit=6") {
+        return Promise.resolve(jsonResponse([snapshot("grow-1", "성장 API 러브트리", "growing")]));
+      }
+      return Promise.resolve(jsonResponse({ error: "unexpected path" }, 404));
     });
-  });
+    vi.stubGlobal("fetch", fetchMock);
 
-  it("8개 일반 카드가 실제 YouTube thumbnail을 사용하고 inline player를 만들지 않는다", () => {
     render(<MemoryRouter><CommunityPage /></MemoryRouter>);
 
-    expect(screen.getAllByTestId("community-youtube-thumbnail")).toHaveLength(8);
-    expect(
-      screen.getAllByRole("img", { name: /공개 YouTube 예시 썸네일/ }),
-    ).toHaveLength(8);
-    expect(screen.queryByTestId("youtube-player")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("community-card-skeleton")).toHaveLength(4);
+    expect(await screen.findByText("메인 API 러브트리")).toBeInTheDocument();
+    expect(await screen.findByText("성장 API 러브트리")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "다른 팬들의 러브트리 구경하기" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "새로 자라는 러브트리" })).toBeInTheDocument();
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls.map(([input]) => requestUrl(input))).toEqual([
+      "/api/community/trees?view=summary&sort=latest&limit=12",
+      "/api/community/growing-trees?limit=6",
+    ]);
+    for (const [, init] of fetchMock.mock.calls) {
+      const headers = new Headers(init?.headers);
+      expect(headers.has("Authorization")).toBe(false);
+    }
+
+    expect(screen.queryByText("BTS - Map of the Soul 7 Memories")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Featured 러브트리|이주의 추천 트리/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /러브트리 보기/ })).not.toBeInTheDocument();
+    expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
   });
 
-  it("카드 전체 Link를 유지하고 Link 내부에 button이나 다른 link를 중첩하지 않는다", () => {
-    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
-
-    communityTreeCards.forEach((card) => {
-      const link = screen.getByRole("link", { name: `${card.title} 러브트리 보기` });
-      expect(link).toHaveAttribute("href", "/tree/community-demo");
-      expect(within(link).queryByRole("button")).not.toBeInTheDocument();
-      expect(within(link).queryByRole("link")).not.toBeInTheDocument();
+  it("keeps main results visible when growing fails and retries only growing", async () => {
+    let growingAttempts = 0;
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = requestUrl(input);
+      if (url.startsWith("/api/community/trees?")) {
+        return Promise.resolve(jsonResponse([snapshot("main-1", "계속 보이는 메인 트리")]));
+      }
+      if (url === "/api/community/growing-trees?limit=6") {
+        growingAttempts += 1;
+        return growingAttempts === 1
+          ? Promise.resolve(jsonResponse({ error: "temporary" }, 503))
+          : Promise.resolve(jsonResponse([snapshot("grow-2", "재시도된 성장 트리", "growing")]));
+      }
+      return Promise.resolve(jsonResponse({ error: "unexpected" }, 404));
     });
-  });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
 
-  it("Featured 러브트리 영역과 상세 구조(태그 및 반응 정보 포함)를 검증한다", () => {
     render(<MemoryRouter><CommunityPage /></MemoryRouter>);
-    expect(screen.getByText("🌟 Featured 러브트리")).toBeInTheDocument();
-    expect(screen.getByText("이주의 추천 트리")).toBeInTheDocument();
-    expect(screen.getByText("OUR JOURNEY WITH RED VELVET")).toBeInTheDocument();
-    expect(screen.getByText("레드벨벳 10주년을 함께한 팬들의 소중한 콘서트 현장 열기와 미발매곡 최초 공개의 순간, 그리고 멤버들과 함께 울고 웃었던 추억의 타임라인을 총망라한 기념비적 트리.")).toBeInTheDocument();
-    expect(screen.getByText("🌳 총 35개의 소중한 기억 노드 연결됨")).toBeInTheDocument();
-    expect(screen.getByText("12시간 전 업데이트")).toBeInTheDocument();
 
-    // Featured 전용 태그 검증
-    expect(screen.getByText("#레드벨벳")).toBeInTheDocument();
-    expect(screen.getByText("#10주년")).toBeInTheDocument();
-    expect(screen.getByText("#콘서트")).toBeInTheDocument();
-
-    // Featured Likes & Comments 검증
-    expect(screen.getByText("♥ 852")).toBeInTheDocument();
-    expect(screen.getByText("💬 124")).toBeInTheDocument();
-  });
-
-  it("검색 입력이 가능하다", () => {
-    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
-    const input = screen.getByRole("searchbox");
-    expect(input).toBeInTheDocument();
-    expect(input).toHaveAttribute(
-      "aria-label",
-      "러브트리 검색"
+    expect(await screen.findByText("계속 보이는 메인 트리")).toBeInTheDocument();
+    const growingSection = screen.getByRole("heading", { name: "새로 자라는 러브트리" }).closest("section");
+    expect(growingSection).not.toBeNull();
+    expect(within(growingSection as HTMLElement).getByRole("alert")).toHaveTextContent(
+      "새로 자라는 러브트리를 불러오지 못했습니다.",
     );
+
+    await user.click(
+      within(growingSection as HTMLElement).getByRole("button", { name: "새 트리 다시 불러오기" }),
+    );
+
+    expect(await screen.findByText("재시도된 성장 트리")).toBeInTheDocument();
+    expect(screen.getByText("계속 보이는 메인 트리")).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([input]) => requestUrl(input).includes("growing-trees"))).toHaveLength(2);
+    expect(fetchMock.mock.calls.filter(([input]) => requestUrl(input).includes("community/trees?"))).toHaveLength(1);
   });
 
-  it("카테고리 메뉴를 렌더링한다", () => {
-    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
-    const nav = screen.getByRole("navigation", { name: "커뮤니티 카테고리" });
-    expect(within(nav).getByText("인기")).toBeInTheDocument();
-    expect(within(nav).getByText("컴백")).toBeInTheDocument();
-  });
+  it("keeps search and categories as local visual controls without extra requests", async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = requestUrl(input);
+      return Promise.resolve(jsonResponse(url.includes("growing-trees") ? [] : [snapshot("main", "검색과 무관한 API 트리")]));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
 
-  it("네트워크/API 호출이 없는 무네트워크(zero-network) 환경임을 보장한다", () => {
     render(<MemoryRouter><CommunityPage /></MemoryRouter>);
-    const fetchSpy = vi.spyOn(globalThis, "fetch");
-    expect(fetchSpy).not.toHaveBeenCalled();
+    await screen.findByText("검색과 무관한 API 트리");
+
+    const search = screen.getByRole("searchbox", { name: "러브트리 검색" });
+    await user.type(search, "로컬 검색어");
+    await user.click(within(screen.getByRole("navigation", { name: "커뮤니티 카테고리" })).getByRole("button", { name: "콘서트" }));
+
+    expect(search).toHaveValue("로컬 검색어");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("새로 자라는 공개 러브트리가 없습니다."));
   });
 });
