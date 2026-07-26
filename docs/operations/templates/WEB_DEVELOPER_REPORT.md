@@ -23,7 +23,16 @@
 - Tests executed: test file, test count, passed/failed/skipped
 - Exact command outputs: command, exit code, 핵심 원문
 - CI run/job/steps/log: run ID, job ID, step conclusion, log retrieval 결과
-- Cloudflare result: deployment ID, status, deployment commit, preview URL
+- Automatic Cloudflare preview: Git integration이 생성한 경우에만 deployment ID, status, commit, preview URL
+- Preview not generated: 생성되지 않은 경우 그 사실만 기록하고 수동 preview를 만들지 않음
+
+## Deployment boundary
+
+- 웹 개발자는 production에 `wrangler pages deploy`, direct upload, dashboard retry 또는 cache purge를 실행하지 않습니다.
+- 웹 개발자는 자동배포를 유발하기 위한 빈 commit, rebuild marker 또는 의미 없는 source 변경을 만들지 않습니다.
+- production deployment는 사용자 승인 후 `main` merge가 Cloudflare Pages Git integration을 통해 자동으로 시작합니다.
+- 자동 production deployment와 production smoke는 merge 후 웹 CTO가 확인합니다.
+- 자동배포 장애가 보이면 수동 복구하지 않고 exact 상태와 metadata를 웹 CTO에게 반환합니다.
 
 ## Delivery state
 
@@ -31,6 +40,7 @@
 - Local validation still required: 필요한 실환경 검증과 이유
 - Draft PR state: PR 번호, OPEN 여부, Draft 여부, base/head
 - Remaining blockers: 차단 사유, 해제 주체, 다음 전이
+- Manual deployment performed: 반드시 `No`; 예외가 있었다면 별도 운영사고 번호와 사용자 승인 없이는 이 보고서로 완료 처리하지 않음
 
 ## Required closing line
 
