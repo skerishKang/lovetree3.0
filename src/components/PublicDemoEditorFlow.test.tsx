@@ -105,11 +105,11 @@ describe("PublicDemoEditorFlow — typed final contract", () => {
   afterEach(() => {
     cleanup();
     flowAuth.user = null;
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     localStorage.removeItem(PUBLIC_DEMO_STORAGE_KEY);
     localStorage.removeItem("unrelated-key");
     window.history.pushState({}, "", "/");
-    vi.restoreAllMocks();
-    vi.unstubAllGlobals();
   });
 
   it("creates root, child, and grandchild with YouTube lifecycle and zero backend writes", async () => {
@@ -370,6 +370,82 @@ describe("PublicDemoEditorFlow — typed final contract", () => {
       expect(localStorage.getItem("unrelated-key")).toBe("keep");
       cleanup();
     }
+  });
+
+  it("keeps the last valid title until a blank title is corrected before preview", async () => {
+    seedDraft([makeNode("root", null, "제목 검증 기억")], "root");
+    const originalStorage = localStorage.getItem(PUBLIC_DEMO_STORAGE_KEY);
+    const user = userEvent.setup();
+    renderAppAt("/tree/new-demo/edit");
+
+    const titleInput = screen.getByLabelText("러브트리 제목");
+    await user.clear(titleInput);
+
+    const titleError = screen.getByText(
+      "러브트리 제목을 입력해야 저장하고 미리볼 수 있습니다.",
+    );
+    expect(titleError).toHaveAttribute("role", "alert");
+    expect(titleInput).toHaveAttribute("aria-invalid", "true");
+    expect(titleInput.getAttribute("aria-describedby")).toContain(
+      "editor-tree-title-error",
+    );
+    await waitFor(() => expect(screen.getByText("저장 실패")).toBeInTheDocument());
+    expect(localStorage.getItem(PUBLIC_DEMO_STORAGE_KEY)).toBe(originalStorage);
+
+    await user.click(screen.getByRole("link", { name: "미리보기" }));
+    expect(window.location.pathname).toBe("/tree/new-demo/edit");
+    expect(titleInput).toHaveFocus();
+
+    await user.type(titleInput, "복구된 러브트리");
+    await waitFor(() =>
+      expect(readDraft()?.tree.title).toBe("복구된 러브트리"),
+    );
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("저장됨"));
+    expect(screen.queryByText("러브트리 제목을 입력해야 저장하고 미리볼 수 있습니다.")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("link", { name: "미리보기" }));
+    expect(window.location.pathname).toBe("/tree/new-demo/preview");
+    expect(
+      screen.getByRole("heading", { level: 1, name: "복구된 러브트리" }),
+    ).toBeInTheDocument();
+  });
+
+  it("preserves route, draft, selection, and storage when exact-key removal throws", async () => {
+    seedDraft([makeNode("root", null, "초기화 실패 기억")], "root");
+    localStorage.setItem("unrelated-key", "keep");
+    const storedBeforeReset = localStorage.getItem(PUBLIC_DEMO_STORAGE_KEY);
+    const originalRemoveItem = Storage.prototype.removeItem;
+    const removeSpy = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(
+      function removeItem(this: Storage, key: string) {
+        if (key === PUBLIC_DEMO_STORAGE_KEY) throw new Error("remove failed");
+        return originalRemoveItem.call(this, key);
+      },
+    );
+    const clearSpy = vi.spyOn(Storage.prototype, "clear");
+    const user = userEvent.setup();
+    renderAppAt("/tree/new-demo/edit");
+
+    await user.click(screen.getByRole("button", { name: "전체 초기화" }));
+    await user.click(screen.getByRole("button", { name: "draft 완전 삭제" }));
+
+    expect(screen.getByText("브라우저 임시 저장을 제거하지 못했습니다.")).toHaveAttribute(
+      "role",
+      "alert",
+    );
+    expect(window.location.pathname).toBe("/tree/new-demo/edit");
+    expect(screen.getByLabelText("러브트리 제목")).toHaveValue("테스트 러브트리");
+    expect(screen.getByTestId("node-count")).toHaveTextContent("1 / 12");
+    expect(screen.getByRole("heading", { level: 2, name: "초기화 실패 기억" })).toBeInTheDocument();
+    expect(localStorage.getItem(PUBLIC_DEMO_STORAGE_KEY)).toBe(storedBeforeReset);
+    expect(localStorage.getItem("unrelated-key")).toBe("keep");
+    expect(clearSpy).not.toHaveBeenCalled();
+
+    removeSpy.mockRestore();
+    cleanup();
+    renderAppAt("/tree/new-demo/edit");
+    expect(screen.getByLabelText("러브트리 제목")).toHaveValue("테스트 러브트리");
+    expect(screen.getByTestId("node-count")).toHaveTextContent("1 / 12");
+    expect(screen.getByRole("heading", { level: 2, name: "초기화 실패 기억" })).toBeInTheDocument();
   });
 
   it("supports Escape cancellation, focus return, and exact-key reset", async () => {
