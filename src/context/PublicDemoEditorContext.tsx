@@ -120,12 +120,20 @@ function createStableNodeId() {
   return `memory-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export function PublicDemoEditorProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, undefined, () => ({
+function createInitialEditorState(): EditorState {
+  return {
     draft: readPublicDemoDraft(),
-    status: "저장됨" as const,
+    status: "저장됨",
     revision: 0,
-  }));
+  };
+}
+
+export function PublicDemoEditorProvider({ children }: { children: ReactNode }) {
+  const initialStateRef = useRef<EditorState | null>(null);
+  if (initialStateRef.current === null) {
+    initialStateRef.current = createInitialEditorState();
+  }
+  const [state, dispatch] = useReducer(reducer, initialStateRef.current);
   const suppressNextWrite = useRef(false);
 
   useEffect(() => {
