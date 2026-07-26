@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { usePublicDemoEditor } from "../context/PublicDemoEditorContext";
 import {
@@ -35,6 +35,7 @@ export default function PublicDemoEditorPage() {
   const [resetOpen, setResetOpen] = useState(false);
   const [activeError, setActiveError] = useState("");
   const connectors = getConnectors(draft.nodes);
+  const titleInvalid = draft.tree.title.trim().length === 0;
 
   const handleDeleteRequest = () => {
     if (!selectedNode) return;
@@ -56,13 +57,20 @@ export default function PublicDemoEditorPage() {
     if (draft.nodes.length === 1) navigate("/tree/new-demo");
   };
 
+  const handlePreview = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!titleInvalid) return;
+    event.preventDefault();
+    document.getElementById("editor-tree-title")?.focus();
+  };
+
   const handleReset = () => {
     const result = resetDraft();
-    setResetOpen(false);
     if (!result.ok) {
       setActiveError(result.reason ?? "초기화하지 못했습니다.");
       return;
     }
+    setResetOpen(false);
+    setActiveError("");
     navigate("/tree/new-demo");
   };
 
@@ -78,8 +86,24 @@ export default function PublicDemoEditorPage() {
           <span className={status === "저장 실패" ? styles.statusError : styles.saveStatus} role={status === "저장 실패" ? "alert" : "status"}>
             {status}
           </span>
-          <Link to="/tree/new-demo/preview" className={styles.secondaryButton}>미리보기</Link>
-          <button type="button" className={styles.secondaryButton} onClick={() => setResetOpen(true)}>전체 초기화</button>
+          <Link
+            to="/tree/new-demo/preview"
+            className={styles.secondaryButton}
+            aria-disabled={titleInvalid}
+            onClick={handlePreview}
+          >
+            미리보기
+          </Link>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            onClick={() => {
+              setActiveError("");
+              setResetOpen(true);
+            }}
+          >
+            전체 초기화
+          </button>
           <button type="button" className={styles.disabledButton} disabled>게시하기 · 데모에서는 지원 안 함</button>
         </div>
       </header>
@@ -146,9 +170,18 @@ export default function PublicDemoEditorPage() {
                 value={draft.tree.title}
                 maxLength={PUBLIC_DEMO_TREE_TITLE_MAX}
                 required
+                aria-invalid={titleInvalid}
+                aria-describedby={titleInvalid
+                  ? "editor-tree-title-help editor-tree-title-error"
+                  : "editor-tree-title-help"}
                 onChange={(event) => updateTree({ ...draft.tree, title: event.target.value })}
               />
-              <span className={styles.fieldHelp}>{draft.tree.title.length} / {PUBLIC_DEMO_TREE_TITLE_MAX}</span>
+              <span id="editor-tree-title-help" className={styles.fieldHelp}>{draft.tree.title.length} / {PUBLIC_DEMO_TREE_TITLE_MAX}</span>
+              {titleInvalid && (
+                <p id="editor-tree-title-error" className={styles.errorText} role="alert">
+                  러브트리 제목을 입력해야 저장하고 미리볼 수 있습니다.
+                </p>
+              )}
             </div>
             <div className={styles.field}>
               <label htmlFor="editor-tree-description">설명</label>
