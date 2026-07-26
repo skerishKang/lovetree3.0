@@ -3,10 +3,11 @@ compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat", "enable_request_signal"]
 pages_build_output_dir = "dist"
 
-# Public LoveBud Modal API base URL used by Pages Functions.
+# Public LoveBud Pages API gateway used by LoveTree Pages Functions.
+# LoveBud Pages owns the browser-facing /api/* -> Modal /modal/* route mapping.
 # This is application configuration, not a secret.
 [vars]
-LOVEBUD_API_BASE_URL = "https://padiemipu--lovebud-browse-snapshot-fastapi-app.modal.run"
+LOVEBUD_API_BASE_URL = "https://lovebud.pages.dev"
 
 [env.production]
 compatibility_date = "2026-07-21"
