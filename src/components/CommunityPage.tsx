@@ -1,30 +1,32 @@
-import styles from "./CommunityPage.module.css";
+import { useCommunityTrees } from "../hooks/useCommunityTrees";
+import CommunityCategories from "./CommunityCategories";
 import CommunityHeader from "./CommunityHeader";
 import CommunitySearch from "./CommunitySearch";
-import CommunityCategories from "./CommunityCategories";
 import CommunityTreeGrid from "./CommunityTreeGrid";
 import FeaturedLoveTree from "./FeaturedLoveTree";
+import styles from "./CommunityPage.module.css";
 
-/**
- * 커뮤니티 탐색 화면 (LT3-COMMUNITY-001) — BASE 구현
- *
- * 구조:
- *   CommunityPage
- *   ├─ CommunityHeader
- *   ├─ CommunitySearch
- *   ├─ CommunityCategories
- *   ├─ CommunityTreeGrid  (└─ CommunityTreeCard × N)
- *   └─ FeaturedLoveTree
- */
 export default function CommunityPage() {
+  const { main, growing, retryMain, retryGrowing } = useCommunityTrees();
+
   return (
     <div className={styles.page}>
       <main className={styles.panel}>
         <CommunityHeader />
         <CommunitySearch />
         <CommunityCategories />
-        <CommunityTreeGrid />
-        <FeaturedLoveTree />
+        <CommunityTreeGrid
+          trees={main.items}
+          status={main.status}
+          error={main.error}
+          onRetry={retryMain}
+        />
+        <FeaturedLoveTree
+          trees={growing.items}
+          status={growing.status}
+          error={growing.error}
+          onRetry={retryGrowing}
+        />
       </main>
     </div>
   );
