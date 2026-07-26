@@ -78,9 +78,9 @@ export const MOCK_TREE_DETAIL: TreeDetailData = {
       id: "mem-1", date: "2023-09-28", title: "첫 만남 - 무대 영상",
       description: "처음으로 본 무대 영상. 그날의 감동을 잊을 수 없어요. 영상을 보며 함께 춤추고 노래했던 순간.",
       tags: ["첫만남", "무대"], emoji: "🎬",
-      youtubeUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
-      side: "top", typeLabel: "무대 영상", mediaLabel: "YouTube 링크",
-      locationLabel: "내 방 침대 위", reactionCount: 45,
+      youtubeUrl: "https://www.youtube.com/watch?v=c4V0FNZfEv0",
+      side: "top", typeLabel: "무대 영상", mediaLabel: "공개 YouTube 공연 영상 예시",
+      locationLabel: "YouTube에서 보기", reactionCount: 45,
       connectionLabel: "우상향 입덕의 시작점", isFeatured: false, accentVariant: "indigo",
     },
     {
@@ -91,12 +91,12 @@ export const MOCK_TREE_DETAIL: TreeDetailData = {
       reactionCount: 32, connectionLabel: "음악 감상의 깊이를 더함", isFeatured: false, accentVariant: "emerald",
     },
     {
-      id: "mem-3", date: "2023-11-20", title: "콘서트 직캠",
-      description: "첫 콘서트! 직캠을 찍느라 정신없었지만 너무 행복했던 날.",
-      tags: ["콘서트", "직캠"], emoji: "🎤",
-      youtubeUrl: "https://youtu.be/dQw4w9WgXcQ",
-      side: "top", typeLabel: "콘서트 현장", mediaLabel: "4K 직캠 영상",
-      locationLabel: "올림픽공원 체조경기장", reactionCount: 98,
+      id: "mem-3", date: "2023-11-20", title: "콘서트 공연 영상",
+      description: "첫 콘서트의 감정을 떠올리며 공개 YouTube 공연 영상을 연결한 날.",
+      tags: ["콘서트", "공개영상"], emoji: "🎤",
+      youtubeUrl: "https://youtu.be/cMXk7cjr_tc",
+      side: "top", typeLabel: "공개 공연 영상", mediaLabel: "공개 YouTube 아티스트 영상 예시",
+      locationLabel: "YouTube에서 보기", reactionCount: 98,
       connectionLabel: "대표 기억이자 절정의 순간", isFeatured: true, accentVariant: "rose",
     },
     {
@@ -116,9 +116,8 @@ export const MOCK_TREE_DETAIL: TreeDetailData = {
     {
       id: "mem-6", date: "2024-04-01", title: "굿즈 수령",
       description: "시즌 그리팅과 MD 굿즈가 도착한 날. 구성이 알차서 감동.",
-      tags: ["굿즈", "MD"], emoji: "🎁",
-      youtubeUrl: "https://www.youtube.com/shorts/aqz-KE-bpKQ",
-      side: "bottom", typeLabel: "공식 굿즈", mediaLabel: "언박싱 브이로그", locationLabel: "택배 수령지",
+      tags: ["굿즈", "MD"], emoji: "🎁", side: "bottom",
+      typeLabel: "공식 굿즈", mediaLabel: "언박싱 사진 기록", locationLabel: "택배 수령지",
       reactionCount: 19, connectionLabel: "덕질 방 인테리어 추가", isFeatured: false, accentVariant: "cyan",
     },
     {
@@ -131,15 +130,14 @@ export const MOCK_TREE_DETAIL: TreeDetailData = {
     {
       id: "mem-8", date: "2024-08-01", title: "앨범 작업 과정",
       description: "새 앨범 비하인드 영상을 보며 작업 과정을 느낄 수 있었던 순간.",
-      tags: ["비하인드", "앨범"], emoji: "🎵",
-      youtubeUrl: "https://www.youtube-nocookie.com/embed/jNQXAC9IVRw",
-      side: "bottom", typeLabel: "다큐멘터리", mediaLabel: "비하인드 클립", locationLabel: "방구석 시네마",
+      tags: ["비하인드", "앨범"], emoji: "🎵", side: "bottom",
+      typeLabel: "다큐멘터리", mediaLabel: "비하인드 감상 메모", locationLabel: "방구석 시네마",
       reactionCount: 41, connectionLabel: "창작의 고뇌 공감", isFeatured: false, accentVariant: "teal",
     },
   ],
   comments: [
-    { id: "c-1", author: "아트라", authorHandle: "@atra_fan", avatar: "🎨", text: "첫 콘서트 직캠 정말 잘 봤어요! 저도 그날 갔었는데 감동이었죠 🥹", likes: 5, timestamp: "2024-08-03T14:30:00Z", timeLabel: "2시간 전" },
-    { id: "c-2", author: "타이마", authorHandle: "@taima_99", avatar: "🌸", text: "앨범 작업 과정 영상 저도 봤어요! 다음 앨범도 기대됩니다 💕", likes: 3, timestamp: "2024-08-03T12:15:00Z", timeLabel: "4시간 전" },
+    { id: "c-1", author: "아트라", authorHandle: "@atra_fan", avatar: "🎨", text: "콘서트 공연 영상 정말 잘 봤어요! 저도 그날 갔었는데 감동이었죠 🥹", likes: 5, timestamp: "2024-08-03T14:30:00Z", timeLabel: "2시간 전" },
+    { id: "c-2", author: "타이마", authorHandle: "@taima_99", avatar: "🌸", text: "앨범 작업 과정 기록 저도 공감해요! 다음 앨범도 기대됩니다 💕", likes: 3, timestamp: "2024-08-03T12:15:00Z", timeLabel: "4시간 전" },
     { id: "c-3", author: "리온", authorHandle: "@lion_heart", avatar: "🦁", text: "러브트리 구경하고 갑니다~ 팬미팅 후기 너무 부러워요!", likes: 8, timestamp: "2024-08-02T23:45:00Z", timeLabel: "어제" },
   ],
 };
