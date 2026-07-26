@@ -1,464 +1,128 @@
-/**
- * LT3-EDITOR-001 — EmptyTreeEditorPage UI BASE 테스트
- * 실제 App 기반 렌더링, presentation-only 검증
- */
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { PUBLIC_DEMO_STORAGE_KEY } from "../utils/publicDemoStorage";
+import EmptyTreeEditorPage from "./EmptyTreeEditorPage";
 
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { cleanup, screen, fireEvent, within } from "@testing-library/react";
-import { render } from "@testing-library/react";
-import App from "../App";
-
-vi.mock("../hooks/useAuth", () => ({
-  useAuth: () => ({
-    user:
-      window.location.pathname === "/login"
-        ? null
-        : {
-            uid: "presentation-test-user",
-            displayName: null,
-            email: null,
-            photoURL: null,
-            emailVerified: true,
-          },
-    loading: false,
-    tier: null,
-    signInWithGoogle: vi.fn(),
-    signOut: vi.fn(),
-    expireSession: vi.fn(),
-  }),
-}));
-
-function renderAppAt(path: string) {
-  window.history.pushState({}, "", path);
-  render(<App />);
+function LocationProbe() {
+  const location = useLocation();
+  return <output aria-label="current path">{location.pathname}</output>;
 }
 
-describe("EmptyTreeEditorPage — /tree/new-demo", () => {
+function renderStart() {
+  render(
+    <MemoryRouter initialEntries={["/tree/new-demo"]}>
+      <Routes>
+        <Route path="/tree/new-demo" element={<EmptyTreeEditorPage />} />
+        <Route path="/tree/new-demo/memory/new" element={<h1>첫 기억 입력 화면</h1>} />
+        <Route path="/tree/new-demo/edit" element={<h1>공개 데모 편집 화면</h1>} />
+      </Routes>
+      <LocationProbe />
+    </MemoryRouter>,
+  );
+}
+
+describe("EmptyTreeEditorPage — public demo start", () => {
   afterEach(() => {
     cleanup();
-    vi.unstubAllGlobals();
+    localStorage.removeItem(PUBLIC_DEMO_STORAGE_KEY);
+    localStorage.removeItem("unrelated-key");
     vi.restoreAllMocks();
-    window.history.pushState({}, "", "/");
+    vi.unstubAllGlobals();
   });
 
-  /* ─── 기본 존재 ─── */
+  it("preserves the editor layout while exposing editable draft fields", () => {
+    renderStart();
 
-  it("h1 '새 러브트리'가 표시되어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(
-      screen.getByRole("heading", { level: 1, name: "새 러브트리" })
-    ).toBeInTheDocument();
-  });
-
-  it("안내 문구가 표시되어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(
-      screen.getByText("첫 순간을 추가해 러브트리를 시작하세요")
-    ).toBeInTheDocument();
-  });
-
-  /* ─── CTA ─── */
-
-  it("'첫 순간 추가' CTA 버튼이 있어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(
-      screen.getByRole("button", { name: "첫 순간 추가" })
-    ).toBeInTheDocument();
-  });
-
-  it("'첫 순간 추가' 버튼 클릭 시 /memory/connect-demo로 이동한다", () => {
-    renderAppAt("/tree/new-demo");
-    const btn = screen.getByRole("button", { name: "첫 순간 추가" });
-    fireEvent.click(btn);
-    expect(window.location.pathname).toBe("/memory/connect-demo");
-  });
-
-  it("'미디어 찾기' 버튼 클릭 시 /media/search-demo로 이동한다", () => {
-    renderAppAt("/tree/new-demo");
-    const btn = screen.getByRole("button", { name: "미디어 찾기" });
-    fireEvent.click(btn);
-    expect(window.location.pathname).toBe("/media/search-demo");
-  });
-
-  it("사이드바 '내 러브트리' 메뉴 클릭 시 /my-trees로 이동한다", () => {
-    renderAppAt("/tree/new-demo");
-    const btn = screen.getByRole("button", { name: /내 러브트리/ });
-    fireEvent.click(btn);
-    expect(window.location.pathname).toBe("/my-trees");
-  });
-
-  /* ─── 사이드바 ─── */
-
-  it("사이드바에 '내 러브트리' 메뉴가 있어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(
-      screen.getByRole("button", { name: /내 러브트리/ })
-    ).toBeInTheDocument();
-  });
-
-  it("사이드바에 '탐색' 메뉴가 있어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(
-      screen.getByRole("button", { name: /탐색/ })
-    ).toBeInTheDocument();
-  });
-
-  it("사이드바에 '설정' 메뉴가 있어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(
-      screen.getByRole("button", { name: /설정/ })
-    ).toBeInTheDocument();
-  });
-
-  /* ─── 메뉴 및 활성 상태 검증 ─── */
-
-  it("사이드바 메뉴가 정확히 3개이고 '내 러브트리'가 활성 상태여야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    const nav = screen.getByRole("navigation", { name: "에디터 메뉴" });
-    const menuButtons = within(nav).getAllByRole("button");
-    expect(menuButtons).toHaveLength(3);
-
-    const activeButtons = nav.querySelectorAll('[aria-current="page"]');
-    expect(activeButtons).toHaveLength(1);
-    expect(
-      within(nav).getByRole("button", { name: /내 러브트리/ })
-    ).toHaveAttribute("aria-current", "page");
-  });
-
-  /* ─── 접근성 구조 ─── */
-
-  it("navigation landmark가 존재해야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(
-      screen.getByRole("navigation", { name: "에디터 메뉴" })
-    ).toBeInTheDocument();
-  });
-
-  it("main landmark가 존재해야 한다", () => {
-    renderAppAt("/tree/new-demo");
+    expect(screen.getByRole("navigation", { name: "에디터 메뉴" })).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();
-  });
-
-  it("메뉴가 ul > li > button 구조여야 하며 정확히 3개 항목이어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    const nav = screen.getByRole("navigation", { name: "에디터 메뉴" });
-    const list = nav.querySelector("ul");
-    expect(list).toBeInTheDocument();
-    const items = list!.querySelectorAll("li");
-    expect(items.length).toBe(3);
-    items.forEach((item) => {
-      expect(item.querySelector("button")).toBeInTheDocument();
-    });
-  });
-
-  it("장식 SVG는 accessibility tree에서 숨겨져 있어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    const main = screen.getByRole("main");
-    const svgs = main.querySelectorAll("svg");
-    expect(svgs).toHaveLength(1);
-
-    svgs.forEach((svg) => {
-      const isHidden =
-        svg.getAttribute("aria-hidden") === "true" ||
-        svg.closest('[aria-hidden="true"]') !== null;
-      expect(isHidden).toBe(true);
-    });
-  });
-
-  /* ─── 순간 카드 및 미허용 버튼 없음 ─── */
-
-  it("article(순간 카드)이 0개여야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(screen.queryByRole("article")).not.toBeInTheDocument();
-  });
-
-  it("기억 추가, 저장, 게시하기 버튼이 없어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(
-      screen.queryByRole("button", { name: /기억 추가/ })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /저장/ })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /게시하기/ })
-    ).not.toBeInTheDocument();
-  });
-
-  /* ─── 종합 Presentation-only regression 계약 테스트 ─── */
-
-  it("상호작용 전후 DOM 계약이 유지되고 네트워크/Storage/Dialog side-effect가 발생하지 않아야 한다", () => {
-    // 1. Spies installed BEFORE renderAppAt
-    const fetchSpy = vi.fn();
-    vi.stubGlobal("fetch", fetchSpy);
-
-    const xhrOpenSpy = vi.spyOn(XMLHttpRequest.prototype, "open");
-
-    const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
-    const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
-    const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
-    const storageClearSpy = vi.spyOn(Storage.prototype, "clear");
-
-    // 2. Render
-    renderAppAt("/tree/new-demo");
-
-    // 3. Exact count & state assertions BEFORE click
-    const initialUrl = window.location.href;
-
     expect(screen.getByRole("heading", { level: 1, name: "새 러브트리" })).toBeInTheDocument();
     expect(screen.getByText("첫 순간을 추가해 러브트리를 시작하세요")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "첫 순간 추가" })).toBeInTheDocument();
-
-    const nav = screen.getByRole("navigation", { name: "에디터 메뉴" });
-    const menuButtons = within(nav).getAllByRole("button");
-    expect(menuButtons).toHaveLength(3);
-
-    const activeButtons = nav.querySelectorAll('[aria-current="page"]');
-    expect(activeButtons).toHaveLength(1);
-    expect(
-      within(nav).getByRole("button", { name: /내 러브트리/ })
-    ).toHaveAttribute("aria-current", "page");
-
-    expect(screen.queryAllByRole("article")).toHaveLength(0);
-    expect(screen.queryByRole("button", { name: /기억 추가/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /저장/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /게시하기/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-
-    // 4. Click all non-navigation buttons
-    const navigationButtonNames = ["내 러브트리", "탐색", "설정", "첫 순간 추가", "미디어 찾기"];
-    const allButtons = screen.getAllByRole("button").filter(
-      (b) => !navigationButtonNames.some(name => (b.textContent || "").includes(name))
-    );
-    allButtons.forEach((btn) => fireEvent.click(btn));
-
-    // 5. Re-query DOM post-click
-    expect(screen.getByRole("heading", { level: 1, name: "새 러브트리" })).toBeInTheDocument();
-    expect(screen.getByText("첫 순간을 추가해 러브트리를 시작하세요")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "첫 순간 추가" })).toBeInTheDocument();
-
-    const reNav = screen.getByRole("navigation", { name: "에디터 메뉴" });
-    expect(within(reNav).getAllByRole("button")).toHaveLength(3);
-
-    const reActive = reNav.querySelectorAll('[aria-current="page"]');
-    expect(reActive).toHaveLength(1);
-    expect(
-      within(reNav).getByRole("button", { name: /내 러브트리/ })
-    ).toHaveAttribute("aria-current", "page");
-
-    expect(screen.queryAllByRole("article")).toHaveLength(0);
-    expect(screen.queryByRole("button", { name: /기억 추가/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /저장/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /게시하기/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-
-    expect(window.location.href).toBe(initialUrl);
-
-    // 6. Side-effect assertions
-    expect(fetchSpy).not.toHaveBeenCalled();
-    expect(xhrOpenSpy).not.toHaveBeenCalled();
-    expect(storageGetSpy).not.toHaveBeenCalled();
-    expect(storageSetSpy).not.toHaveBeenCalled();
-    expect(storageRemoveSpy).not.toHaveBeenCalled();
-    expect(storageClearSpy).not.toHaveBeenCalled();
+    expect(screen.getByText("브라우저 체험판 · 서버 저장 없음")).toBeInTheDocument();
+    expect(screen.getByLabelText("러브트리 제목")).toBeRequired();
+    expect(screen.getByLabelText("설명")).toBeInTheDocument();
+    expect(screen.getByText("0 / 12 기억")).toBeInTheDocument();
   });
 
-  /* ─── 개별 상호작용 후 사이드 이펙트 없음 ─── */
-
-  it("모든 버튼 클릭 후 fetch가 0회여야 한다", () => {
-    renderAppAt("/tree/new-demo");
+  it("requires a title and starts the public first-memory route without network writes", async () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
+    const xhrSendSpy = vi.spyOn(XMLHttpRequest.prototype, "send");
+    const user = userEvent.setup();
+    renderStart();
 
-    const buttons = screen.getAllByRole("button");
-    buttons.forEach((btn) => fireEvent.click(btn));
+    await user.click(screen.getByRole("button", { name: "첫 순간 추가" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("러브트리 제목을 입력하세요");
 
+    await user.type(screen.getByLabelText("러브트리 제목"), "공개 데모 트리");
+    await user.type(screen.getByLabelText("설명"), "브라우저에만 저장되는 설명");
+    await user.click(screen.getByRole("button", { name: "첫 순간 추가" }));
+
+    expect(screen.getByLabelText("current path")).toHaveTextContent("/tree/new-demo/memory/new");
+    expect(screen.getByRole("heading", { name: "첫 기억 입력 화면" })).toBeInTheDocument();
     expect(fetchSpy).not.toHaveBeenCalled();
+    expect(xhrSendSpy).not.toHaveBeenCalled();
   });
 
+  it("resumes an existing valid draft at the editor route", async () => {
+    localStorage.setItem(PUBLIC_DEMO_STORAGE_KEY, JSON.stringify({
+      schemaVersion: 1,
+      tree: { title: "복원된 트리", description: "복원 설명" },
+      nodes: [{
+        id: "root",
+        parentId: null,
+        title: "복원 기억",
+        date: "2026-07-26",
+        emotion: "행복",
+        memo: "복원 메모",
+        youtubeUrl: "https://www.youtube.com/watch?v=c4V0FNZfEv0",
+        videoId: "c4V0FNZfEv0",
+      }],
+      selectedNodeId: "root",
+    }));
+    const user = userEvent.setup();
+    renderStart();
 
-  /* ─── 상호작용 후 사이드 이펙트 없음 ─── */
-
-  it("모든 버튼 클릭 후 fetch가 0회여야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    const fetchSpy = vi.fn();
-    vi.stubGlobal("fetch", fetchSpy);
-
-    const buttons = screen.getAllByRole("button");
-    buttons.forEach((btn) => fireEvent.click(btn));
-
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(screen.getByDisplayValue("복원된 트리")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("복원 설명")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "기존 작업 이어가기" }));
+    expect(screen.getByLabelText("current path")).toHaveTextContent("/tree/new-demo/edit");
   });
 
-  it("Storage API가 호출되지 않아야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    const getItemSpy = vi.fn(() => null);
-    const setItemSpy = vi.fn();
-    vi.stubGlobal("localStorage", {
-      getItem: getItemSpy,
-      setItem: setItemSpy,
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      length: 0,
-      key: vi.fn(),
-    });
-    vi.stubGlobal("sessionStorage", {
-      getItem: getItemSpy,
-      setItem: setItemSpy,
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      length: 0,
-      key: vi.fn(),
-    });
+  it("reset Escape returns focus and confirmation removes only the exact key", async () => {
+    localStorage.setItem(PUBLIC_DEMO_STORAGE_KEY, JSON.stringify({
+      schemaVersion: 1,
+      tree: { title: "초기화 대상", description: "" },
+      nodes: [],
+      selectedNodeId: null,
+    }));
+    localStorage.setItem("unrelated-key", "keep");
+    const clearSpy = vi.spyOn(Storage.prototype, "clear");
+    const user = userEvent.setup();
+    renderStart();
 
-    const buttons = screen.getAllByRole("button");
-    buttons.forEach((b) => fireEvent.click(b));
+    const resetButton = screen.getByRole("button", { name: "전체 초기화" });
+    resetButton.focus();
+    await user.click(resetButton);
+    await waitFor(() => expect(screen.getByRole("button", { name: "취소" })).toHaveFocus());
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(resetButton).toHaveFocus());
 
-    expect(getItemSpy).not.toHaveBeenCalled();
-    expect(setItemSpy).not.toHaveBeenCalled();
+    await user.click(resetButton);
+    await user.click(screen.getByRole("button", { name: "draft 완전 삭제" }));
+    expect(localStorage.getItem(PUBLIC_DEMO_STORAGE_KEY)).toBeNull();
+    expect(localStorage.getItem("unrelated-key")).toBe("keep");
+    expect(clearSpy).not.toHaveBeenCalled();
+    expect(screen.getByText("0 / 12 기억")).toBeInTheDocument();
   });
 
-  it("URL이 변경되지 않아야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    const currentUrl = window.location.href;
-
-    const navigationButtonNames = ["내 러브트리", "탐색", "설정", "첫 순간 추가", "미디어 찾기"];
-    const buttons = screen.getAllByRole("button").filter(
-      (b) => !navigationButtonNames.some(name => (b.textContent || "").includes(name))
-    );
-    buttons.forEach((btn) => fireEvent.click(btn));
-
-    expect(window.location.href).toBe(currentUrl);
-  });
-
-  it("heading, CTA, 메뉴 항목 수가 불변이어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-
-    const initialHeading = screen.getByRole("heading", { level: 1 }).textContent;
-    const initialCtas = screen.getAllByRole("button", { name: "첫 순간 추가" }).length;
-    const initialMenus = screen.getAllByRole("button").filter(
-      (b) =>
-        b.textContent === "내 러브트리" ||
-        b.textContent === "탐색" ||
-        b.textContent === "설정"
-    ).length;
-
-    const navigationButtonNames = ["내 러브트리", "탐색", "설정", "첫 순간 추가", "미디어 찾기"];
-    const buttons = screen.getAllByRole("button").filter(
-      (b) => !navigationButtonNames.some(name => (b.textContent || "").includes(name))
-    );
-    buttons.forEach((btn) => fireEvent.click(btn));
-
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(initialHeading);
-    expect(
-      screen.getAllByRole("button", { name: "첫 순간 추가" }).length
-    ).toBe(initialCtas);
-    expect(
-      screen.getAllByRole("button").filter(
-        (b) =>
-          b.textContent === "내 러브트리" ||
-          b.textContent === "탐색" ||
-          b.textContent === "설정"
-      ).length
-    ).toBe(initialMenus);
-  });
-
-  it("dialog, alert, alertdialog가 없어야 한다", () => {
-    renderAppAt("/tree/new-demo");
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  });
-
-  /* ─── 기존 /tree/edit-demo 유지 ─── */
-
-  it("/tree/edit-demo 경로가 정상 유지되어야 한다", () => {
-    renderAppAt("/tree/edit-demo");
-    expect(
-      screen.getByRole("heading", { level: 1, name: "러브트리 편집" })
-    ).toBeInTheDocument();
-  });
-
-  /* ─── 기존 경로 회귀 테스트 ─── */
-
-  describe("기존 경로 회귀", () => {
-    it("/ 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/");
-      expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+  it("does not call localStorage.clear while editing fields", () => {
+    const clearSpy = vi.spyOn(Storage.prototype, "clear");
+    renderStart();
+    fireEvent.change(screen.getByLabelText("러브트리 제목"), {
+      target: { value: "편집 중" },
     });
-
-    it("/community 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/community");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "다른 팬들의 러브트리 구경하기" })
-      ).toBeInTheDocument();
-    });
-
-    it("/login 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/login");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "내 러브트리를 계속 이어가려면 로그인하세요" })
-      ).toBeInTheDocument();
-    });
-
-    it("/tree/community-demo 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/tree/community-demo");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "테스트 러버 A의 러브트리" })
-      ).toBeInTheDocument();
-    });
-
-    it("/memory/connect-demo 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/memory/connect-demo");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "어느 순간과 연결할까요?" })
-      ).toBeInTheDocument();
-    });
-
-    it("/my-trees 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/my-trees");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "나의 러브트리" })
-      ).toBeInTheDocument();
-    });
-
-    it("/tree/edit-demo 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/tree/edit-demo");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "러브트리 편집" })
-      ).toBeInTheDocument();
-    });
-
-    it("/memory/detail-demo 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/memory/detail-demo");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "기억 상세" })
-      ).toBeInTheDocument();
-    });
-
-    it("/media/search-demo 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/media/search-demo");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "미디어 검색" })
-      ).toBeInTheDocument();
-    });
-
-    it("/settings/visibility-demo 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/settings/visibility-demo");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "공개 범위 설정" })
-      ).toBeInTheDocument();
-    });
-
-    it("/my-trees/empty-demo 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/my-trees/empty-demo");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "아직 러브트리가 없어요" })
-      ).toBeInTheDocument();
-    });
+    expect(clearSpy).not.toHaveBeenCalled();
   });
 });

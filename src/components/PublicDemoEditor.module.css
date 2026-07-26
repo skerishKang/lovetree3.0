@@ -1,0 +1,490 @@
+.page {
+  min-height: 100vh;
+  background: #f4eee6;
+  color: var(--text-primary);
+}
+
+.siteHeader,
+.simpleHeader,
+.editorHeader {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 68px;
+  padding: 12px clamp(20px, 4vw, 64px);
+  border-bottom: 1px solid var(--app-header-border-color);
+  background: rgba(255, 255, 255, 0.96);
+  position: sticky;
+  top: 0;
+  z-index: var(--app-header-z-index);
+}
+
+.editorHeader {
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.editorHeader h1,
+.editorHeader p {
+  margin: 0;
+}
+
+.editorHeader h1 {
+  font-size: var(--heading-work-size);
+}
+
+.editorHeader p,
+.simpleHeader span {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.brand {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #5c4a3a;
+}
+
+.headerNav,
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+}
+
+.headerNav a {
+  padding: 8px 10px;
+  font-weight: 600;
+}
+
+.startMain,
+.formPage,
+.previewPage,
+.notFoundPage {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: clamp(32px, 6vw, 80px) 0;
+}
+
+.notFoundPage {
+  display: grid;
+  gap: 18px;
+  place-items: start;
+}
+
+.startCard,
+.formCard,
+.treePanel,
+.inspectorPanel,
+.previewHero,
+.previewMemory {
+  border: 1px solid #e4d9cc;
+  border-radius: 24px;
+  background: #fffdf8;
+  box-shadow: var(--card-shadow);
+}
+
+.startCard,
+.formCard {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 56px);
+}
+
+.startCard h1,
+.formCard h1,
+.previewHero h1 {
+  font-size: var(--heading-page-size);
+  line-height: var(--heading-page-line-height);
+  margin: 10px 0 12px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--accent-rose-soft);
+  color: #7c5252;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.lead {
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+}
+
+.form,
+.treeFields,
+.selectedSection {
+  display: grid;
+  gap: 20px;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field label {
+  font-weight: 700;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  border: 1px solid #cfc2b5;
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px 14px;
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.field textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.field input[aria-invalid="true"],
+.field textarea[aria-invalid="true"],
+.field select[aria-invalid="true"] {
+  border-color: #a33c3c;
+}
+
+.fieldHelp {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.errorText,
+.statusError {
+  color: #8f2222;
+  font-weight: 700;
+}
+
+.errorText {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff0f0;
+}
+
+.saveStatus,
+.statusError {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #edf5ee;
+  font-size: 0.82rem;
+}
+
+.statusError {
+  background: #fff0f0;
+}
+
+.actionRow,
+.dialogActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton,
+.disabledButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.primaryButton {
+  background: var(--accent-rose);
+  color: white;
+}
+
+.secondaryButton {
+  border: 1px solid #c9bbae;
+  background: #fff;
+}
+
+.dangerButton {
+  background: #9f3636;
+  color: white;
+}
+
+.disabledButton {
+  background: #e7e0d8;
+  color: #77706a;
+  cursor: not-allowed;
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.draftSummary,
+.panelHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.editorLayout,
+.previewLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+  gap: 20px;
+  width: min(1440px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+
+.treePanel,
+.inspectorPanel,
+.previewMemory {
+  padding: 22px;
+}
+
+.panelHeading {
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.panelHeading h2,
+.treeFields h2,
+.selectedSection h2,
+.previewMemory h2,
+.mediaValidation h2,
+.previewHero h1 {
+  margin-bottom: 6px;
+}
+
+.graph {
+  display: grid;
+  gap: 10px;
+  min-height: 220px;
+  padding: 18px;
+  border-radius: 18px;
+  background: #f8f3ed;
+  overflow: auto;
+}
+
+.graphRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: max-content;
+}
+
+.connector {
+  width: 24px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent-rose);
+  position: relative;
+}
+
+.connector::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-rose);
+  position: absolute;
+  inset-block-start: -2.5px;
+  inset-inline-start: 0;
+}
+
+.nodeButton {
+  display: grid;
+  gap: 2px;
+  min-width: 230px;
+  max-width: 360px;
+  padding: 14px 16px;
+  border: 1px solid #d8ccbf;
+  border-radius: 16px;
+  background: white;
+  text-align: left;
+  box-shadow: 0 5px 16px rgba(65, 52, 42, 0.08);
+}
+
+.nodeButton span,
+.nodeButton small {
+  color: var(--text-secondary);
+}
+
+.nodeButtonSelected {
+  border-color: var(--accent-rose);
+  box-shadow: 0 0 0 3px var(--accent-rose-soft);
+}
+
+.inspectorPanel {
+  align-self: start;
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 28px;
+}
+
+.memo {
+  white-space: pre-wrap;
+  color: var(--text-secondary);
+}
+
+.emptyState,
+.rootNotice {
+  padding: 22px;
+  border: 1px dashed #cdbfb1;
+  border-radius: 16px;
+  background: #fbf7f2;
+  color: var(--text-secondary);
+}
+
+.emptyState {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+}
+
+.rootNotice {
+  font-weight: 600;
+}
+
+.twoColumnFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.mediaValidation {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f8f3ed;
+}
+
+.previewPage {
+  display: grid;
+  gap: 24px;
+}
+
+.previewHero {
+  padding: clamp(24px, 5vw, 50px);
+}
+
+.previewHero p {
+  max-width: 760px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.previewLayout {
+  width: 100%;
+  padding: 0;
+}
+
+.dialogBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(35, 29, 25, 0.58);
+}
+
+.dialog {
+  width: min(560px, 100%);
+  padding: 24px;
+  border-radius: 20px;
+  background: #fffdf8;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+
+.dialog h2 {
+  margin-bottom: 8px;
+}
+
+.dialog p {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .editorLayout,
+  .previewLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .inspectorPanel {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .siteHeader,
+  .simpleHeader,
+  .editorHeader {
+    padding: 10px 16px;
+  }
+
+  .editorHeader {
+    position: static;
+  }
+
+  .headerActions {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  .editorLayout,
+  .previewLayout {
+    width: min(100% - 20px, 1440px);
+    padding-top: 12px;
+  }
+
+  .treePanel,
+  .inspectorPanel,
+  .previewMemory {
+    padding: 16px;
+  }
+
+  .twoColumnFields {
+    grid-template-columns: 1fr;
+  }
+
+  .actionRow,
+  .dialogActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .dangerButton,
+  .disabledButton {
+    width: 100%;
+  }
+
+  .draftSummary,
+  .panelHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
