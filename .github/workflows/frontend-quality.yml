@@ -13,13 +13,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tests-by-prefix:
-    name: Diagnostic tests ${{ matrix.prefix }}
+  my-tree-tests:
+    name: Diagnostic ${{ matrix.file }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        prefix: [Media, Memory, My]
+        file: [MyTreesPage.test.tsx, MyTreesEmptyPage.test.tsx]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,11 +27,5 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm ci
-      - name: Run matching test files
-        shell: bash
-        env:
-          TEST_PREFIX: ${{ matrix.prefix }}
-        run: |
-          mapfile -t files < <(find src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) | sort | awk -F/ -v prefix="$TEST_PREFIX" 'index($NF, prefix) == 1 { print }')
-          printf '%s\n' "${files[@]}"
-          if ((${#files[@]})); then npx vitest --run "${files[@]}"; fi
+      - name: Run selected test file
+        run: npx vitest --run "src/components/${{ matrix.file }}"
