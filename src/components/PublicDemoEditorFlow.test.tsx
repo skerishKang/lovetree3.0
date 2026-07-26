@@ -334,7 +334,9 @@ describe("PublicDemoEditorFlow — typed final contract", () => {
   it("restores after reload and recovers corrupt storage by removing only the exact key", () => {
     seedDraft([makeNode("root", null, "복원 기억")], "root");
     const firstView = renderAppAt("/tree/new-demo/edit");
-    expect(screen.getByRole("button", { name: /복원 기억/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /복원 기억.*루트 기억/ }),
+    ).toBeInTheDocument();
     firstView.unmount();
 
     renderAppAt("/tree/new-demo/preview");
