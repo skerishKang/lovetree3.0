@@ -58,9 +58,9 @@ export const communityCategories: CommunityCategory[] = [
 export const communitySearchPlaceholder = "팬심 가득한 러브트리 검색";
 
 const YOUTUBE_SAMPLE_URLS = [
-  "https://www.youtube.com/watch?v=jNQXAC9IVRw",
-  "https://youtu.be/dQw4w9WgXcQ",
-  "https://www.youtube.com/shorts/aqz-KE-bpKQ",
+  "https://www.youtube.com/watch?v=c4V0FNZfEv0",
+  "https://youtu.be/cMXk7cjr_tc",
+  "https://www.youtube.com/watch?v=i0p1bmr0EmE",
 ] as const;
 
 export const communityTreeCards: CommunityTreeCard[] = [
