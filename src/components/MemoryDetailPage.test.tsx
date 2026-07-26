@@ -7,6 +7,23 @@ import {
 } from "react-router-dom";
 import { AppRoutes } from "../App";
 
+vi.mock("../hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: {
+      uid: "presentation-test-user",
+      displayName: null,
+      email: null,
+      photoURL: null,
+      emailVerified: true,
+    },
+    loading: false,
+    tier: null,
+    signInWithGoogle: vi.fn(),
+    signOut: vi.fn(),
+    expireSession: vi.fn(),
+  }),
+}));
+
 function LocationProbe() {
   const location = useLocation();
   return (
