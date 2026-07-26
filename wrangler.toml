@@ -11,3 +11,6 @@ LOVEBUD_API_BASE_URL = "https://lovebud.pages.dev"
 
 [env.production]
 compatibility_date = "2026-07-21"
+
+[env.production.vars]
+LOVEBUD_API_BASE_URL = "https://lovebud.pages.dev"
