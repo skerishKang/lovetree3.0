@@ -1,24 +1,24 @@
 import { Link } from "react-router-dom";
 import styles from "./CommunityTreeCard.module.css";
 import type { CommunityTreeCard as CardData } from "../data/communityMockData";
-import CommunityTreePreview from "./CommunityTreePreview";
+import { YouTubeThumbnail } from "./YouTubeMedia";
 
 export default function CommunityTreeCard({ card }: { card: CardData }) {
   return (
     <Link
       to="/tree/community-demo"
       className={`${styles.card} card`}
+      aria-label={`${card.title} 러브트리 보기`}
     >
-      <div
-        className={styles.thumbnail}
-        style={{ background: card.thumbnail }}
-        aria-hidden="true"
-      >
-        <div className={styles.treePreviewWrapper}>
-          <CommunityTreePreview variant={card.previewVariant} />
-        </div>
-        <span className={styles.playIcon} aria-hidden="true">
-          ▶
+      <div className={styles.thumbnail}>
+        <YouTubeThumbnail
+          youtubeUrl={card.youtubeUrl}
+          title={card.title}
+          alt={`${card.title} 대표 YouTube 썸네일`}
+          testId="community-youtube-thumbnail"
+        />
+        <span className={styles.videoBadge} aria-hidden="true">
+          YouTube
         </span>
       </div>
       <div className={styles.body}>
