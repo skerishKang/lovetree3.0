@@ -13,62 +13,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  capture-flow-failures:
+  quality:
+    name: Lint, Typecheck, Test, Build
     runs-on: ubuntu-latest
-    outputs:
-      failed_1: ${{ steps.capture.outputs.failed_1 }}
-      failed_2: ${{ steps.capture.outputs.failed_2 }}
-      failed_3: ${{ steps.capture.outputs.failed_3 }}
-      first_error: ${{ steps.capture.outputs.first_error }}
-      summary: ${{ steps.capture.outputs.summary }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci --silent
-      - id: capture
-        shell: bash
-        run: |
-          output="$(NO_COLOR=1 npx vitest --run src/components/PublicDemoEditorFlow.test.tsx --reporter=verbose 2>&1 || true)"
-          failures="$(printf '%s\n' "$output" | { grep -E '×|✗|FAIL ' || true; })"
-          errors="$(printf '%s\n' "$output" | { grep -E 'TestingLibraryElementError|AssertionError|Unable to find|Found multiple|expected ' || true; })"
-          summary="$(printf '%s\n' "$output" | { grep -E 'Tests +[0-9]+ failed|Tests +[0-9]+ passed|Tests +[0-9]+ failed.*[0-9]+ passed' || true; } | tail -1)"
-          sanitize() { printf '%s' "$1" | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g' | cut -c1-210; }
-          for index in 1 2 3; do
-            line="$(printf '%s\n' "$failures" | sed -n "${index}p")"
-            [[ -n "$line" ]] || line="NO_MORE_FAILURES"
-            echo "failed_${index}=$(sanitize "$line")" >> "$GITHUB_OUTPUT"
-          done
-          first_error="$(printf '%s\n' "$errors" | sed -n '1p')"
-          [[ -n "$first_error" ]] || first_error="ERROR_NOT_PARSED"
-          [[ -n "$summary" ]] || summary="SUMMARY_NOT_PARSED"
-          echo "first_error=$(sanitize "$first_error")" >> "$GITHUB_OUTPUT"
-          echo "summary=$(sanitize "$summary")" >> "$GITHUB_OUTPUT"
 
-  report-1:
-    needs: capture-flow-failures
-    name: ${{ needs.capture-flow-failures.outputs.failed_1 }}
-    runs-on: ubuntu-latest
-    steps: [{ run: "true" }]
-  report-2:
-    needs: capture-flow-failures
-    name: ${{ needs.capture-flow-failures.outputs.failed_2 }}
-    runs-on: ubuntu-latest
-    steps: [{ run: "true" }]
-  report-3:
-    needs: capture-flow-failures
-    name: ${{ needs.capture-flow-failures.outputs.failed_3 }}
-    runs-on: ubuntu-latest
-    steps: [{ run: "true" }]
-  report-error:
-    needs: capture-flow-failures
-    name: ${{ needs.capture-flow-failures.outputs.first_error }}
-    runs-on: ubuntu-latest
-    steps: [{ run: "true" }]
-  report-summary:
-    needs: capture-flow-failures
-    name: ${{ needs.capture-flow-failures.outputs.summary }}
-    runs-on: ubuntu-latest
-    steps: [{ run: "true" }]
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
