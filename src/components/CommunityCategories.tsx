@@ -10,11 +10,15 @@ const COMMUNITY_CATEGORIES = [
   { id: "comeback", label: "컴백" },
 ] as const;
 
+type CommunityCategoryId = (typeof COMMUNITY_CATEGORIES)[number]["id"];
+
 /**
  * backend category 계약이 생기기 전까지 선택 상태만 로컬에 유지합니다.
  */
 export default function CommunityCategories() {
-  const [active, setActive] = useState(COMMUNITY_CATEGORIES[0].id);
+  const [active, setActive] = useState<CommunityCategoryId>(
+    COMMUNITY_CATEGORIES[0].id,
+  );
 
   return (
     <nav className={styles.categories} aria-label="커뮤니티 카테고리">
