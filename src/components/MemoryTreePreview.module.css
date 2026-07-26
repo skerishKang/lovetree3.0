@@ -5,7 +5,6 @@
   min-height: 420px;
 }
 
-/* SVG 연결선은 카드 뒤에 */
 .connector {
   position: absolute;
   inset: 0;
@@ -15,7 +14,6 @@
   z-index: 0;
 }
 
-/* 카드 컨테이너 */
 .cardSlot {
   position: absolute;
   z-index: 1;
@@ -23,15 +21,86 @@
   transform-origin: center;
 }
 
+.playerPanel {
+  position: absolute;
+  left: 50%;
+  bottom: 0.75rem;
+  z-index: 4;
+  width: min(82%, 520px);
+  transform: translateX(-50%);
+  padding: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  background: rgba(36, 31, 28, 0.96);
+  box-shadow: 0 18px 45px rgba(31, 26, 23, 0.32);
+  box-sizing: border-box;
+}
+
+.playerHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.playerTitle {
+  min-width: 0;
+  flex: 1;
+  color: #ffffff;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.closeButton:focus-visible,
+.externalLink:focus-visible {
+  outline: 3px solid #e7a7b8;
+  outline-offset: 2px;
+}
+
+.playerStage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #000000;
+}
+
+.externalLink {
+  display: inline-flex;
+  margin-top: 0.55rem;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
 @media (max-width: 768px) {
-  /* Cards are absolutely positioned at left 4%..88% with translate(-50%), a layout
-     calibrated for the wide 2752px reference. In a 390px viewport the outer cards
-     extend ~56px past the left edge and ~28px past the right edge, clipped by
-     .container overflow:hidden (P1: 기억 카드가 좌우로 잘림). Scale the whole tree
-     (cards + connector) around top-center so every card fits the container width.
-     0.75 keeps the outermost card edges at ~2px..327px inside the 350px content box. */
   .preview {
     transform: scale(0.75);
     transform-origin: top center;
+  }
+
+  .playerPanel {
+    width: min(92%, 500px);
   }
 }
