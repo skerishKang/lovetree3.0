@@ -13,22 +13,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  typecheck-with-one-test-removed:
-    name: Typecheck without ${{ matrix.file }}
+  capture-type-error:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        file:
-          - EmptyTreeEditorPage.test.tsx
-          - RouteGraph.test.tsx
-          - PublicDemoEditorFlow.test.tsx
+    outputs:
+      first_error: ${{ steps.capture.outputs.first_error }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
-      - run: rm "src/components/${{ matrix.file }}"
-      - run: npm run typecheck
+      - run: npm ci --silent
+      - id: capture
+        name: Capture first TypeScript error
+        shell: bash
+        run: |
+          output="$(npm run typecheck --silent 2>&1 || true)"
+          first="$(printf '%s\n' "$output" | grep -m1 'error TS' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g' | cut -c1-220)"
+          if [[ -z "$first" ]]; then first="NO_TYPESCRIPT_ERROR_FOUND"; fi
+          echo "first_error=$first" >> "$GITHUB_OUTPUT"
+
+  report-type-error:
+    needs: capture-type-error
+    name: ${{ needs.capture-type-error.outputs.first_error }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ needs.capture-type-error.outputs.first_error }}"
