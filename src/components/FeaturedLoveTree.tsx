@@ -1,71 +1,65 @@
-import { Link } from "react-router-dom";
+import type { CommunityListStatus, CommunityTreeSnapshot } from "../types/community";
+import CommunityTreeCard from "./CommunityTreeCard";
 import styles from "./FeaturedLoveTree.module.css";
-import { featuredLoveTree } from "../data/communityMockData";
-import CommunityTreePreview from "./CommunityTreePreview";
 
-export default function FeaturedLoveTree() {
-  const feat = featuredLoveTree;
+interface GrowingLoveTreesProps {
+  trees: CommunityTreeSnapshot[];
+  status: CommunityListStatus;
+  error: string | null;
+  onRetry(): void;
+}
 
+/**
+ * 기존 Featured mock 영역을 실제 growing public browse 결과로 대체합니다.
+ */
+export default function FeaturedLoveTree({
+  trees,
+  status,
+  error,
+  onRetry,
+}: GrowingLoveTreesProps) {
   return (
-    <Link
-      to="/tree/community-demo"
-      className={styles.section}
-      aria-labelledby="featured-label"
-    >
+    <section className={styles.section} aria-labelledby="growing-community-title">
       <div className={styles.sectionHeader}>
-        <span id="featured-label" className={styles.label}>
-          🌟 {feat.label}
-        </span>
-        <span className={styles.featuredBadge}>이주의 추천 트리</span>
+        <div>
+          <span className={styles.eyebrow}>공개 API · 성장 단계</span>
+          <h2 id="growing-community-title" className={styles.title}>
+            새로 자라는 러브트리
+          </h2>
+        </div>
+        <p className={styles.description}>공개 기억이 막 연결되기 시작한 트리입니다.</p>
       </div>
-      <article className={`${styles.card} featuredCard`}>
-        <div
-          className={styles.thumbnail}
-          style={{ background: feat.thumbnail }}
-          aria-hidden="true"
-        >
-          <div className={styles.treePreviewWrapper}>
-            <CommunityTreePreview variant="featured" />
-          </div>
-          <span className={styles.previewNote}>{feat.previewNote}</span>
+
+      {status === "loading" && (
+        <div className={styles.grid} aria-label="새로 자라는 러브트리 불러오는 중">
+          {Array.from({ length: 3 }, (_, index) => (
+            <div key={index} className={styles.skeleton} data-testid="growing-card-skeleton" />
+          ))}
         </div>
-        <div className={styles.body}>
-          <h2 className={styles.title}>{feat.title}</h2>
-          <p className={styles.summary}>{feat.summary}</p>
+      )}
 
-          <div className={styles.tags}>
-            {feat.tags.map((tag) => (
-              <span key={tag} className={styles.tag}>
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          <div className={styles.middleRow}>
-            <div className={styles.author}>
-              <span
-                className={styles.avatar}
-                style={{ background: feat.author.avatarColor }}
-                aria-hidden="true"
-              >
-                {feat.author.initial}
-              </span>
-              <span className={styles.handle}>{feat.author.handle}</span>
-            </div>
-            <span className={styles.updated}>{feat.updatedLabel}</span>
-          </div>
-
-          <div className={styles.meta}>
-            <div className={styles.leftMeta}>
-              <span className={styles.memoryCount}>🌳 총 {feat.memoryCount}개의 소중한 기억 노드 연결됨</span>
-            </div>
-            <div className={styles.rightMeta}>
-              <span className={styles.metaItem}>♥ {feat.likes}</span>
-              <span className={styles.metaItem}>💬 {feat.comments}</span>
-            </div>
-          </div>
+      {status === "empty" && (
+        <div className={styles.stateMessage} role="status">
+          지금은 새로 자라는 공개 러브트리가 없습니다.
         </div>
-      </article>
-    </Link>
+      )}
+
+      {status === "error" && (
+        <div className={styles.errorState} role="alert">
+          <p>{error ?? "새로 자라는 러브트리를 불러오지 못했습니다."}</p>
+          <button type="button" className={styles.retryButton} onClick={onRetry}>
+            새 트리 다시 불러오기
+          </button>
+        </div>
+      )}
+
+      {status === "success" && (
+        <div className={styles.grid} data-testid="community-growing-grid">
+          {trees.map((tree) => (
+            <CommunityTreeCard key={tree.id} tree={tree} />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
