@@ -1,224 +1,115 @@
 .section {
   width: 100%;
-  margin-top: 2rem;
+  margin-top: 1rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid rgba(45, 41, 38, 0.08);
 }
 
 .sectionHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.label {
-  display: inline-block;
-  font-size: clamp(0.9rem, 1vw, 1.1rem);
-  font-weight: 700;
-  color: var(--accent-rose);
-  letter-spacing: 0.02em;
-}
-
-.featuredBadge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #ffffff;
-  background: var(--accent-rose);
-  padding: 0.25rem 0.65rem;
-  border-radius: 999px;
-  box-shadow: 0 4px 10px rgba(255, 107, 139, 0.3);
-}
-
-.card {
-  display: flex;
-  gap: 1.5rem;
-  background: #ffffff;
-  border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
-  padding: 1.5rem;
-  align-items: stretch;
-  border: 1px solid rgba(45, 41, 38, 0.06);
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(45, 41, 38, 0.14), 0 4px 8px rgba(45, 41, 38, 0.08);
-}
-
-.thumbnail {
-  position: relative;
-  flex-shrink: 0;
-  width: clamp(180px, 24vw, 320px);
-  aspect-ratio: 4 / 3;
-  border-radius: 12px;
-  display: flex;
   align-items: flex-end;
-  padding: 0.75rem;
-  overflow: hidden;
-}
-
-/* 보케 스타일 오버레이 */
-.thumbnail::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 25% 35%, rgba(255, 255, 255, 0.35) 0%, transparent 45%),
-    radial-gradient(circle at 75% 65%, rgba(255, 255, 255, 0.25) 0%, transparent 40%);
-  pointer-events: none;
-  z-index: 2;
-}
-
-.treePreviewWrapper {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8%;
-  z-index: 1;
-}
-
-.previewNote {
-  position: relative;
-  z-index: 3;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.95);
-  background: rgba(0, 0, 0, 0.4);
-  padding: 0.25rem 0.65rem;
-  border-radius: 999px;
-  backdrop-filter: blur(4px);
-}
-
-.body {
-  display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  gap: 0.75rem;
-  flex-grow: 1;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  color: var(--accent-rose);
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
 }
 
 .title {
-  font-size: clamp(1.2rem, 1.8vw, 1.8rem);
-  font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
-  line-height: 1.25;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
-.summary {
-  font-size: 0.9rem;
+.description {
+  max-width: 25rem;
   color: var(--text-secondary);
+  font-size: 0.85rem;
   line-height: 1.5;
-  margin-bottom: 0.2rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: right;
 }
 
-.middleRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 1.5vw, 1.5rem);
 }
 
-.author {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.skeleton {
+  min-height: 24rem;
+  border: 1px solid rgba(45, 41, 38, 0.05);
+  border-radius: var(--card-radius);
+  background:
+    linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.72) 45%, transparent 70%) 0 0 / 220% 100%,
+    linear-gradient(#e4d7ca 0 42%, #ffffff 42% 100%);
+  box-shadow: var(--card-shadow);
+  animation: growing-skeleton 1.5s ease-in-out infinite;
 }
 
-.avatar {
-  width: 1.8rem;
-  height: 1.8rem;
-  border-radius: 50%;
+.stateMessage,
+.errorState {
   display: flex;
+  min-height: 9rem;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 0.85rem;
+  border-radius: var(--card-radius);
+  background: rgba(239, 230, 216, 0.55);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.errorState {
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.retryButton {
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--text-primary);
+  color: #ffffff;
+  font: inherit;
   font-weight: 700;
+  cursor: pointer;
 }
 
-.handle {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
+.retryButton:focus-visible {
+  outline: 2px solid var(--accent-rose);
+  outline-offset: 3px;
 }
 
-.updated {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+@keyframes growing-skeleton {
+  from { background-position: 100% 0, 0 0; }
+  to { background-position: -100% 0, 0 0; }
 }
 
-.meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px dashed rgba(45, 41, 38, 0.08);
-  padding-top: 0.75rem;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
 }
 
-.leftMeta {
-  display: flex;
-  align-items: center;
-}
-
-.memoryCount {
-  font-weight: 700;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-}
-
-.rightMeta {
-  display: flex;
-  gap: 1rem;
-}
-
-.metaItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.9rem;
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 768px) {
-  .card {
+  .sectionHeader {
+    align-items: flex-start;
     flex-direction: column;
-    align-items: stretch;
-    border-radius: 20px;
-    padding: 1.1rem;
-    gap: 1.1rem;
-  }
-  
-  .thumbnail {
-    width: 100%;
-    aspect-ratio: 16 / 9;
   }
 
-  .summary {
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-  }
+  .description { text-align: left; }
 }
 
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
-}
-
-.tag {
-  font-size: var(--fs-card-tag);
-  color: var(--accent-rose);
-  background: var(--accent-rose-soft);
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
+@media (max-width: 560px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .skeleton { min-height: 22rem; }
 }
