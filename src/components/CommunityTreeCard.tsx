@@ -14,11 +14,11 @@ export default function CommunityTreeCard({ card }: { card: CardData }) {
         <YouTubeThumbnail
           youtubeUrl={card.youtubeUrl}
           title={card.title}
-          alt={`${card.title} 대표 YouTube 썸네일`}
+          alt={`${card.title} 공개 YouTube 예시 썸네일`}
           testId="community-youtube-thumbnail"
         />
-        <span className={styles.videoBadge} aria-hidden="true">
-          YouTube
+        <span className={styles.videoBadge}>
+          공개 YouTube 예시
         </span>
       </div>
       <div className={styles.body}>
