@@ -13,19 +13,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  my-tree-tests:
-    name: Diagnostic ${{ matrix.file }}
+  quality:
+    name: Lint, Typecheck, Test, Build
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        file: [MyTreesPage.test.tsx, MyTreesEmptyPage.test.tsx]
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
-      - name: Run selected test file
-        run: npx vitest --run "src/components/${{ matrix.file }}"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
