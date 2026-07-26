@@ -1,7 +1,4 @@
 .card {
-  /* 2차 보정: 원본 카드 크기.
-     원본(2752): 카드 약 200×260px, 시작카드는 더 작음(scale 0.82)
-     clamp로 대화면에서 원본 크기 보장 */
   width: clamp(180px, 15vw, 260px);
   background: var(--surface-main);
   border-radius: var(--card-radius);
@@ -18,30 +15,41 @@
   box-shadow: 0 14px 36px rgba(45, 41, 38, 0.16), 0 4px 10px rgba(45, 41, 38, 0.08);
 }
 
-/* ===== 썸네일 (CSS 보케) ===== */
 .thumb {
   position: relative;
   width: 100%;
   height: clamp(120px, 9vw, 160px);
   overflow: hidden;
+  background: #ded7ce;
 }
 
-/* 재생 버튼 */
 .playBtn {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.88);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-primary);
   backdrop-filter: blur(2px);
+  cursor: pointer;
   z-index: 2;
+}
+
+.playBtn:hover {
+  background: #ffffff;
+}
+
+.playBtn:focus-visible {
+  outline: 3px solid var(--accent-rose);
+  outline-offset: 3px;
 }
 
 .playIcon {
@@ -50,7 +58,6 @@
   margin-left: 2px;
 }
 
-/* 점 3개 메뉴 */
 .dots {
   position: absolute;
   top: 8px;
@@ -62,7 +69,7 @@
   justify-content: center;
   color: rgba(255, 255, 255, 0.92);
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.28);
   z-index: 2;
 }
 
@@ -71,7 +78,6 @@
   height: 16px;
 }
 
-/* ===== 카드 본문 ===== */
 .body {
   padding: clamp(0.625rem, 0.8vw, 1rem) clamp(0.75rem, 1vw, 1.125rem) clamp(0.75rem, 1vw, 1.125rem);
   display: flex;
@@ -114,6 +120,7 @@
   .card {
     width: 140px;
   }
+
   .thumb {
     height: 90px;
   }
