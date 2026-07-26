@@ -26,14 +26,14 @@ describe("MemoryTreePreview YouTube media", () => {
     expect(screen.getAllByTestId("youtube-player")).toHaveLength(1);
     expect(screen.getByTestId("youtube-player")).toHaveAttribute(
       "src",
-      "https://www.youtube-nocookie.com/embed/jNQXAC9IVRw",
+      "https://www.youtube-nocookie.com/embed/c4V0FNZfEv0",
     );
 
     fireEvent.click(buttons[1]);
     expect(screen.getAllByTestId("youtube-player")).toHaveLength(1);
     expect(screen.getByTestId("youtube-player")).toHaveAttribute(
       "src",
-      "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+      "https://www.youtube-nocookie.com/embed/cMXk7cjr_tc",
     );
   });
 
@@ -69,7 +69,7 @@ describe("MemoryTreePreview YouTube media", () => {
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
     expect(link).toHaveAttribute(
       "href",
-      "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+      "https://www.youtube.com/watch?v=c4V0FNZfEv0",
     );
   });
 });
