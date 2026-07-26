@@ -1,46 +1,34 @@
-import type { CSSProperties } from "react";
 import styles from "./MemoryPreviewCard.module.css";
 import type { MemoryCardData } from "../data/mockData";
-import { PlayIcon, DotsMenuIcon } from "./icons";
+import { DotsMenuIcon, PlayIcon } from "./icons";
+import { YouTubeThumbnail } from "./YouTubeMedia";
 
 interface MemoryPreviewCardProps {
   card: MemoryCardData;
+  onPlay: (card: MemoryCardData, trigger: HTMLButtonElement) => void;
 }
 
-/**
- * 기억 카드 1개
- *
- * 구조:
- *   1. 상단 미디어 썸네일 (CSS radial-gradient 보케)
- *   2. 중앙 재생 affordance (decorative — aria-hidden, 비인터랙티브)
- *   3. 우측 상단 점 3개 affordance (decorative — aria-hidden, 비인터랙티브)
- *   4. 날짜
- *   5. 감정 태그
- *   6. 짧은 메모
- *
- * 영상 재생, 메뉴 열기는 이번 범위에서 제외.
- */
-export default function MemoryPreviewCard({ card }: MemoryPreviewCardProps) {
-  const bokehStyle: CSSProperties = {
-    background: `
-      radial-gradient(circle at 24% 30%, ${card.bokeh.c1} 0 7%, transparent 8%),
-      radial-gradient(circle at 70% 25%, ${card.bokeh.c2} 0 10%, transparent 11%),
-      radial-gradient(circle at 58% 66%, ${card.bokeh.c3} 0 9%, transparent 10%),
-      ${card.bokeh.base}
-    `,
-  };
-
+export default function MemoryPreviewCard({
+  card,
+  onPlay,
+}: MemoryPreviewCardProps) {
   return (
     <article className={styles.card}>
-      {/* 썸네일 */}
-      <div className={styles.thumb} style={bokehStyle}>
-        <span
+      <div className={styles.thumb}>
+        <YouTubeThumbnail
+          youtubeUrl={card.youtubeUrl}
+          title={card.memo}
+          alt={`${card.memo} YouTube 썸네일`}
+        />
+        <button
+          type="button"
           className={styles.playBtn}
-          aria-hidden="true"
+          aria-label={`${card.memo} 영상 재생`}
           data-testid="memory-play-affordance"
+          onClick={(event) => onPlay(card, event.currentTarget)}
         >
-          <PlayIcon className={styles.playIcon} focusable="false" />
-        </span>
+          <PlayIcon className={styles.playIcon} aria-hidden="true" focusable="false" />
+        </button>
         <span
           className={styles.dots}
           aria-hidden="true"
@@ -50,7 +38,6 @@ export default function MemoryPreviewCard({ card }: MemoryPreviewCardProps) {
         </span>
       </div>
 
-      {/* 본문 */}
       <div className={styles.body}>
         <span className={styles.date}>{card.date}</span>
         <div className={styles.tags}>
