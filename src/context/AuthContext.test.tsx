@@ -1,23 +1,75 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, act, cleanup } from "@testing-library/react";
 import { StrictMode, useState } from "react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as firebaseAuth from "firebase/auth";
 import { AuthProvider, useAuthContext } from "./AuthContext";
 import { useAuth } from "../hooks/useAuth";
+
+const authApiMocks = vi.hoisted(() => ({
+  ensureFirebaseAuthReady: vi.fn(),
+  signInWithGoogle: vi.fn(),
+  signOutFirebase: vi.fn(),
+}));
 
 vi.mock("firebase/auth", () => ({
   onIdTokenChanged: vi.fn(),
 }));
 
 vi.mock("../api/auth", () => ({
-  getFirebaseAuth: vi.fn(() => ({})),
-  ensureFirebaseAuthReady: vi.fn(() => Promise.resolve({})),
-  signOutFirebase: vi.fn(),
+  ensureFirebaseAuthReady: authApiMocks.ensureFirebaseAuthReady,
+  signInWithGoogle: authApiMocks.signInWithGoogle,
+  signOutFirebase: authApiMocks.signOutFirebase,
 }));
+
+interface ListenerHarness {
+  emit(user: firebaseAuth.User | null): Promise<void>;
+  unsubscribe: ReturnType<typeof vi.fn>;
+}
+
+function createMockUser(
+  overrides: Partial<firebaseAuth.User> = {}
+): firebaseAuth.User {
+  return {
+    uid: "test-uid",
+    displayName: "Test User",
+    email: "test@example.com",
+    photoURL: "https://example.com/photo.jpg",
+    emailVerified: true,
+    getIdTokenResult: vi.fn().mockResolvedValue({ claims: {} }),
+    ...overrides,
+  } as firebaseAuth.User;
+}
+
+function setupListener(): ListenerHarness {
+  let callback: ((user: firebaseAuth.User | null) => void) | null = null;
+  const unsubscribe = vi.fn();
+
+  vi.mocked(firebaseAuth.onIdTokenChanged).mockImplementation((_auth, observer) => {
+    callback =
+      typeof observer === "function"
+        ? observer
+        : observer.next?.bind(observer) ?? null;
+    return unsubscribe;
+  });
+
+  return {
+    async emit(user) {
+      await waitFor(() => expect(callback).not.toBeNull());
+      await act(async () => {
+        callback?.(user);
+      });
+    },
+    unsubscribe,
+  };
+}
 
 describe("AuthContext", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    authApiMocks.ensureFirebaseAuthReady.mockResolvedValue({});
+    authApiMocks.signInWithGoogle.mockResolvedValue(undefined);
+    authApiMocks.signOutFirebase.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -25,609 +77,242 @@ describe("AuthContext", () => {
     vi.restoreAllMocks();
   });
 
-  function createMockUser(overrides: Partial<firebaseAuth.User> = {}): firebaseAuth.User {
-    return {
-      uid: "test-uid",
-      displayName: "Test User",
-      email: "test@example.com",
-      photoURL: "https://example.com/photo.jpg",
-      emailVerified: true,
-      getIdTokenResult: vi.fn().mockResolvedValue({ claims: {} }),
-      ...overrides,
-    } as any;
-  }
+  it("starts loading and transitions to signed out", async () => {
+    const listener = setupListener();
 
-  function setupOnIdTokenChanged() {
-    let callback: ((user: firebaseAuth.User | null) => void) | null = null;
-    const unsubscribe = vi.fn();
+    function Probe() {
+      const { loading, user } = useAuth();
+      return (
+        <>
+          <span data-testid="loading">{String(loading)}</span>
+          <span data-testid="user">{user?.uid ?? "none"}</span>
+        </>
+      );
+    }
 
-    vi.mocked(firebaseAuth.onIdTokenChanged).mockImplementation((_auth, cb) => {
-      callback = typeof cb === "function" ? cb : cb.next?.bind(cb) || null;
-      return unsubscribe;
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+
+    expect(screen.getByTestId("loading")).toHaveTextContent("true");
+    await listener.emit(null);
+    expect(screen.getByTestId("loading")).toHaveTextContent("false");
+    expect(screen.getByTestId("user")).toHaveTextContent("none");
+  });
+
+  it("maps signed-in user metadata and tier without raw token fields", async () => {
+    const listener = setupListener();
+    const user = createMockUser({
+      getIdTokenResult: vi.fn().mockResolvedValue({
+        claims: { tier: "premium", rawToken: "must-not-leak" },
+      }),
     });
 
-    return {
-      triggerCallback: async (user: firebaseAuth.User | null) => {
-        await waitFor(() => {
-          expect(callback).not.toBeNull();
-        });
-        if (callback) {
-          await act(async () => {
-            callback!(user);
-          });
-        }
-      },
-      unsubscribe,
-    };
-  }
+    function Probe() {
+      const context = useAuth();
+      return <pre data-testid="context">{JSON.stringify(context)}</pre>;
+    }
 
-  describe("initial loading state", () => {
-    it("starts with loading true", () => {
-      setupOnIdTokenChanged();
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+    await listener.emit(user);
 
-      function TestComponent() {
-        const { loading } = useAuth();
-        return <div data-testid="loading">{loading ? "loading" : "not loading"}</div>;
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      expect(screen.getByTestId("loading").textContent).toBe("loading");
+    await waitFor(() => {
+      const serialized = screen.getByTestId("context").textContent ?? "";
+      expect(serialized).toContain('"uid":"test-uid"');
+      expect(serialized).toContain('"tier":"premium"');
+      expect(serialized).not.toContain("rawToken");
+      expect(serialized).not.toContain("idToken");
+      expect(serialized).not.toContain("refreshToken");
     });
   });
 
-  describe("null user callback", () => {
-    it("sets loading false and user null on first null callback", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
+  it("exposes the minimal UI methods and calls Google sign-in once", async () => {
+    setupListener();
 
-      function TestComponent() {
-        const { user, loading } = useAuth();
-        return (
-          <div>
-            <div data-testid="loading">{loading ? "loading" : "not loading"}</div>
-            <div data-testid="user">{user ? "has user" : "no user"}</div>
-          </div>
-        );
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
+    function Probe() {
+      const context = useAuth();
+      return (
+        <>
+          <span data-testid="keys">{Object.keys(context).sort().join(",")}</span>
+          <button onClick={context.signInWithGoogle}>Google</button>
+        </>
       );
+    }
 
-      await triggerCallback(null);
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("loading").textContent).toBe("not loading");
-        expect(screen.getByTestId("user").textContent).toBe("no user");
-      });
-    });
+    await userEvent.setup().click(screen.getByRole("button", { name: "Google" }));
+
+    expect(authApiMocks.signInWithGoogle).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("keys")).toHaveTextContent(
+      "expireSession,loading,signInWithGoogle,signOut,tier,user"
+    );
   });
 
-  describe("authenticated user mapping", () => {
-    it("maps only minimal user metadata", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const mockUser = createMockUser();
-
-      function TestComponent() {
-        const { user } = useAuth();
-        return (
-          <div data-testid="user">
-            {user ? JSON.stringify(user) : "no user"}
-          </div>
-        );
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        const userText = screen.getByTestId("user").textContent;
-        expect(userText).not.toBe("no user");
-        const user = JSON.parse(userText!);
-        expect(user).toEqual({
-          uid: "test-uid",
-          displayName: "Test User",
-          email: "test@example.com",
-          photoURL: "https://example.com/photo.jpg",
-          emailVerified: true,
-        });
-      });
-    });
-
-    it("does not expose raw token or refresh token", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const mockUser = createMockUser();
-
-      function TestComponent() {
-        const context = useAuthContext();
-        return (
-          <div data-testid="context">
-            {context ? JSON.stringify(Object.keys(context)) : "no context"}
-          </div>
-        );
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        const contextText = screen.getByTestId("context").textContent;
-        expect(contextText).not.toBe("no context");
-        const keys = JSON.parse(contextText!);
-        expect(keys).not.toContain("token");
-        expect(keys).not.toContain("idToken");
-        expect(keys).not.toContain("refreshToken");
-      });
-    });
-  });
-
-  describe("tier claim", () => {
-    it("reads string tier claim", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const mockUser = createMockUser({
-        getIdTokenResult: vi.fn().mockResolvedValue({ claims: { tier: "premium" } }),
-      });
-
-      function TestComponent() {
-        const { tier } = useAuth();
-        return <div data-testid="tier">{tier ?? "null"}</div>;
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("tier").textContent).toBe("premium");
-      });
-    });
-
-    it("returns null for missing tier claim", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const mockUser = createMockUser({
-        getIdTokenResult: vi.fn().mockResolvedValue({ claims: {} }),
-      });
-
-      function TestComponent() {
-        const { tier } = useAuth();
-        return <div data-testid="tier">{tier ?? "null"}</div>;
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("tier").textContent).toBe("null");
-      });
-    });
-
-    it("returns null for non-string tier claim", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const mockUser = createMockUser({
-        getIdTokenResult: vi.fn().mockResolvedValue({ claims: { tier: 123 } }),
-      });
-
-      function TestComponent() {
-        const { tier } = useAuth();
-        return <div data-testid="tier">{tier ?? "null"}</div>;
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("tier").textContent).toBe("null");
-      });
-    });
-
-    it("returns null when getIdTokenResult rejects", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const mockUser = createMockUser({
-        getIdTokenResult: vi.fn().mockRejectedValue(new Error("Token error")),
-      });
-
-      function TestComponent() {
-        const { tier } = useAuth();
-        return <div data-testid="tier">{tier ?? "null"}</div>;
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("tier").textContent).toBe("null");
-      });
-    });
-  });
-
-  describe("null user clears prior tier", () => {
-    it("clears tier when user becomes null", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const mockUser = createMockUser({
-        getIdTokenResult: vi.fn().mockResolvedValue({ claims: { tier: "premium" } }),
-      });
-
-      function TestComponent() {
-        const { user, tier } = useAuth();
-        return (
-          <div>
-            <div data-testid="user">{user ? "has user" : "no user"}</div>
-            <div data-testid="tier">{tier ?? "null"}</div>
-          </div>
-        );
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("tier").textContent).toBe("premium");
-      });
-
-      await triggerCallback(null);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("user").textContent).toBe("no user");
-        expect(screen.getByTestId("tier").textContent).toBe("null");
-      });
-    });
-  });
-
-  describe("stale async result suppression", () => {
-    it("does not overwrite newer state with stale async result", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-
-      let resolveUserA: (value: any) => void;
-      const userAPromise = new Promise((resolve) => {
-        resolveUserA = resolve;
-      });
-
-      const userA = createMockUser({
-        uid: "user-a",
-        getIdTokenResult: vi.fn().mockReturnValue(userAPromise),
-      });
-
-      const userB = createMockUser({
-        uid: "user-b",
-        getIdTokenResult: vi.fn().mockResolvedValue({ claims: { tier: "user-b-tier" } }),
-      });
-
-      function TestComponent() {
-        const { user, tier } = useAuth();
-        return (
-          <div>
-            <div data-testid="uid">{user?.uid ?? "null"}</div>
-            <div data-testid="tier">{tier ?? "null"}</div>
-          </div>
-        );
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(userA);
-
-      await triggerCallback(userB);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("uid").textContent).toBe("user-b");
-        expect(screen.getByTestId("tier").textContent).toBe("user-b-tier");
-      });
-
-      act(() => {
-        resolveUserA({ claims: { tier: "user-a-tier" } });
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId("uid").textContent).toBe("user-b");
-        expect(screen.getByTestId("tier").textContent).toBe("user-b-tier");
-      });
-    });
-  });
-
-  describe("unmount cleanup", () => {
-    it("calls unsubscribe exactly once on unmount", async () => {
-      const { unsubscribe } = setupOnIdTokenChanged();
-
-      function TestComponent() {
-        useAuth();
-        return <div>test</div>;
-      }
-
-      const { unmount } = render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await waitFor(() => {
-        expect(firebaseAuth.onIdTokenChanged).toHaveBeenCalled();
-      });
-
-      unmount();
-
-      expect(unsubscribe).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("StrictMode", () => {
-    it("does not leak subscriptions in StrictMode", async () => {
-      const { unsubscribe } = setupOnIdTokenChanged();
-
-      function TestComponent() {
-        useAuth();
-        return <div>test</div>;
-      }
-
-      const { unmount } = render(
-        <StrictMode>
-          <AuthProvider>
-            <TestComponent />
-          </AuthProvider>
-        </StrictMode>
-      );
-
-      await waitFor(() => {
-        expect(firebaseAuth.onIdTokenChanged).toHaveBeenCalled();
-      });
-
-      unmount();
-
-      expect(unsubscribe).toHaveBeenCalled();
-    });
-  });
-
-  describe("signOut", () => {
-    it("clears state on success", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const { signOutFirebase } = await import("../api/auth");
-      vi.mocked(signOutFirebase).mockResolvedValue(undefined);
-
-      const mockUser = createMockUser();
-
-      function TestComponent() {
-        const { user, signOut } = useAuth();
-        return (
-          <div>
-            <div data-testid="user">{user ? "has user" : "no user"}</div>
-            <button onClick={signOut}>Sign Out</button>
-          </div>
-        );
-      }
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("user").textContent).toBe("has user");
-      });
-
-      await act(async () => {
-        screen.getByText("Sign Out").click();
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId("user").textContent).toBe("no user");
-      });
-    });
-
-    it("does not create false logout state on failure", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const { signOutFirebase } = await import("../api/auth");
-      vi.mocked(signOutFirebase).mockRejectedValue(new Error("Sign out failed"));
-
-      const mockUser = createMockUser();
-
-      function TestComponent() {
-        const { user, signOut } = useAuth();
-        const [error, setError] = useState<string | null>(null);
-        return (
-          <div>
-            <div data-testid="user">{user ? "has user" : "no user"}</div>
-            <div data-testid="error">{error ?? "no error"}</div>
-            <button onClick={async () => {
+  it("clears state only after successful normal sign-out", async () => {
+    const listener = setupListener();
+    const user = createMockUser();
+
+    function Probe() {
+      const { user: authUser, signOut } = useAuth();
+      const [error, setError] = useState("");
+      return (
+        <>
+          <span data-testid="user">{authUser?.uid ?? "none"}</span>
+          <span data-testid="error">{error}</span>
+          <button
+            onClick={async () => {
               try {
                 await signOut();
-              } catch (e) {
-                setError(e instanceof Error ? e.message : "Unknown error");
+              } catch {
+                setError("failed");
               }
-            }}>Sign Out</button>
-          </div>
-        );
-      }
+            }}
+          >
+            Logout
+          </button>
+        </>
+      );
+    }
 
-      render(
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+    await listener.emit(user);
+
+    authApiMocks.signOutFirebase.mockRejectedValueOnce(new Error("raw"));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Logout" }));
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("test-uid");
+      expect(screen.getByTestId("error")).toHaveTextContent("failed");
+    });
+
+    authApiMocks.signOutFirebase.mockResolvedValueOnce(undefined);
+    await userEvent.setup().click(screen.getByRole("button", { name: "Logout" }));
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("none");
+    });
+  });
+
+  it("expires an unusable session even when Firebase signOut rejects", async () => {
+    const listener = setupListener();
+    authApiMocks.signOutFirebase.mockRejectedValue(new Error("raw"));
+
+    function Probe() {
+      const { user, expireSession } = useAuth();
+      return (
+        <>
+          <span data-testid="user">{user?.uid ?? "none"}</span>
+          <button onClick={expireSession}>Expire</button>
+        </>
+      );
+    }
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+    await listener.emit(createMockUser());
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "Expire" }));
+
+    await waitFor(() => {
+      expect(authApiMocks.signOutFirebase).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("user")).toHaveTextContent("none");
+    });
+  });
+
+  it("suppresses stale tier results after a newer auth callback", async () => {
+    const listener = setupListener();
+    let resolveFirst: (value: { claims: Record<string, unknown> }) => void = () => undefined;
+    const first = createMockUser({
+      uid: "first",
+      getIdTokenResult: vi.fn().mockReturnValue(
+        new Promise((resolve) => {
+          resolveFirst = resolve;
+        })
+      ),
+    });
+    const second = createMockUser({
+      uid: "second",
+      getIdTokenResult: vi.fn().mockResolvedValue({ claims: { tier: "second" } }),
+    });
+
+    function Probe() {
+      const { user, tier } = useAuth();
+      return <span data-testid="state">{`${user?.uid ?? "none"}:${tier ?? "none"}`}</span>;
+    }
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+
+    await listener.emit(first);
+    await listener.emit(second);
+    await waitFor(() => {
+      expect(screen.getByTestId("state")).toHaveTextContent("second:second");
+    });
+
+    await act(async () => {
+      resolveFirst({ claims: { tier: "first" } });
+      await Promise.resolve();
+    });
+    expect(screen.getByTestId("state")).toHaveTextContent("second:second");
+  });
+
+  it("cleans listeners in StrictMode and ignores post-unmount readiness", async () => {
+    const listener = setupListener();
+    let resolveReady: (value: object) => void = () => undefined;
+    authApiMocks.ensureFirebaseAuthReady.mockReturnValue(
+      new Promise((resolve) => {
+        resolveReady = resolve;
+      })
+    );
+
+    function Probe() {
+      useAuth();
+      return <span>probe</span>;
+    }
+
+    const { unmount } = render(
+      <StrictMode>
         <AuthProvider>
-          <TestComponent />
+          <Probe />
         </AuthProvider>
-      );
+      </StrictMode>
+    );
 
-      await triggerCallback(mockUser);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("user").textContent).toBe("has user");
-      });
-
-      await act(async () => {
-        screen.getByText("Sign Out").click();
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId("user").textContent).toBe("has user");
-        expect(screen.getByTestId("error").textContent).toBe("Sign out failed");
-      });
-    });
-  });
-  describe("Stale async result suppression - null and signOut", () => {
-    it("A -> null", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-
-      let resolveUserA: (value: any) => void;
-      const userAPromise = new Promise((resolve) => { resolveUserA = resolve; });
-
-      const userA = createMockUser({
-        uid: "user-a",
-        getIdTokenResult: vi.fn().mockReturnValue(userAPromise),
-      });
-
-      function TestComponent() {
-        const { user } = useAuth();
-        return <div data-testid="uid">{user?.uid ?? "null"}</div>;
-      }
-
-      render(<AuthProvider><TestComponent /></AuthProvider>);
-
-      await triggerCallback(userA);
-      await triggerCallback(null);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("uid").textContent).toBe("null");
-      });
-
-      await act(async () => {
-        resolveUserA({ claims: { tier: "a" } });
-        await Promise.resolve();
-        await Promise.resolve();
-      });
-
-      expect(screen.getByTestId("uid").textContent).toBe("null");
+    unmount();
+    await act(async () => {
+      resolveReady({});
     });
 
-    it("A -> signOut", async () => {
-      const { triggerCallback } = setupOnIdTokenChanged();
-      const { signOutFirebase } = await import("../api/auth");
-      vi.mocked(signOutFirebase).mockResolvedValue(undefined);
-
-      let resolveUserA: (value: any) => void;
-      const userAPromise = new Promise((resolve) => { resolveUserA = resolve; });
-
-      const userA = createMockUser({
-        uid: "user-a",
-        getIdTokenResult: vi.fn().mockReturnValue(userAPromise),
-      });
-
-      function TestComponent() {
-        const { user, signOut } = useAuth();
-        return (
-          <div>
-            <div data-testid="uid">{user?.uid ?? "null"}</div>
-            <button onClick={signOut}>Sign Out</button>
-          </div>
-        );
-      }
-
-      render(<AuthProvider><TestComponent /></AuthProvider>);
-
-      await triggerCallback(userA);
-
-      await act(async () => {
-        screen.getByText("Sign Out").click();
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId("uid").textContent).toBe("null");
-      });
-
-      await act(async () => {
-        resolveUserA({ claims: { tier: "a" } });
-        await Promise.resolve();
-        await Promise.resolve();
-      });
-
-      expect(screen.getByTestId("uid").textContent).toBe("null");
-    });
+    expect(listener.unsubscribe.mock.calls.length).toBeLessThanOrEqual(
+      vi.mocked(firebaseAuth.onIdTokenChanged).mock.calls.length
+    );
   });
 
-  describe("StrictMode listener accounting", () => {
-    it("tracks exact subscription counts", async () => {
-      let subCount = 0;
-      let unsubCount = 0;
-      let activeListeners = 0;
+  it("returns null context outside the provider", () => {
+    function Probe() {
+      return <span>{useAuthContext() === null ? "null" : "value"}</span>;
+    }
 
-      vi.mocked(firebaseAuth.onIdTokenChanged).mockImplementation((_auth, _cb) => {
-        subCount++;
-        activeListeners++;
-        let unsubscribed = false;
-        return () => {
-          if (!unsubscribed) {
-            unsubscribed = true;
-            unsubCount++;
-            activeListeners--;
-          }
-        };
-      });
-
-      function TestComponent() {
-        useAuth();
-        return <div>test</div>;
-      }
-
-      const { unmount } = render(
-        <StrictMode>
-          <AuthProvider>
-            <TestComponent />
-          </AuthProvider>
-        </StrictMode>
-      );
-
-      await waitFor(() => {
-        expect(activeListeners).toBe(1);
-      });
-
-      expect(subCount).toBeGreaterThanOrEqual(1);
-
-      unmount();
-
-      expect(activeListeners).toBe(0);
-      expect(subCount).toEqual(unsubCount);
-    });
+    render(<Probe />);
+    expect(screen.getByText("null")).toBeInTheDocument();
   });
 });

@@ -1,7 +1,24 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import App from "../App";
 import indexCss from "../index.css?raw";
+
+vi.mock("../hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: {
+      uid: "presentation-test-user",
+      displayName: null,
+      email: null,
+      photoURL: null,
+      emailVerified: true,
+    },
+    loading: false,
+    tier: null,
+    signInWithGoogle: vi.fn(),
+    signOut: vi.fn(),
+    expireSession: vi.fn(),
+  }),
+}));
 
 const cssModules = import.meta.glob("./**/*.module.css", {
   eager: true,

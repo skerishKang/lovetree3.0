@@ -3,6 +3,26 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { MOCK_TREE_EDITOR } from "../data/treeEditorMockData";
 import App from "../App";
 
+vi.mock("../hooks/useAuth", () => ({
+  useAuth: () => ({
+    user:
+      window.location.pathname === "/login"
+        ? null
+        : {
+            uid: "presentation-test-user",
+            displayName: null,
+            email: null,
+            photoURL: null,
+            emailVerified: true,
+          },
+    loading: false,
+    tier: null,
+    signInWithGoogle: vi.fn(),
+    signOut: vi.fn(),
+    expireSession: vi.fn(),
+  }),
+}));
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();

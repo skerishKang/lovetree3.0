@@ -1,6 +1,15 @@
-import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from "react";
 import { onIdTokenChanged, type User } from "firebase/auth";
-import { ensureFirebaseAuthReady, signOutFirebase } from "../api/auth";
+import * as authApi from "../api/auth";
 import type { AuthUser, AuthTier, AuthContextValue } from "../types/auth";
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -34,14 +43,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [tier, setTier] = useState<AuthTier>(null);
   const callbackGenerationRef = useRef(0);
 
+  const clearAuthState = useCallback(() => {
+    callbackGenerationRef.current += 1;
+    setUser(null);
+    setTier(null);
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     let active = true;
     let unsubscribe: (() => void) | undefined;
-    let isMounted = true;
 
-    ensureFirebaseAuthReady()
+    authApi
+      .ensureFirebaseAuthReady()
       .then((auth) => {
-        if (!active || !isMounted) {
+        if (!active) {
           return;
         }
 
@@ -49,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const callbackGeneration = ++callbackGenerationRef.current;
 
           if (!firebaseUser) {
-            if (active && isMounted && callbackGeneration === callbackGenerationRef.current) {
+            if (active && callbackGeneration === callbackGenerationRef.current) {
               setUser(null);
               setTier(null);
               setLoading(false);
@@ -60,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const authUser = mapFirebaseUserToAuthUser(firebaseUser);
           const userTier = await extractTierFromUser(firebaseUser);
 
-          if (active && isMounted && callbackGeneration === callbackGenerationRef.current) {
+          if (active && callbackGeneration === callbackGenerationRef.current) {
             setUser(authUser);
             setTier(userTier);
             setLoading(false);
@@ -68,37 +84,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       })
       .catch(() => {
-        if (active && isMounted) {
-          setUser(null);
-          setTier(null);
-          setLoading(false);
+        if (active) {
+          clearAuthState();
         }
       });
 
     return () => {
       active = false;
-      isMounted = false;
-      if (unsubscribe) {
-        unsubscribe();
-      }
+      callbackGenerationRef.current += 1;
+      unsubscribe?.();
     };
+  }, [clearAuthState]);
+
+  const signInWithGoogle = useCallback(async () => {
+    await authApi.signInWithGoogle();
   }, []);
 
   const signOut = useCallback(async () => {
-    await signOutFirebase();
-    callbackGenerationRef.current += 1;
-    setUser(null);
-    setTier(null);
-  }, []);
+    await authApi.signOutFirebase();
+    clearAuthState();
+  }, [clearAuthState]);
+
+  const expireSession = useCallback(async () => {
+    try {
+      await authApi.signOutFirebase();
+    } catch {
+      // A persistent unauthorized response already means the session is unusable.
+      // The application state must still be cleared to prevent a redirect loop.
+    } finally {
+      clearAuthState();
+    }
+  }, [clearAuthState]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       loading,
       tier,
+      signInWithGoogle,
       signOut,
+      expireSession,
     }),
-    [user, loading, tier, signOut]
+    [user, loading, tier, signInWithGoogle, signOut, expireSession]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

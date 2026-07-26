@@ -29,8 +29,6 @@
   padding: 0.5rem 0.25rem;
   transition: color var(--transition-fast);
   white-space: nowrap;
-  /* 44px minimum touch target (D-02): nav items are standalone navigation
-     actions, not inline text links, so they meet the touch-target floor. */
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -46,9 +44,18 @@
   border-radius: 4px;
 }
 
+.authAction {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 88px;
+}
+
 .loginLink {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-width: 44px;
   min-height: 44px;
   padding: 0 0.75rem;
@@ -61,7 +68,7 @@
   border-radius: 6px;
 }
 
-.loginLink:hover {
+.loginLink:hover:not(:disabled) {
   color: var(--text-primary);
   background-color: rgba(217, 107, 143, 0.06);
 }
@@ -70,6 +77,33 @@
   outline: 2px solid var(--accent-rose);
   outline-offset: 2px;
   border-radius: 6px;
+}
+
+.logoutButton {
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.logoutButton:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.authStatus {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  width: min(260px, 70vw);
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  background: #fff8f2;
+  color: #6a4938;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  text-align: right;
+  z-index: 2;
 }
 
 @media (max-width: 768px) {
@@ -84,9 +118,7 @@
   .logo {
     width: 100%;
   }
-  /* Wrap instead of horizontal scroll so every menu item stays visible.
-     overflow-x:auto clipped "Community"/"My Tree" off the right edge inside the
-     narrow mobile panel (P1: 상단 메뉴가 오른쪽에서 잘림). */
+
   .nav {
     gap: 0.5rem 1rem;
     flex-wrap: wrap;
@@ -94,15 +126,13 @@
     padding-bottom: 0;
   }
 
-  .loginLink {
+  .authAction {
     align-self: center;
     margin-left: auto;
   }
 }
 
 @media (max-width: 560px) {
-  /* 390px 근처: 헤더 영역이 좁아지면 로그인 링크이 최소 터치 타겟을 유지하되
-     텍스트가 잘리지 않도록 줄바꿈 방지 */
   .header {
     flex-direction: column;
     align-items: stretch;
@@ -114,9 +144,18 @@
     justify-content: center;
   }
 
-  .loginLink {
-    font-size: 0.85rem;
+  .authAction {
     align-self: center;
     margin-left: 0;
+  }
+
+  .loginLink {
+    font-size: 0.85rem;
+  }
+
+  .authStatus {
+    position: static;
+    margin-top: 0.25rem;
+    text-align: center;
   }
 }

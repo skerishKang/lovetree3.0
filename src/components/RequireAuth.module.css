@@ -1,0 +1,13 @@
+.loadingShell {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background: #fdf8f0;
+}
+
+.loadingStatus {
+  margin: 0;
+  color: #6a5a4a;
+  font-size: 0.95rem;
+}
