@@ -9,13 +9,16 @@ import App from "../App";
 
 vi.mock("../hooks/useAuth", () => ({
   useAuth: () => ({
-    user: {
-      uid: "presentation-test-user",
-      displayName: null,
-      email: null,
-      photoURL: null,
-      emailVerified: true,
-    },
+    user:
+      window.location.pathname === "/login"
+        ? null
+        : {
+            uid: "presentation-test-user",
+            displayName: null,
+            email: null,
+            photoURL: null,
+            emailVerified: true,
+          },
     loading: false,
     tier: null,
     signInWithGoogle: vi.fn(),
