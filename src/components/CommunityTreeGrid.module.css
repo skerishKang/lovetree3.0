@@ -4,13 +4,13 @@
 }
 
 .title {
+  margin-bottom: 2rem;
+  color: var(--text-primary);
   font-size: var(--heading-page-size);
   font-weight: var(--heading-page-weight);
   line-height: var(--heading-page-line-height);
-  color: var(--text-primary);
-  text-align: center;
   letter-spacing: -0.02em;
-  margin-bottom: 2rem;
+  text-align: center;
   text-wrap: balance;
 }
 
@@ -18,32 +18,80 @@
   display: inline;
 }
 
-@media (max-width: 768px) {
-  .mobileTitleLine {
-    display: block;
-  }
-}
-
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(1rem, 1.5vw, 1.75rem);
 }
 
+.skeleton {
+  min-height: 25rem;
+  overflow: hidden;
+  border: 1px solid rgba(45, 41, 38, 0.05);
+  border-radius: var(--card-radius);
+  background:
+    linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.72) 45%, transparent 70%) 0 0 / 220% 100%,
+    linear-gradient(#e8ded3 0 42%, #ffffff 42% 100%);
+  box-shadow: var(--card-shadow);
+  animation: community-skeleton 1.5s ease-in-out infinite;
+}
+
+.stateMessage,
+.errorState {
+  display: flex;
+  min-height: 12rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(45, 41, 38, 0.15);
+  border-radius: var(--card-radius);
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.errorState {
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.retryButton {
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent-rose);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.retryButton:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+}
+
+@keyframes community-skeleton {
+  from { background-position: 100% 0, 0 0; }
+  to { background-position: -100% 0, 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
 @media (max-width: 1200px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .mobileTitleLine { display: block; }
 }
 
 @media (max-width: 560px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .skeleton { min-height: 23rem; }
 }

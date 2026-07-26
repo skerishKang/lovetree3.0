@@ -1,27 +1,36 @@
 import { useState } from "react";
 import styles from "./CommunityCategories.module.css";
-import { communityCategories } from "../data/communityMockData";
+
+const COMMUNITY_CATEGORIES = [
+  { id: "popular", label: "인기" },
+  { id: "latest", label: "최신" },
+  { id: "stan", label: "입덕" },
+  { id: "concert", label: "콘서트" },
+  { id: "fancam", label: "직캠" },
+  { id: "comeback", label: "컴백" },
+] as const;
+
+type CommunityCategoryId = (typeof COMMUNITY_CATEGORIES)[number]["id"];
 
 /**
- * 커뮤니티 카테고리 메뉴
- *
- * BASE 인터랙션: 카테고리 선택 상태만 허용.
- * 실제 필터 API 호출은 하지 않음 (금지).
+ * backend category 계약이 생기기 전까지 선택 상태만 로컬에 유지합니다.
  */
 export default function CommunityCategories() {
-  const [active, setActive] = useState(communityCategories[0].id);
+  const [active, setActive] = useState<CommunityCategoryId>(
+    COMMUNITY_CATEGORIES[0].id,
+  );
 
   return (
     <nav className={styles.categories} aria-label="커뮤니티 카테고리">
-      {communityCategories.map((cat) => (
+      {COMMUNITY_CATEGORIES.map((category) => (
         <button
-          key={cat.id}
+          key={category.id}
           type="button"
-          className={`${styles.chip} ${active === cat.id ? styles.active : ""}`}
-          aria-pressed={active === cat.id}
-          onClick={() => setActive(cat.id)}
+          className={`${styles.chip} ${active === category.id ? styles.active : ""}`}
+          aria-pressed={active === category.id}
+          onClick={() => setActive(category.id)}
         >
-          {cat.label}
+          {category.label}
         </button>
       ))}
     </nav>

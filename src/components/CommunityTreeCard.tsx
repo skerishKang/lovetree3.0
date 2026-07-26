@@ -1,65 +1,149 @@
-import { Link } from "react-router-dom";
-import styles from "./CommunityTreeCard.module.css";
-import type { CommunityTreeCard as CardData } from "../data/communityMockData";
+import { useEffect, useId, useState } from "react";
+import type { CommunityTreeSnapshot } from "../types/community";
+import { normalizeYouTubeUrl } from "../utils/youtube";
 import { YouTubeThumbnail } from "./YouTubeMedia";
+import styles from "./CommunityTreeCard.module.css";
 
-export default function CommunityTreeCard({ card }: { card: CardData }) {
+function normalizeHttpsUrl(value: string) {
+  try {
+    const url = new URL(value);
+    if (
+      url.protocol !== "https:" ||
+      !url.hostname ||
+      url.username ||
+      url.password
+    ) {
+      return null;
+    }
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function formatTimestamp(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
+}
+
+function SafeThumbnail({ src, title }: { src: string; title: string }) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (failed) return <MediaFallback />;
+
   return (
-    <Link
-      to="/tree/community-demo"
+    <img
+      className={styles.thumbnailImage}
+      src={src}
+      alt={`${title} 대표 이미지`}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      data-testid="community-image-thumbnail"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+function MediaFallback() {
+  return (
+    <span
+      className={styles.mediaFallback}
+      role="img"
+      aria-label="대표 미디어 없음"
+      data-testid="community-media-fallback"
+    >
+      <span aria-hidden="true">🌿</span>
+      <span>대표 미디어 준비 중</span>
+    </span>
+  );
+}
+
+function CommunityMedia({ tree }: { tree: CommunityTreeSnapshot }) {
+  const youtube = normalizeYouTubeUrl(tree.representativeMemorySourceUrl);
+  if (youtube) {
+    return (
+      <YouTubeThumbnail
+        youtubeUrl={youtube.watchUrl}
+        title={tree.title}
+        alt={`${tree.title} YouTube 대표 썸네일`}
+        className={styles.youtubeThumbnail}
+        testId="community-youtube-thumbnail"
+      />
+    );
+  }
+
+  const thumbnail = normalizeHttpsUrl(tree.representativeThumbnail);
+  if (thumbnail) return <SafeThumbnail src={thumbnail} title={tree.title} />;
+
+  return <MediaFallback />;
+}
+
+export default function CommunityTreeCard({ tree }: { tree: CommunityTreeSnapshot }) {
+  const headingId = useId();
+  const timestamp = tree.updatedAt ?? tree.createdAt;
+  const timestampKind = tree.updatedAt ? "업데이트" : "생성";
+
+  return (
+    <article
       className={`${styles.card} card`}
-      aria-label={`${card.title} 러브트리 보기`}
+      aria-labelledby={headingId}
+      data-testid="community-tree-card"
+      data-tree-id={tree.id}
     >
       <div className={styles.thumbnail}>
-        <YouTubeThumbnail
-          youtubeUrl={card.youtubeUrl}
-          title={card.title}
-          alt={`${card.title} 공개 YouTube 예시 썸네일`}
-          testId="community-youtube-thumbnail"
-        />
-        <span className={styles.videoBadge}>
-          공개 YouTube 예시
-        </span>
+        <CommunityMedia tree={tree} />
+        <span className={styles.pendingBadge}>상세 연결 준비 중</span>
       </div>
+
       <div className={styles.body}>
         <div className={styles.topInfo}>
-          <span className={styles.category}>{card.category}</span>
-          <span className={styles.visibility}>{card.visibilityLabel}</span>
+          <span className={styles.visibility}>공개 범위: {tree.visibility}</span>
+          <span className={styles.stage}>단계: {tree.stage}</span>
         </div>
-        <h2 className={styles.cardTitle}>{card.title}</h2>
-        <p className={styles.summary}>{card.summary}</p>
 
-        <div className={styles.middleRow}>
-          <div className={styles.author}>
-            <span
-              className={styles.avatar}
-              style={{ background: card.author.avatarColor }}
-              aria-hidden="true"
-            >
-              {card.author.initial}
-            </span>
-            <span className={styles.handle}>{card.author.handle}</span>
+        <h2 id={headingId} className={styles.cardTitle}>{tree.title}</h2>
+
+        <div className={styles.facts}>
+          {tree.theme && <span>테마: {tree.theme}</span>}
+          {tree.timeRange && <span>기간: {tree.timeRange}</span>}
+          {timestamp && (
+            <time dateTime={timestamp}>
+              {timestampKind}: {formatTimestamp(timestamp)}
+            </time>
+          )}
+        </div>
+
+        {tree.emotionTags.length > 0 && (
+          <div className={styles.tags} aria-label="감정 태그">
+            {tree.emotionTags.map((tag) => (
+              <span key={tag} className={styles.tag}>{tag}</span>
+            ))}
           </div>
-          <span className={styles.updated}>{card.updatedLabel}</span>
-        </div>
+        )}
 
-        <div className={styles.tags}>
-          {card.tags.map((tag) => (
-            <span key={tag} className={styles.tag}>
-              {tag}
-            </span>
-          ))}
-        </div>
         <div className={styles.meta}>
-          <div className={styles.leftMeta}>
-            <span className={styles.memoryCount}>🌳 기억 {card.memoryCount}개</span>
-          </div>
+          <span className={styles.memoryCount}>🌳 기억 {tree.memoryCount}개</span>
           <div className={styles.rightMeta}>
-            <span className={styles.metaItem}>♥ {card.likes}</span>
-            <span className={styles.metaItem}>💬 {card.comments}</span>
+            {tree.likeCount !== undefined && (
+              <span className={styles.metaItem} aria-label={`좋아요 ${tree.likeCount}`}>
+                ♥ {tree.likeCount}
+              </span>
+            )}
+            {tree.viewCount !== undefined && (
+              <span className={styles.metaItem} aria-label={`조회 ${tree.viewCount}`}>
+                조회 {tree.viewCount}
+              </span>
+            )}
           </div>
         </div>
       </div>
-    </Link>
+    </article>
   );
 }
