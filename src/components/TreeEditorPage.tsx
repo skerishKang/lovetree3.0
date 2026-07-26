@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { MOCK_TREE_EDITOR } from "../data/treeEditorMockData";
 import type { TreeConnector } from "../data/treeEditorMockData";
+import YouTubeMedia from "./YouTubeMedia";
 import styles from "./TreeEditorPage.module.css";
 
 function StraightConnector({ connector }: { connector: TreeConnector }) {
@@ -246,18 +247,12 @@ export default function TreeEditorPage() {
               <h2 className={styles.inspectorTitle}>{selectedMemory.title}</h2>
             </div>
 
-            {/* Media preview placeholder */}
-            <div
-              className={`${styles.mediaPreview} ${styles[`thumb_${selectedMemory.thumbnailColorKey}`]}`}
-              aria-label={`${selectedMemory.mediaFormat} 미디어 미리보기`}
-            >
-              <div className={styles.playIcon} aria-hidden="true">▶</div>
-              <div className={styles.mediaControls}>
-                <span className={styles.mediaControlIcon}>▶</span>
-                <span className={styles.mediaControlIcon}>🔊</span>
-                <span className={styles.mediaControlIcon}>⚙️</span>
-              </div>
-            </div>
+            {/* Media preview */}
+            <YouTubeMedia
+              className={styles.mediaPreview}
+              youtubeUrl={selectedMemory.youtubeUrl}
+              title={selectedMemory.title}
+            />
 
             <div className={styles.inspectorFields}>
               {/* Read-only fields */}

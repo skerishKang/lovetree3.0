@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { MOCK_MEMORY_DETAIL } from "../data/memoryDetailMockData";
 import { useBackWithFallback } from "../hooks/useBackWithFallback";
+import YouTubeMedia from "./YouTubeMedia";
 import styles from "./MemoryDetailPage.module.css";
 
 export default function MemoryDetailPage() {
@@ -61,42 +62,11 @@ export default function MemoryDetailPage() {
 
           {/* Media Section */}
           <section className={styles.mediaSection} aria-label="미디어 영역">
-            <div className={styles.mediaCard}>
-              <div className={styles.mediaPlaceholder}>
-                <button
-                  type="button"
-                  className={styles.playButton}
-                  aria-label="기억 영상 재생"
-                >
-                  <svg
-                    width="56"
-                    height="56"
-                    viewBox="0 0 56 56"
-                    fill="none"
-                    aria-hidden="true"
-                    focusable="false"
-                  >
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="27"
-                      fill="rgba(0,0,0,0.3)"
-                      stroke="white"
-                      strokeWidth="2"
-                    />
-                    <path d="M22 17L40 28L22 39V17Z" fill="white" />
-                  </svg>
-                </button>
-              </div>
-              <div className={styles.mediaOverlay}>
-                <span className={styles.mediaOverlayText}>
-                  VIDEO: FIRST CONCERT THRILL
-                </span>
-                <span className={styles.mediaOverlaySubtext}>
-                  {data.media.format} · {data.media.duration}
-                </span>
-              </div>
-            </div>
+            <YouTubeMedia
+              className={styles.mediaCard}
+              youtubeUrl={data.media.youtubeUrl}
+              title={data.title}
+            />
             <ul className={styles.mediaMeta} aria-label="미디어 정보">
               <li>
                 <span className={styles.metaLabel}>출처</span>

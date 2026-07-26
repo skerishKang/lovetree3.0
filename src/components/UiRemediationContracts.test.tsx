@@ -233,15 +233,26 @@ describe("UI 리메디에이션 — cross-screen DOM 계약", () => {
     }
   );
 
-  it("홈 메모리 프리뷰의 장식 affordance가 비인터랙티브다 (D-02)", () => {
+  it("홈 메모리 프리뷰의 재생 affordance는 접근 가능한 버튼이고 dots는 장식이다 (D-02)", () => {
     renderAppAt("/");
     const plays = screen.getAllByTestId("memory-play-affordance");
     const dots = screen.getAllByTestId("memory-dots-affordance");
-    expect(plays.length).toBeGreaterThan(0);
-    for (const el of [...plays, ...dots]) {
-      expect(el).toHaveAttribute("aria-hidden", "true");
-      expect(el.tagName).not.toBe("BUTTON");
-      expect(el.querySelector("button, a")).toBeNull();
+
+    expect(plays).toHaveLength(5);
+    expect(dots).toHaveLength(5);
+    expect(screen.queryByTestId("youtube-player")).not.toBeInTheDocument();
+
+    for (const play of plays) {
+      expect(play.tagName).toBe("BUTTON");
+      expect(play).toHaveAttribute("type", "button");
+      expect(play).toHaveAccessibleName(/영상 재생/);
+      expect(play).not.toHaveAttribute("aria-hidden");
+    }
+
+    for (const dot of dots) {
+      expect(dot).toHaveAttribute("aria-hidden", "true");
+      expect(dot.tagName).not.toBe("BUTTON");
+      expect(dot.querySelector("button, a")).toBeNull();
     }
   });
 });

@@ -39,14 +39,24 @@ describe("CommunityPage (LT3-COMMUNITY-001)", () => {
     });
   });
 
-  it("CommunityTreePreview가 총 9개(일반 카드 8개 + Featured 1개) 존재하고 모든 SVG는 aria-hidden='true'이다", () => {
+  it("8개 일반 카드가 실제 YouTube thumbnail을 사용하고 inline player를 만들지 않는다", () => {
     render(<MemoryRouter><CommunityPage /></MemoryRouter>);
 
-    const previews = screen.getAllByTestId("community-tree-preview");
-    expect(previews).toHaveLength(9);
+    expect(screen.getAllByTestId("community-youtube-thumbnail")).toHaveLength(8);
+    expect(
+      screen.getAllByRole("img", { name: /공개 YouTube 예시 썸네일/ }),
+    ).toHaveLength(8);
+    expect(screen.queryByTestId("youtube-player")).not.toBeInTheDocument();
+  });
 
-    previews.forEach((svg) => {
-      expect(svg).toHaveAttribute("aria-hidden", "true");
+  it("카드 전체 Link를 유지하고 Link 내부에 button이나 다른 link를 중첩하지 않는다", () => {
+    render(<MemoryRouter><CommunityPage /></MemoryRouter>);
+
+    communityTreeCards.forEach((card) => {
+      const link = screen.getByRole("link", { name: `${card.title} 러브트리 보기` });
+      expect(link).toHaveAttribute("href", "/tree/community-demo");
+      expect(within(link).queryByRole("button")).not.toBeInTheDocument();
+      expect(within(link).queryByRole("link")).not.toBeInTheDocument();
     });
   });
 
