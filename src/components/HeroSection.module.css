@@ -10,6 +10,14 @@
   /* 원본: 제목 시작 y=509(2752). 헤더 끝 약 y=214.
      509 - 214 = 295px 간격. 패널 내부 padding-top 별도. */
   padding: clamp(2.5rem, 14.7vh, 15rem) 0 2rem;
+  outline: 2px solid transparent;
+  outline-offset: 6px;
+  transition: outline-color 180ms ease, box-shadow 180ms ease;
+}
+
+.hero[data-hash-scroll-active="true"] {
+  outline-color: rgba(184, 122, 122, 0.42);
+  box-shadow: 0 0 0 7px rgba(184, 122, 122, 0.1);
 }
 
 /* ===== 왼쪽: 복사 + 버튼 ===== */
@@ -163,5 +171,11 @@
   }
   .copy {
     min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero {
+    transition: none;
   }
 }
