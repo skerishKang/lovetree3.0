@@ -93,6 +93,7 @@ export function readPublicDemoDraft(storage: StorageLike = window.localStorage) 
     }
     return parsed;
   } catch {
+    safeRemove(storage);
     return createEmptyPublicDemoDraft();
   }
 }
