@@ -80,7 +80,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
   it("기억 제목이 표시되어야 한다", () => {
     renderRoute(["/memory/detail-demo"]);
-    expect(screen.getByText("첫 콘서트 직캠")).toBeInTheDocument();
+    expect(screen.getByText("첫 콘서트 공연 영상")).toBeInTheDocument();
   });
 
   it("날짜가 표시되어야 한다", () => {
@@ -100,7 +100,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
   it("메모 본문이 표시되어야 한다", () => {
     renderRoute(["/memory/detail-demo"]);
     expect(
-      screen.getByText(/정말 행복했던 첫 콘서트 순간/)
+      screen.getByText(/공개 YouTube 영상을 러브트리에 연결해 두니/)
     ).toBeInTheDocument();
   });
 
@@ -109,7 +109,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
     expect(screen.queryByTestId("youtube-player")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "첫 콘서트 직캠 재생" }),
+      screen.getByRole("button", { name: "첫 콘서트 공연 영상 재생" }),
     ).toBeInTheDocument();
 
     const link = screen.getByRole("link", { name: "YouTube에서 보기" });
@@ -133,7 +133,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
 
     const articlesBefore = screen.getAllByRole("article").length;
     fireEvent.click(
-      screen.getByRole("button", { name: "첫 콘서트 직캠 재생" }),
+      screen.getByRole("button", { name: "첫 콘서트 공연 영상 재생" }),
     );
 
     const players = screen.getAllByTestId("youtube-player");
@@ -144,7 +144,7 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
       "https://www.youtube-nocookie.com/embed/c4V0FNZfEv0",
     );
     expect(player.getAttribute("src")).not.toContain("autoplay");
-    expect(player).toHaveAttribute("title", "첫 콘서트 직캠 YouTube 영상");
+    expect(player).toHaveAttribute("title", "첫 콘서트 공연 영상 YouTube 영상");
     expect(player).toHaveAttribute("loading", "lazy");
     expect(player).toHaveAttribute(
       "allow",
@@ -157,9 +157,9 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
     );
 
     expect(currentLocation()).toBe("/memory/detail-demo");
-    expect(screen.getByText("첫 콘서트 직캠")).toBeInTheDocument();
+    expect(screen.getByText("첫 콘서트 공연 영상")).toBeInTheDocument();
     expect(screen.getByText("2023. 12. 25.")).toBeInTheDocument();
-    expect(screen.getByText(/정말 행복했던 첫 콘서트 순간/)).toBeInTheDocument();
+    expect(screen.getByText(/공개 YouTube 영상을 러브트리에 연결해 두니/)).toBeInTheDocument();
     expect(screen.getAllByRole("article")).toHaveLength(articlesBefore);
     expect(screen.getByRole("button", { name: "좋아요 128" })).toHaveAttribute(
       "aria-pressed",
@@ -324,19 +324,19 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
   it("모든 버튼 클릭 후 제목·날짜·메모가 불변이어야 한다", () => {
     renderRoute(["/memory/detail-demo"]);
 
-    const titleBefore = screen.getByText("첫 콘서트 직캠");
+    const titleBefore = screen.getByText("첫 콘서트 공연 영상");
     const dateBefore = screen.getByText("2023. 12. 25.");
-    const memoBefore = screen.getByText(/정말 행복했던 첫 콘서트 순간/);
+    const memoBefore = screen.getByText(/공개 YouTube 영상을 러브트리에 연결해 두니/);
 
     const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }
 
-    expect(screen.getByText("첫 콘서트 직캠")).toBe(titleBefore);
+    expect(screen.getByText("첫 콘서트 공연 영상")).toBe(titleBefore);
     expect(screen.getByText("2023. 12. 25.")).toBe(dateBefore);
     expect(
-      screen.getByText(/정말 행복했던 첫 콘서트 순간/)
+      screen.getByText(/공개 YouTube 영상을 러브트리에 연결해 두니/)
     ).toBe(memoBefore);
   });
 
@@ -358,19 +358,19 @@ describe("MemoryDetailPage — /memory/detail-demo", () => {
   it("모든 버튼 클릭 후 제목·날짜·메모가 불변이어야 한다", () => {
     renderRoute(["/memory/detail-demo"]);
 
-    const titleBefore = screen.getByText("첫 콘서트 직캠");
+    const titleBefore = screen.getByText("첫 콘서트 공연 영상");
     const dateBefore = screen.getByText("2023. 12. 25.");
-    const memoBefore = screen.getByText(/정말 행복했던 첫 콘서트 순간/);
+    const memoBefore = screen.getByText(/공개 YouTube 영상을 러브트리에 연결해 두니/);
 
     const buttons = screen.getAllByRole("button").filter((b) => b.getAttribute("aria-label") !== "뒤로 가기" && b.getAttribute("aria-label") !== "기억 연결" && b.getAttribute("aria-label") !== "미디어 검색" && b.getAttribute("aria-label") !== "기억 트리 보기");
     for (const button of buttons) {
       fireEvent.click(button);
     }
 
-    expect(screen.getByText("첫 콘서트 직캠")).toBe(titleBefore);
+    expect(screen.getByText("첫 콘서트 공연 영상")).toBe(titleBefore);
     expect(screen.getByText("2023. 12. 25.")).toBe(dateBefore);
     expect(
-      screen.getByText(/정말 행복했던 첫 콘서트 순간/)
+      screen.getByText(/공개 YouTube 영상을 러브트리에 연결해 두니/)
     ).toBe(memoBefore);
   });
 
