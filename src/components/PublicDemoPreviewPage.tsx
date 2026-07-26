@@ -12,6 +12,25 @@ export default function PublicDemoPreviewPage() {
   );
   const selectedNode = draft.nodes.find((node) => node.id === selectedNodeId) ?? draft.nodes[0] ?? null;
   const connectors = getConnectors(draft.nodes);
+  const titleInvalid = draft.tree.title.trim().length === 0;
+
+  if (titleInvalid) {
+    return (
+      <div className={styles.page}>
+        <header className={styles.simpleHeader}>
+          <Link to="/tree/new-demo/edit" className={styles.brand}>Relovetree</Link>
+          <span>공개 데모 미리보기 · 게시되지 않음</span>
+        </header>
+        <main className={styles.notFoundPage}>
+          <h1>미리보기를 완료할 수 없습니다</h1>
+          <p className={styles.errorText} role="alert">
+            러브트리 제목을 입력한 뒤 다시 미리보세요.
+          </p>
+          <Link to="/tree/new-demo/edit" className={styles.primaryButton}>제목 입력하기</Link>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -22,7 +41,7 @@ export default function PublicDemoPreviewPage() {
       <main className={styles.previewPage}>
         <section className={styles.previewHero}>
           <span className={styles.eyebrow}>브라우저 draft 미리보기</span>
-          <h1>{draft.tree.title || "제목 없는 러브트리"}</h1>
+          <h1>{draft.tree.title}</h1>
           <p>{draft.tree.description || "설명이 아직 없습니다."}</p>
           <strong>{draft.nodes.length} / 12 기억</strong>
         </section>
