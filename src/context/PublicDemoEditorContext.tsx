@@ -250,11 +250,12 @@ export function PublicDemoEditorProvider({ children }: { children: ReactNode }) 
 
   const resetDraft = useCallback((): MutationResult => {
     const removed = removePublicDemoDraft();
+    if (!removed) {
+      return { ok: false, reason: "브라우저 임시 저장을 제거하지 못했습니다." };
+    }
     suppressNextWrite.current = true;
     dispatch({ type: "reset" });
-    return removed
-      ? { ok: true }
-      : { ok: false, reason: "브라우저 임시 저장을 제거하지 못했습니다." };
+    return { ok: true };
   }, []);
 
   const value = useMemo<PublicDemoEditorValue>(() => ({
