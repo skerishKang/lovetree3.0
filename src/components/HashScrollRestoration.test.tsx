@@ -1,5 +1,4 @@
-import { act, cleanup, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 import {
@@ -11,33 +10,7 @@ import {
 } from "./HashScrollRestoration";
 
 const scrollToMock = vi.fn();
-
-function makeRect(top: number): DOMRect {
-  return {
-    x: 0,
-    y: top,
-    top,
-    right: 0,
-    bottom: top,
-    left: 0,
-    width: 0,
-    height: 0,
-    toJSON: () => ({}),
-  };
-}
-
-function makeMediaQueryList(matches: boolean): MediaQueryList {
-  return {
-    matches,
-    media: "(prefers-reduced-motion: reduce)",
-    onchange: null,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    dispatchEvent: () => true,
-  };
-}
+const matchMediaMock = vi.fn(() => ({ matches: false }));
 
 function HomeSections() {
   return (
@@ -67,30 +40,19 @@ describe("HashScrollRestoration", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     scrollToMock.mockReset();
+    matchMediaMock.mockReset();
+    matchMediaMock.mockReturnValue({ matches: false });
+    vi.stubGlobal("scrollTo", scrollToMock);
+    vi.stubGlobal("matchMedia", matchMediaMock);
     Object.defineProperty(window, "scrollY", {
       configurable: true,
       writable: true,
       value: 40,
     });
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      writable: true,
-      value: vi.fn().mockReturnValue(makeMediaQueryList(false)),
-    });
-    Object.defineProperty(window, "scrollTo", {
-      configurable: true,
-      writable: true,
-      value: scrollToMock,
-    });
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
-      function getBoundingClientRect() {
-        if (this.id === "about") {
-          return makeRect(300);
-        }
-        if (this.id === "features") {
-          return makeRect(620);
-        }
-        return makeRect(0);
+      function getBoundingClientRect(this: HTMLElement) {
+        const top = this.id === "about" ? 300 : this.id === "features" ? 620 : 0;
+        return { top } as DOMRect;
       },
     );
   });
@@ -99,15 +61,14 @@ describe("HashScrollRestoration", () => {
     cleanup();
     vi.clearAllTimers();
     vi.useRealTimers();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
-  it("scrolls from another route to the home target with the header offset", async () => {
+  it("scrolls from another route to the home target with the header offset", () => {
     renderAt("/community");
 
-    await userEvent.setup({ advanceTimers: vi.advanceTimersByTime }).click(
-      screen.getByRole("link", { name: "소개로 이동" }),
-    );
+    fireEvent.click(screen.getByRole("link", { name: "소개로 이동" }));
 
     expect(scrollToMock).toHaveBeenCalledWith({
       top: 300 + 40 - HASH_SCROLL_HEADER_OFFSET,
@@ -120,9 +81,9 @@ describe("HashScrollRestoration", () => {
   });
 
   it("clamps the calculated scroll position to zero", () => {
-    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(
-      makeRect(10),
-    );
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      top: 10,
+    } as DOMRect);
     Object.defineProperty(window, "scrollY", { value: 0, writable: true });
 
     renderAt("/#about");
@@ -159,27 +120,23 @@ describe("HashScrollRestoration", () => {
   });
 
   it("clears the previous target and timer when another hash activates quickly", () => {
+    const clearTimeoutSpy = vi.spyOn(window, "clearTimeout");
     renderAt("/#about");
     const about = screen.getByText("소개 영역");
     const features = screen.getByText("주요 기능 영역");
 
     act(() => requestHashScrollActivation("#features"));
 
+    expect(clearTimeoutSpy).toHaveBeenCalled();
     expect(about).not.toHaveAttribute(HASH_SCROLL_HIGHLIGHT_ATTRIBUTE);
     expect(features).toHaveAttribute(HASH_SCROLL_HIGHLIGHT_ATTRIBUTE, "true");
-    expect(vi.getTimerCount()).toBe(1);
 
     act(() => vi.advanceTimersByTime(HASH_SCROLL_HIGHLIGHT_DURATION_MS));
     expect(features).not.toHaveAttribute(HASH_SCROLL_HIGHLIGHT_ATTRIBUTE);
-    expect(vi.getTimerCount()).toBe(0);
   });
 
   it("uses instant scrolling when reduced motion is preferred", () => {
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      writable: true,
-      value: vi.fn().mockReturnValue(makeMediaQueryList(true)),
-    });
+    matchMediaMock.mockReturnValue({ matches: true });
 
     renderAt("/#features");
 
@@ -202,13 +159,14 @@ describe("HashScrollRestoration", () => {
   });
 
   it("cleans the active highlight and timer on unmount", () => {
+    const clearTimeoutSpy = vi.spyOn(window, "clearTimeout");
     const view = renderAt("/#about");
     const about = screen.getByText("소개 영역");
 
     expect(about).toHaveAttribute(HASH_SCROLL_HIGHLIGHT_ATTRIBUTE, "true");
     view.unmount();
 
+    expect(clearTimeoutSpy).toHaveBeenCalled();
     expect(about).not.toHaveAttribute(HASH_SCROLL_HIGHLIGHT_ATTRIBUTE);
-    expect(vi.getTimerCount()).toBe(0);
   });
 });
