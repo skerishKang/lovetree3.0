@@ -30,21 +30,21 @@ function validDraft(): PublicDemoDraft {
 
 function storageWith(raw: string | null) {
   return {
-    getItem: vi.fn(() => raw),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
+    getItem: vi.fn((_key: string) => raw),
+    setItem: vi.fn((_key: string, _value: string) => undefined),
+    removeItem: vi.fn((_key: string) => undefined),
   };
 }
 
 describe("public demo storage", () => {
   it("reads and writes only schema-v1 content draft", () => {
     const draft = validDraft();
-    const storage = storageWith(JSON.stringify(draft));
+    const serialized = JSON.stringify(draft);
+    const storage = storageWith(serialized);
     expect(readPublicDemoDraft(storage)).toEqual(draft);
     expect(writePublicDemoDraft(draft, storage)).toBe(true);
-    expect(storage.setItem).toHaveBeenCalledWith(PUBLIC_DEMO_STORAGE_KEY, JSON.stringify(draft));
-    const saved = storage.setItem.mock.calls[0][1];
-    expect(saved).not.toMatch(/access.?token|jwt|firebase|credential|cookie|email|user.?id/i);
+    expect(storage.setItem).toHaveBeenCalledWith(PUBLIC_DEMO_STORAGE_KEY, serialized);
+    expect(serialized).not.toMatch(/access.?token|jwt|firebase|credential|cookie|email|user.?id/i);
   });
 
   it("recovers malformed JSON, unknown schema, and invalid graph to an empty draft", () => {
@@ -70,9 +70,9 @@ describe("public demo storage", () => {
 
   it("recovers read, write, and remove exceptions without throwing", () => {
     const throwingStorage = {
-      getItem: vi.fn(() => { throw new Error("read"); }),
-      setItem: vi.fn(() => { throw new Error("write"); }),
-      removeItem: vi.fn(() => { throw new Error("remove"); }),
+      getItem: vi.fn((_key: string): string | null => { throw new Error("read"); }),
+      setItem: vi.fn((_key: string, _value: string): void => { throw new Error("write"); }),
+      removeItem: vi.fn((_key: string): void => { throw new Error("remove"); }),
     };
     expect(readPublicDemoDraft(throwingStorage)).toEqual(createEmptyPublicDemoDraft());
     expect(writePublicDemoDraft(validDraft(), throwingStorage)).toBe(false);
@@ -81,9 +81,9 @@ describe("public demo storage", () => {
 
   it("reset removes the exact draft key and never calls clear", () => {
     const storage = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
+      getItem: vi.fn((_key: string) => null),
+      setItem: vi.fn((_key: string, _value: string) => undefined),
+      removeItem: vi.fn((_key: string) => undefined),
       clear: vi.fn(),
     };
     expect(removePublicDemoDraft(storage)).toBe(true);
