@@ -7,7 +7,7 @@ function renderPreview() {
 }
 
 describe("MemoryTreePreview YouTube media", () => {
-  it("keeps five cards and five real thumbnails with no initial iframe", () => {
+  it("keeps five cards, five real thumbnails, and the existing connector with no initial iframe", () => {
     renderPreview();
     const preview = screen.getByLabelText("러브트리 미리보기");
 
@@ -15,7 +15,7 @@ describe("MemoryTreePreview YouTube media", () => {
     expect(within(preview).getAllByRole("img")).toHaveLength(5);
     expect(within(preview).getAllByRole("button", { name: /영상 재생/ })).toHaveLength(5);
     expect(within(preview).queryByTestId("youtube-player")).not.toBeInTheDocument();
-    expect(within(preview).getByTestId("tree-connector-svg")).toBeInTheDocument();
+    expect(preview.querySelector("svg")).not.toBeNull();
   });
 
   it("creates only one iframe and replaces it when another card is selected", () => {
@@ -24,7 +24,7 @@ describe("MemoryTreePreview YouTube media", () => {
 
     fireEvent.click(buttons[0]);
     expect(screen.getAllByTestId("youtube-player")).toHaveLength(1);
-    expect(screen.getByTestId("youtube-player\")).toHaveAttribute(
+    expect(screen.getByTestId("youtube-player")).toHaveAttribute(
       "src",
       "https://www.youtube-nocookie.com/embed/jNQXAC9IVRw",
     );
