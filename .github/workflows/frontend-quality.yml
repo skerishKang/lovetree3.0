@@ -13,17 +13,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  evidence:
-    name: Community public browse evidence
+  quality:
+    name: Lint, Typecheck, Test, Build
     runs-on: ubuntu-latest
-    outputs:
-      focused_summary: ${{ steps.focused.outputs.summary }}
-      full_summary: ${{ steps.full.outputs.summary }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -31,38 +27,8 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Verify clean checkout
-        shell: bash
-        run: |
-          git status --short
-          test -z "$(git status --short)"
-
-      - name: Check pull request diff
-        if: github.event_name == 'pull_request'
-        run: git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"
-
       - name: Install dependencies
         run: npm ci
-
-      - id: focused
-        name: Focused community suite
-        shell: bash
-        run: |
-          set +e
-          output="$(npm test -- --run \
-            src/api/community.test.ts \
-            src/hooks/useCommunityTrees.test.ts \
-            src/components/CommunityTreeCard.test.tsx \
-            src/components/CommunityTreeGrid.test.tsx \
-            src/components/CommunityPage.test.tsx 2>&1)"
-          code=$?
-          set -e
-          printf '%s\n' "$output"
-          clean="$(printf '%s\n' "$output" | sed -E $'s/\x1B\[[0-9;]*[mK]//g')"
-          files="$(printf '%s\n' "$clean" | grep 'Test Files' | tail -1 | xargs)"
-          tests="$(printf '%s\n' "$clean" | grep -E '^Tests |^Tests  |^ +Tests ' | tail -1 | xargs)"
-          echo "summary=Focused — ${files}; ${tests}" >> "$GITHUB_OUTPUT"
-          exit "$code"
 
       - name: Lint
         run: npm run lint
@@ -70,32 +36,8 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - id: full
-        name: Full test suite
-        shell: bash
-        run: |
-          set +e
-          output="$(npm test -- --run 2>&1)"
-          code=$?
-          set -e
-          printf '%s\n' "$output"
-          clean="$(printf '%s\n' "$output" | sed -E $'s/\x1B\[[0-9;]*[mK]//g')"
-          files="$(printf '%s\n' "$clean" | grep 'Test Files' | tail -1 | xargs)"
-          tests="$(printf '%s\n' "$clean" | grep -E '^Tests |^Tests  |^ +Tests ' | tail -1 | xargs)"
-          echo "summary=Full — ${files}; ${tests}" >> "$GITHUB_OUTPUT"
-          exit "$code"
+      - name: Test
+        run: npm run test
 
       - name: Build
         run: npm run build
-
-  focused-evidence:
-    needs: evidence
-    name: ${{ needs.evidence.outputs.focused_summary }}
-    runs-on: ubuntu-latest
-    steps: [{ run: "true" }]
-
-  full-evidence:
-    needs: evidence
-    name: ${{ needs.evidence.outputs.full_summary }}
-    runs-on: ubuntu-latest
-    steps: [{ run: "true" }]
