@@ -128,7 +128,7 @@ export default function YouTubeMedia({
             aria-label={`${title} 재생`}
             onClick={() => setPlaying(true)}
           >
-            <YouTubeThumbnail youtubeUrl={youtubeUrl} title={title} alt="" />
+            <YouTubeThumbnail youtubeUrl={youtubeUrl} title={title} />
             <span className={styles.playGlyph} aria-hidden="true">▶</span>
           </button>
         )}
