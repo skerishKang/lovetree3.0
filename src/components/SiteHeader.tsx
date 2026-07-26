@@ -1,22 +1,52 @@
-import { useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useRef, useState, type MouseEvent } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./SiteHeader.module.css";
 import { brandLogo, navMenuItems } from "../data/mockData";
 import { useAuthContext } from "../context/AuthContext";
+import { requestHashScrollActivation } from "./HashScrollRestoration";
 
-const navRoutes: Record<typeof navMenuItems[number], string> = {
+const navRoutes: Record<(typeof navMenuItems)[number], string> = {
   About: "/#about",
   Features: "/#features",
   Community: "/community",
   "My Tree": "/my-trees",
 };
 
+const navLabels: Record<(typeof navMenuItems)[number], string> = {
+  About: "소개",
+  Features: "주요 기능",
+  Community: "Community",
+  "My Tree": "My Tree",
+};
+
 export default function SiteHeader() {
   const auth = useAuthContext();
+  const location = useLocation();
   const navigate = useNavigate();
   const [logoutPending, setLogoutPending] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
   const logoutPendingRef = useRef(false);
+
+  const handleAnchorActivation = (
+    event: MouseEvent<HTMLAnchorElement>,
+    destination: string,
+  ) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    const hash = destination.slice(destination.indexOf("#"));
+    if (location.pathname === "/" && location.hash === hash) {
+      requestHashScrollActivation(hash);
+    }
+  };
 
   const handleLogout = async () => {
     if (!auth?.user || logoutPendingRef.current) {
@@ -44,15 +74,25 @@ export default function SiteHeader() {
         {brandLogo}
       </Link>
       <nav className={styles.nav} aria-label="주요 메뉴">
-        {navMenuItems.map((item) => (
-          <Link
-            key={item}
-            className={styles.navItem}
-            to={navRoutes[item]}
-          >
-            {item}
-          </Link>
-        ))}
+        {navMenuItems.map((item) => {
+          const destination = navRoutes[item];
+          const isHomeAnchor = destination.startsWith("/#");
+
+          return (
+            <Link
+              key={item}
+              className={styles.navItem}
+              to={destination}
+              onClick={
+                isHomeAnchor
+                  ? (event) => handleAnchorActivation(event, destination)
+                  : undefined
+              }
+            >
+              {navLabels[item]}
+            </Link>
+          );
+        })}
       </nav>
       <div className={styles.authAction}>
         {auth?.user ? (
