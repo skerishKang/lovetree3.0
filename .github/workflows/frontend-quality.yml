@@ -13,39 +13,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  capture-flow-failure:
+  quality:
+    name: Lint, Typecheck, Test, Build
     runs-on: ubuntu-latest
-    outputs:
-      failed_test: ${{ steps.capture.outputs.failed_test }}
-      first_error: ${{ steps.capture.outputs.first_error }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci --silent
-      - id: capture
-        shell: bash
-        run: |
-          output="$(npx vitest --run src/components/PublicDemoEditorFlow.test.tsx --reporter=verbose 2>&1 || true)"
-          failed="$(printf '%s\n' "$output" | { grep -m1 -E '×|✗|FAIL ' || true; } | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g' | cut -c1-200)"
-          error="$(printf '%s\n' "$output" | { grep -m1 -E 'TestingLibraryElementError|AssertionError|Unable to find|Found multiple|expected ' || true; } | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g' | cut -c1-200)"
-          [[ -n "$failed" ]] || failed="FAILED_TEST_NOT_PARSED"
-          [[ -n "$error" ]] || error="ERROR_NOT_PARSED"
-          echo "failed_test=$failed" >> "$GITHUB_OUTPUT"
-          echo "first_error=$error" >> "$GITHUB_OUTPUT"
 
-  report-failed-test:
-    needs: capture-flow-failure
-    name: ${{ needs.capture-flow-failure.outputs.failed_test }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "${{ needs.capture-flow-failure.outputs.failed_test }}"
+      - name: Install dependencies
+        run: npm ci
 
-  report-first-error:
-    needs: capture-flow-failure
-    name: ${{ needs.capture-flow-failure.outputs.first_error }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "${{ needs.capture-flow-failure.outputs.first_error }}"
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
