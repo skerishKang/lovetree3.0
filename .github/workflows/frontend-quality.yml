@@ -13,9 +13,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tests-a-f:
-    name: Diagnostic tests A-F
+  tests-by-letter:
+    name: Diagnostic tests ${{ matrix.letter }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        letter: [M, N, O, P, Q, R]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,60 +27,11 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm ci
-      - name: Run A-F test files
+      - name: Run matching test files
         shell: bash
+        env:
+          TEST_LETTER: ${{ matrix.letter }}
         run: |
-          mapfile -t files < <(find src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) | sort | awk -F/ '{ c=toupper(substr($NF,1,1)); if (c >= "A" && c <= "F") print }')
-          printf '%s\n' "${files[@]}"
-          if ((${#files[@]})); then npx vitest --run "${files[@]}"; fi
-
-  tests-g-l:
-    name: Diagnostic tests G-L
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - name: Run G-L test files
-        shell: bash
-        run: |
-          mapfile -t files < <(find src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) | sort | awk -F/ '{ c=toupper(substr($NF,1,1)); if (c >= "G" && c <= "L") print }')
-          printf '%s\n' "${files[@]}"
-          if ((${#files[@]})); then npx vitest --run "${files[@]}"; fi
-
-  tests-m-r:
-    name: Diagnostic tests M-R
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - name: Run M-R test files
-        shell: bash
-        run: |
-          mapfile -t files < <(find src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) | sort | awk -F/ '{ c=toupper(substr($NF,1,1)); if (c >= "M" && c <= "R") print }')
-          printf '%s\n' "${files[@]}"
-          if ((${#files[@]})); then npx vitest --run "${files[@]}"; fi
-
-  tests-s-z:
-    name: Diagnostic tests S-Z
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - name: Run S-Z test files
-        shell: bash
-        run: |
-          mapfile -t files < <(find src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) | sort | awk -F/ '{ c=toupper(substr($NF,1,1)); if (c >= "S" && c <= "Z") print }')
+          mapfile -t files < <(find src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) | sort | awk -F/ -v target="$TEST_LETTER" '{ c=toupper(substr($NF,1,1)); if (c == target) print }')
           printf '%s\n' "${files[@]}"
           if ((${#files[@]})); then npx vitest --run "${files[@]}"; fi
