@@ -95,8 +95,6 @@ describe("community public browse adapter", () => {
       likeCount: undefined,
       viewCount: undefined,
     });
-    delete raw.likeCount;
-    delete raw.viewCount;
     const fake = clientReturning([raw]);
 
     const result = await createCommunityApi(fake.client).fetchGrowing();
