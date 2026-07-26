@@ -14,7 +14,7 @@
 
 ### Scope review
 
-allowed/forbidden paths, unrelated changes, dependency·config·deployment·reference 변경을 확인합니다.
+allowed/forbidden paths, unrelated changes, dependency·config·reference 변경을 확인합니다.
 
 ### Acceptance criteria matrix
 
@@ -26,15 +26,15 @@ allowed/forbidden paths, unrelated changes, dependency·config·deployment·refe
 
 ### Test quality review
 
-테스트가 실제 behavior와 failure path를 검증하는지, exact HEAD에서 실행됐는지 확인합니다.
+테스트가 실제 behavior와 failure path를 검증하는지, exact HEAD에서 실행됐는지 확인합니다. 테스트나 build command가 production deployment, Cloudflare retry, cache purge 또는 direct upload를 실행하지 않는지 확인합니다.
 
 ### CI review
 
-run/job/step/log, conclusion, pending·skipped·cancelled, deployment metadata를 직접 확인합니다.
+run/job/step/log, conclusion, pending·skipped·cancelled를 직접 확인합니다. Git integration이 자동 preview를 만든 경우에만 preview deployment metadata를 확인합니다.
 
 ### Local validation review
 
-tested HEAD, clean status, 환경, desktop/mobile, console/page/network, 외부 연동, 소스 무수정 여부를 확인합니다.
+tested HEAD, clean status, 환경, desktop/mobile, console/page/network, 외부 연동, 소스 무수정 여부를 확인합니다. Local이 Cloudflare production 또는 deployment 상태를 변경하지 않았는지 확인합니다.
 
 ### Security/privacy review
 
@@ -44,9 +44,12 @@ secret, 인증, 권한, 개인정보, logging, 외부 연동 위험을 검토합
 
 기존 사용자 흐름, 화면, API, build, bundle, 설정에 대한 회귀 가능성과 증거를 검토합니다.
 
-### Deployment review
+### Pre-merge deployment boundary review
 
-preview 및 production의 deployment commit, ID, URL, smoke, rollback reference를 구분합니다.
+- 웹 개발자와 로컬 검증자가 production 수동 deployment를 수행하지 않았는지 확인합니다.
+- 자동배포를 유발하기 위한 빈 commit, rebuild marker 또는 의미 없는 source 변경이 없는지 확인합니다.
+- preview evidence는 production verification을 대체하지 않습니다.
+- production review는 merge 전 final status에 포함하지 않고 merge 후 별도 상태로 수행합니다.
 
 ## Decision
 
@@ -65,8 +68,24 @@ preview 및 production의 deployment commit, ID, URL, smoke, rollback reference�
 
 ### Merge recommendation
 
-final status와 별도로 사용자가 승인할 수 있는 범위, merge 전 조건, 승인하지 말아야 할 사유를 기술합니다.
+final status와 별도로 사용자가 승인할 수 있는 범위, merge 전 조건, 승인하지 말아야 할 사유를 기술합니다. 사용자 승인은 merge 승인이고, 승인된 merge가 Cloudflare Pages Git 자동배포를 trigger합니다.
 
 ### Required follow-up
 
-수정 주체, exact scope, 재검증 gate, 후속 Issue 또는 production verification을 기술합니다.
+수정 주체, exact scope, 재검증 gate, 후속 Issue를 기술합니다. 정상 경로에서 웹 개발자나 로컬 검증자에게 production deployment를 지시하지 않습니다.
+
+## Post-merge automatic production verification
+
+merge 후 웹 CTO가 별도로 확인합니다.
+
+- Merge SHA
+- Cloudflare Pages automatic production deployment ID
+- Deployment source commit
+- Queued, started, completed 또는 failed 상태
+- Production URL
+- Health/UI/API/auth smoke
+- Rollback reference
+
+자동 deployment가 merge revision을 정상 제공하면 `PRODUCTION_VERIFIED`로 판정합니다. queued 정체, 실패, stale artifact 또는 revision mismatch가 있으면 `PRODUCTION_FAILED` 또는 `BLOCKED`로 판정하고 별도 운영사고를 정의합니다.
+
+수동 deployment는 자동배포 장애가 확인된 별도 운영사고에서 사용자 명시 승인 후에만 예외적으로 수행할 수 있으며, final review의 정상 후속 단계가 아닙니다.
