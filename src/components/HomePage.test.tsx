@@ -11,8 +11,8 @@ describe("HomePage", () => {
 
   it("헤더 메뉴 4개를 모두 렌더링한다", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
-    expect(screen.getByText("About")).toBeInTheDocument();
-    expect(screen.getByText("Features")).toBeInTheDocument();
+    expect(screen.getByText("소개")).toBeInTheDocument();
+    expect(screen.getByText("주요 기능")).toBeInTheDocument();
     expect(screen.getByText("Community")).toBeInTheDocument();
     expect(screen.getByText("My Tree")).toBeInTheDocument();
   });
@@ -94,8 +94,8 @@ describe("HomePage mobile containment contract", () => {
     const nav = screen.getByRole("navigation", { name: "주요 메뉴" });
     const links = within(nav).getAllByRole("link");
     expect(links.map((l) => l.textContent)).toEqual([
-      "About",
-      "Features",
+      "소개",
+      "주요 기능",
       "Community",
       "My Tree",
     ]);
@@ -116,10 +116,10 @@ describe("HomePage mobile containment contract", () => {
     expect(secondary).toHaveAttribute("type", "button");
   });
 
-  it("About/Features 해시 링크가 올바른 section id를 가리킨다", () => {
+  it("소개/주요 기능 해시 링크가 올바른 section id를 가리킨다", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
-    const aboutLink = screen.getByRole("link", { name: "About" });
-    const featuresLink = screen.getByRole("link", { name: "Features" });
+    const aboutLink = screen.getByRole("link", { name: "소개" });
+    const featuresLink = screen.getByRole("link", { name: "주요 기능" });
     expect(aboutLink).toHaveAttribute("href", "/#about");
     expect(featuresLink).toHaveAttribute("href", "/#features");
     expect(document.getElementById("about")).not.toBeNull();
