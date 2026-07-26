@@ -34,7 +34,9 @@ function getHashTargetId(hash: string) {
 export function HashScrollRestoration() {
   const location = useLocation();
   const activeTargetRef = useRef<HTMLElement | null>(null);
-  const highlightTimerRef = useRef<number | null>(null);
+  const highlightTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
+    null,
+  );
 
   const clearHighlight = useCallback(() => {
     if (highlightTimerRef.current !== null) {
@@ -61,7 +63,8 @@ export function HashScrollRestoration() {
       }
 
       const reducedMotion =
-        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const top = Math.max(
         0,
         target.getBoundingClientRect().top + window.scrollY - HASH_SCROLL_HEADER_OFFSET,
