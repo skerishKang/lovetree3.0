@@ -77,21 +77,27 @@ describe("SiteHeader navigation", () => {
   });
 
   it("emits an explicit activation when the current hash is clicked again", async () => {
-    const activationListener = vi.fn();
+    let activationCount = 0;
+    let activationDetail: unknown;
+    const activationListener = (event: Event) => {
+      activationCount += 1;
+      activationDetail = (event as CustomEvent).detail;
+    };
     window.addEventListener(HASH_SCROLL_ACTIVATION_EVENT, activationListener);
     renderHeader("/#about");
 
     await userEvent.setup().click(screen.getByRole("link", { name: "소개" }));
 
-    expect(activationListener).toHaveBeenCalledTimes(1);
-    expect((activationListener.mock.calls[0][0] as CustomEvent).detail).toEqual({
-      hash: "#about",
-    });
+    expect(activationCount).toBe(1);
+    expect(activationDetail).toEqual({ hash: "#about" });
     window.removeEventListener(HASH_SCROLL_ACTIVATION_EVENT, activationListener);
   });
 
   it("keeps keyboard activation semantics for repeated hash navigation", async () => {
-    const activationListener = vi.fn();
+    let activationCount = 0;
+    const activationListener = () => {
+      activationCount += 1;
+    };
     window.addEventListener(HASH_SCROLL_ACTIVATION_EVENT, activationListener);
     renderHeader("/#features");
     const features = screen.getByRole("link", { name: "주요 기능" });
@@ -99,7 +105,7 @@ describe("SiteHeader navigation", () => {
     features.focus();
     await userEvent.setup().keyboard("{Enter}");
 
-    expect(activationListener).toHaveBeenCalledTimes(1);
+    expect(activationCount).toBe(1);
     window.removeEventListener(HASH_SCROLL_ACTIVATION_EVENT, activationListener);
   });
 });
