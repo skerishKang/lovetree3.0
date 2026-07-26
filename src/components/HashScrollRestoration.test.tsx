@@ -10,6 +10,8 @@ import {
   requestHashScrollActivation,
 } from "./HashScrollRestoration";
 
+const scrollToMock = vi.fn();
+
 function makeRect(top: number): DOMRect {
   return {
     x: 0,
@@ -21,6 +23,19 @@ function makeRect(top: number): DOMRect {
     width: 0,
     height: 0,
     toJSON: () => ({}),
+  };
+}
+
+function makeMediaQueryList(matches: boolean): MediaQueryList {
+  return {
+    matches,
+    media: "(prefers-reduced-motion: reduce)",
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: () => true,
   };
 }
 
@@ -51,6 +66,7 @@ function renderAt(initialEntry: string) {
 describe("HashScrollRestoration", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    scrollToMock.mockReset();
     Object.defineProperty(window, "scrollY", {
       configurable: true,
       writable: true,
@@ -59,17 +75,12 @@ describe("HashScrollRestoration", () => {
     Object.defineProperty(window, "matchMedia", {
       configurable: true,
       writable: true,
-      value: vi.fn().mockReturnValue({
-        matches: false,
-        media: "(prefers-reduced-motion: reduce)",
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      }),
+      value: vi.fn().mockReturnValue(makeMediaQueryList(false)),
     });
     Object.defineProperty(window, "scrollTo", {
       configurable: true,
       writable: true,
-      value: vi.fn(),
+      value: scrollToMock,
     });
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
       function getBoundingClientRect() {
@@ -98,7 +109,7 @@ describe("HashScrollRestoration", () => {
       screen.getByRole("link", { name: "소개로 이동" }),
     );
 
-    expect(window.scrollTo).toHaveBeenCalledWith({
+    expect(scrollToMock).toHaveBeenCalledWith({
       top: 300 + 40 - HASH_SCROLL_HEADER_OFFSET,
       behavior: "smooth",
     });
@@ -116,7 +127,7 @@ describe("HashScrollRestoration", () => {
 
     renderAt("/#about");
 
-    expect(window.scrollTo).toHaveBeenCalledWith({
+    expect(scrollToMock).toHaveBeenCalledWith({
       top: 0,
       behavior: "smooth",
     });
@@ -124,12 +135,12 @@ describe("HashScrollRestoration", () => {
 
   it("reactivates the same hash on every explicit request", () => {
     renderAt("/#about");
-    vi.mocked(window.scrollTo).mockClear();
+    scrollToMock.mockClear();
 
     act(() => requestHashScrollActivation("#about"));
     act(() => requestHashScrollActivation("#about"));
 
-    expect(window.scrollTo).toHaveBeenCalledTimes(2);
+    expect(scrollToMock).toHaveBeenCalledTimes(2);
     expect(screen.getByText("소개 영역")).toHaveAttribute(
       HASH_SCROLL_HIGHLIGHT_ATTRIBUTE,
       "true",
@@ -164,20 +175,15 @@ describe("HashScrollRestoration", () => {
   });
 
   it("uses instant scrolling when reduced motion is preferred", () => {
-    vi.mocked(window.matchMedia).mockReturnValue({
-      matches: true,
-      media: "(prefers-reduced-motion: reduce)",
-      onchange: null,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      dispatchEvent: vi.fn(),
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: vi.fn().mockReturnValue(makeMediaQueryList(true)),
     });
 
     renderAt("/#features");
 
-    expect(window.scrollTo).toHaveBeenCalledWith({
+    expect(scrollToMock).toHaveBeenCalledWith({
       top: 620 + 40 - HASH_SCROLL_HEADER_OFFSET,
       behavior: "auto",
     });
@@ -191,7 +197,7 @@ describe("HashScrollRestoration", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
     expect(() => renderAt("/#missing")).not.toThrow();
-    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(scrollToMock).not.toHaveBeenCalled();
     expect(consoleError).not.toHaveBeenCalled();
   });
 
