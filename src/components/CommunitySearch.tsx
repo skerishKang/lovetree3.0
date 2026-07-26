@@ -1,19 +1,16 @@
 import { useState, type FormEvent } from "react";
 import styles from "./CommunitySearch.module.css";
-import { communitySearchPlaceholder } from "../data/communityMockData";
+
+const SEARCH_PLACEHOLDER = "팬심 가득한 러브트리 검색";
 
 /**
- * 커뮤니티 검색 입력창
- *
- * BASE 인터랙션: 텍스트 입력만 허용.
- * 실제 검색 요청/필터 API 호출은 하지 않음 (금지).
+ * 이번 API slice에는 keyword search 계약이 없으므로 입력 상태만 로컬에 유지합니다.
  */
 export default function CommunitySearch() {
   const [value, setValue] = useState("");
 
-  const onSubmit = (e: FormEvent) => {
-    // 실제 검색 요청 없음 — preventDefault만 수행
-    e.preventDefault();
+  const onSubmit = (event: FormEvent) => {
+    event.preventDefault();
   };
 
   return (
@@ -36,9 +33,9 @@ export default function CommunitySearch() {
         className={styles.input}
         type="search"
         value={value}
-        placeholder={communitySearchPlaceholder}
+        placeholder={SEARCH_PLACEHOLDER}
         aria-label="러브트리 검색"
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(event) => setValue(event.target.value)}
       />
     </form>
   );
