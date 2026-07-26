@@ -46,19 +46,31 @@
 
 인증, 권한, 개인정보, secret, logging, API, 데이터베이스 경계를 기술합니다.
 
+### Deployment boundary
+
+기본값은 다음과 같습니다.
+
+- PR branch push와 `main` merge에 따른 Cloudflare Pages deployment는 Git integration이 자동으로 수행합니다.
+- 웹 개발자는 preview 또는 production을 수동으로 deploy하지 않습니다.
+- 로컬 검증자는 deployment, retry, cache purge, direct upload 또는 Cloudflare 설정 변경을 수행하지 않습니다.
+- 웹 CTO는 merge 후 자동 production deployment metadata와 smoke 결과를 확인합니다.
+- 수동 deployment가 필요한 자동배포 장애는 이 기능 작업계약에 포함하지 않고 별도 운영사고 Issue와 사용자 승인으로 처리합니다.
+
+이 기본값을 바꾸는 예외가 있다면 별도 운영사고 번호, 사용자 승인, exact revision, 허용 command/API action, rollback 조건을 명시합니다.
+
 ## Verification contract
 
 ### Required tests
 
-실행할 exact command, 집중 테스트, 전체 회귀, lint, typecheck, build 기준을 기술합니다.
+실행할 exact command, 집중 테스트, 전체 회귀, lint, typecheck, build 기준을 기술합니다. 테스트와 build command는 production deployment 또는 Cloudflare mutation을 실행해서는 안 됩니다.
 
 ### Required local validation
 
-필요한 OS, browser, viewport, runtime, 외부 연동, 계정, 환경변수와 검증 시나리오를 기술합니다.
+필요한 OS, browser, viewport, runtime, 외부 연동, 계정, 환경변수와 검증 시나리오를 기술합니다. 이미 존재하는 preview 또는 production URL 검증은 read-only smoke로 제한합니다.
 
 ### Required evidence
 
-repository identity, diff, command output, CI, runtime, screenshot, deployment evidence의 최소값을 기술합니다.
+repository identity, diff, command output, CI, runtime, screenshot의 최소값을 기술합니다. Git integration이 자동 preview를 생성한 경우에만 preview deployment metadata를 요구합니다.
 
 ### Acceptance criteria
 
@@ -66,8 +78,8 @@ repository identity, diff, command output, CI, runtime, screenshot, deployment e
 
 ### Completion definition
 
-웹 개발자가 종료 보고를 제출할 조건, 로컬 검증으로 넘길 조건, 웹 CTO 재검토 요청 조건을 구분합니다.
+웹 개발자가 종료 보고를 제출할 조건, 로컬 검증으로 넘길 조건, 웹 CTO 재검토 요청 조건을 구분합니다. production deployment는 merge 후 자동으로 시작되므로 웹 개발자 completion 조건에 포함하지 않습니다.
 
 ### Merge authority
 
-웹 CTO의 `READY` 판정과 사용자의 명시적 merge·deployment 승인이 별도임을 명시합니다.
+웹 CTO의 `READY` 판정과 사용자의 명시적 merge 승인이 별도임을 명시합니다. 승인된 merge가 Cloudflare Pages Git 자동배포를 trigger하며, 정상 경로에서 별도의 수동 deployment 승인을 요구하지 않습니다.

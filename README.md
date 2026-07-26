@@ -15,7 +15,7 @@ LoveTree 3.0은 팬들의 좋아하는 순간을 트리 형태로 기록하고 �
 
 ## AI 개발 운영정책
 
-LoveTree 3.0은 설계, 구현, 실환경 검증, 최종 승인을 분리합니다.
+LoveTree 3.0은 설계, 구현, 실환경 검증, 최종 승인, production 확인을 분리합니다.
 
 표준 흐름:
 
@@ -25,8 +25,12 @@ LoveTree 3.0은 설계, 구현, 실환경 검증, 최종 승인을 분리합니�
 → GitHub CI
 → 로컬 실환경 검증
 → 웹 CTO 최종검토
-→ 사용자 승인
-→ 병합
+→ 사용자 merge 승인
+→ `main` 병합
+→ Cloudflare Pages Git 자동배포
+→ 웹 CTO production 확인
+
+Cloudflare Pages는 이 저장소의 `main`과 Git integration으로 연결되어 있습니다. 승인된 PR이 `main`에 merge되면 production build와 deployment가 자동으로 시작됩니다. 웹 개발자와 로컬 검증자는 정상 경로에서 `wrangler pages deploy`, direct upload, dashboard retry, cache purge를 수행하지 않습니다. 수동 deployment는 자동배포 장애가 확인된 별도 운영사고에서 사용자 명시 승인 후에만 예외적으로 수행합니다.
 
 저장소 작업자는 먼저 [AGENTS.md](AGENTS.md)를 읽어야 합니다.
 
@@ -84,6 +88,8 @@ npm run test
 # 프로덕션 빌드
 npm run build
 ```
+
+위 명령은 로컬 검증용입니다. `npm run build` 또는 `npm run preview`는 production deployment 명령이 아닙니다.
 
 ## 현재 구현 화면
 
