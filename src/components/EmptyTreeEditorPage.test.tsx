@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -12,6 +13,11 @@ const authState = vi.hoisted(() => ({
     photoURL: null;
     emailVerified: boolean;
   },
+}));
+
+vi.mock("../context/AuthContext", () => ({
+  AuthProvider: ({ children }: { children: ReactNode }) => children,
+  useAuthContext: () => null,
 }));
 
 vi.mock("../hooks/useAuth", () => ({
@@ -104,7 +110,7 @@ describe("EmptyTreeEditorPage — interactive public start", () => {
     reset.focus();
     await user.click(reset);
     expect(screen.getByRole("dialog", { name: "공개 데모를 초기화할까요?" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "취소" })).toHaveFocus();
+    await waitFor(() => expect(screen.getByRole("button", { name: "취소" })).toHaveFocus());
     await user.keyboard("{Escape}");
     await waitFor(() => expect(reset).toHaveFocus());
   });
