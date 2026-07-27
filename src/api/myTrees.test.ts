@@ -45,9 +45,39 @@ describe("normalizeTreeItem", () => {
     expect(r.likeCount).toBeUndefined();
   });
 
+  it("omits negative likeCount", () => {
+    const r = normalizeTreeItem(treePayload({ likeCount: -1 }));
+    expect(r.likeCount).toBeUndefined();
+  });
+
   it("omits non-integer likeCount", () => {
     const r = normalizeTreeItem(treePayload({ likeCount: 1.5 }));
-    expect(r.likeCount).toBe(1.5);
+    expect(r.likeCount).toBeUndefined();
+  });
+
+  it("omits NaN likeCount", () => {
+    const r = normalizeTreeItem(treePayload({ likeCount: NaN }));
+    expect(r.likeCount).toBeUndefined();
+  });
+
+  it("omits Infinity likeCount", () => {
+    const r = normalizeTreeItem(treePayload({ likeCount: Infinity }));
+    expect(r.likeCount).toBeUndefined();
+  });
+
+  it("omits string likeCount", () => {
+    const r = normalizeTreeItem(treePayload({ likeCount: "5" }));
+    expect(r.likeCount).toBeUndefined();
+  });
+
+  it("omits null likeCount", () => {
+    const r = normalizeTreeItem(treePayload({ likeCount: null }));
+    expect(r.likeCount).toBeUndefined();
+  });
+
+  it("includes zero likeCount", () => {
+    const r = normalizeTreeItem(treePayload({ likeCount: 0 }));
+    expect(r.likeCount).toBe(0);
   });
 
   it("includes zero likeCount", () => {
@@ -61,6 +91,11 @@ describe("normalizeTreeItem", () => {
   it("rejects missing memoryCount", () => expect(() => normalizeTreeItem(treePayload({ memoryCount: undefined }))).toThrow());
   it("rejects null input", () => expect(() => normalizeTreeItem(null)).toThrow());
   it("rejects non-object input", () => expect(() => normalizeTreeItem([])).toThrow());
+  it("accepts public visibility", () => expect(normalizeTreeItem(treePayload({ visibility: "public" })).visibility).toBe("public"));
+  it("accepts private visibility", () => expect(normalizeTreeItem(treePayload({ visibility: "private" })).visibility).toBe("private"));
+  it("rejects empty visibility", () => expect(() => normalizeTreeItem(treePayload({ visibility: "" }))).toThrow());
+  it("rejects unknown visibility", () => expect(() => normalizeTreeItem(treePayload({ visibility: "unknown" }))).toThrow());
+  it("rejects whitespace visibility", () => expect(() => normalizeTreeItem(treePayload({ visibility: "  " }))).toThrow());
 });
 
 describe("createMyTreesApi", () => {

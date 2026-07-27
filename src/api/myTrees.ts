@@ -38,7 +38,7 @@ function isNonNegativeInteger(value: unknown): value is number {
 }
 
 function optionalMetric(value: unknown): number | undefined {
-  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : undefined;
+  return isNonNegativeInteger(value) ? value : undefined;
 }
 
 export function normalizeTreeItem(value: unknown): OwnerTreeSummary {
@@ -46,7 +46,7 @@ export function normalizeTreeItem(value: unknown): OwnerTreeSummary {
   if (
     !isNonEmptyString(value.id) ||
     !isNonEmptyString(value.title) ||
-    !isNonEmptyString(value.visibility) ||
+    !isString(value.visibility) || (value.visibility !== "public" && value.visibility !== "private") ||
     !isString(value.groupName) ||
     !Array.isArray(value.keywords) ||
     !value.keywords.every(isString) ||
@@ -56,10 +56,11 @@ export function normalizeTreeItem(value: unknown): OwnerTreeSummary {
   ) {
     throw new MyTreesResponseError();
   }
+  const visibility = value.visibility as "public" | "private";
   return {
     id: value.id,
     title: value.title,
-    visibility: value.visibility,
+    visibility,
     groupName: value.groupName,
     keywords: [...value.keywords],
     createdAt: value.createdAt,

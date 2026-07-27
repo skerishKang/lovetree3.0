@@ -2,35 +2,39 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { myTreesApi, MyTreesResponseError, type MyTreesApi } from "../api/myTrees";
 import { isApiError } from "../types/api";
 import type { OwnerTreeSummary } from "../types/myTrees";
+import { emitSessionExpired } from "../context/authSession";
 
 function initialItems(): OwnerTreeSummary[] {
   return [];
 }
 
+type MyTreesStatus = "loading" | "success" | "empty" | "malformed" | "unauthorized" | "forbidden" | "server-error" | "network-error" | "retrying";
+
 export interface UseMyTreesResult {
   items: OwnerTreeSummary[];
-  status: "loading" | "success" | "empty" | "malformed" | "unauthorized" | "forbidden" | "server-error" | "network-error";
+  status: MyTreesStatus;
   error: string | null;
   retry(): void;
 }
 
 export function useMyTrees(api: MyTreesApi = myTreesApi): UseMyTreesResult {
   const [items, setItems] = useState<OwnerTreeSummary[]>(initialItems);
-  const [status, setStatus] = useState<UseMyTreesResult["status"]>("loading");
+  const [status, setStatus] = useState<MyTreesStatus>("loading");
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(false);
   const requestRef = useRef(0);
   const controllerRef = useRef<AbortController | null>(null);
+  const expiredEventFired = useRef(false);
 
-  const load = useCallback((reset: boolean) => {
+  const load = useCallback((isRetry: boolean) => {
     if (!mountedRef.current) return;
     const requestId = requestRef.current + 1;
     requestRef.current = requestId;
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
-    setStatus("loading");
-    if (reset) setItems(initialItems());
+    setStatus(isRetry ? "retrying" : "loading");
+    if (!isRetry) setItems(initialItems());
     setError(null);
 
     void api.fetchTrees(controller.signal).then(
@@ -57,6 +61,10 @@ export function useMyTrees(api: MyTreesApi = myTreesApi): UseMyTreesResult {
             setItems([]);
             setStatus("unauthorized");
             setError(cause.message || "인증 세션이 만료되었습니다. 다시 로그인해 주세요.");
+            if (!expiredEventFired.current) {
+              expiredEventFired.current = true;
+              emitSessionExpired({ source: "persistent-401", returnTo: "/my-trees" });
+            }
             return;
           }
           if (cause.status === 403) {
@@ -80,7 +88,8 @@ export function useMyTrees(api: MyTreesApi = myTreesApi): UseMyTreesResult {
   }, [api]);
 
   const retry = useCallback(() => {
-    load(false);
+    expiredEventFired.current = false;
+    load(true);
   }, [load]);
 
   useEffect(() => {
@@ -93,7 +102,7 @@ export function useMyTrees(api: MyTreesApi = myTreesApi): UseMyTreesResult {
   }, []);
 
   useEffect(() => {
-    load(true);
+    load(false);
     return () => {
       requestRef.current += 1;
       controllerRef.current?.abort();

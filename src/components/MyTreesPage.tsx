@@ -1,8 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react";
 import { useMyTrees } from "../hooks/useMyTrees";
 import type { OwnerTreeSummary } from "../types/myTrees";
-import { getFirebaseAuth } from "../api/auth";
 import styles from "./MyTreesPage.module.css";
 
 function TreeCard({ tree }: { tree: OwnerTreeSummary }) {
@@ -87,17 +85,6 @@ function TreeCard({ tree }: { tree: OwnerTreeSummary }) {
 export default function MyTreesPage() {
   const { items, status, error, retry } = useMyTrees();
   const navigate = useNavigate();
-  const authInitialized = useRef(false);
-
-  useEffect(() => {
-    if (status === "unauthorized" && !authInitialized.current) {
-      authInitialized.current = true;
-      const auth = getFirebaseAuth();
-      void auth.signOut().then(() => {
-        navigate("/login?return=/my-trees");
-      });
-    }
-  }, [status, navigate]);
 
   return (
     <div className={styles.page}>
@@ -131,7 +118,14 @@ export default function MyTreesPage() {
       {status === "loading" ? (
         <div className={styles.stateMessage} role="status">
           <p>내 러브트리를 불러오고 있어요</p>
-          {error ? <p className={styles.stateSub}>{error}</p> : null}
+        </div>
+      ) : status === "retrying" ? (
+        <div className={styles.stateMessage} role="status">
+          <p>내 러브트리를 다시 불러오고 있어요</p>
+        </div>
+      ) : status === "unauthorized" ? (
+        <div className={styles.stateMessage} role="status">
+          <p>세션을 다시 확인하고 있어요. 로그인 화면으로 이동합니다.</p>
         </div>
       ) : status === "server-error" ? (
         <div className={styles.stateMessage} role="alert">
