@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from "react";
+import { Link } from "react-router-dom";
 import type { CommunityTreeSnapshot } from "../types/community";
 import { normalizeYouTubeUrl } from "../utils/youtube";
 import { YouTubeThumbnail } from "./YouTubeMedia";
@@ -89,6 +90,7 @@ export default function CommunityTreeCard({ tree }: { tree: CommunityTreeSnapsho
   const headingId = useId();
   const timestamp = tree.updatedAt ?? tree.createdAt;
   const timestampKind = tree.updatedAt ? "업데이트" : "생성";
+  const detailPath = `/tree/${encodeURIComponent(tree.id)}`;
 
   return (
     <article
@@ -97,53 +99,55 @@ export default function CommunityTreeCard({ tree }: { tree: CommunityTreeSnapsho
       data-testid="community-tree-card"
       data-tree-id={tree.id}
     >
-      <div className={styles.thumbnail}>
-        <CommunityMedia tree={tree} />
-        <span className={styles.pendingBadge}>상세 연결 준비 중</span>
-      </div>
-
-      <div className={styles.body}>
-        <div className={styles.topInfo}>
-          <span className={styles.visibility}>공개 범위: {tree.visibility}</span>
-          <span className={styles.stage}>단계: {tree.stage}</span>
+      <Link className={styles.cardLink} to={detailPath} aria-label={`${tree.title} 상세 보기`}>
+        <div className={styles.thumbnail}>
+          <CommunityMedia tree={tree} />
+          <span className={styles.detailBadge}>공개 트리 보기</span>
         </div>
 
-        <h2 id={headingId} className={styles.cardTitle}>{tree.title}</h2>
+        <div className={styles.body}>
+          <div className={styles.topInfo}>
+            <span className={styles.visibility}>공개 범위: {tree.visibility}</span>
+            <span className={styles.stage}>단계: {tree.stage}</span>
+          </div>
 
-        <div className={styles.facts}>
-          {tree.theme && <span>테마: {tree.theme}</span>}
-          {tree.timeRange && <span>기간: {tree.timeRange}</span>}
-          {timestamp && (
-            <time dateTime={timestamp}>
-              {timestampKind}: {formatTimestamp(timestamp)}
-            </time>
+          <h2 id={headingId} className={styles.cardTitle}>{tree.title}</h2>
+
+          <div className={styles.facts}>
+            {tree.theme && <span>테마: {tree.theme}</span>}
+            {tree.timeRange && <span>기간: {tree.timeRange}</span>}
+            {timestamp && (
+              <time dateTime={timestamp}>
+                {timestampKind}: {formatTimestamp(timestamp)}
+              </time>
+            )}
+          </div>
+
+          {tree.emotionTags.length > 0 && (
+            <div className={styles.tags} aria-label="감정 태그">
+              {tree.emotionTags.map((tag) => (
+                <span key={tag} className={styles.tag}>{tag}</span>
+              ))}
+            </div>
           )}
-        </div>
 
-        {tree.emotionTags.length > 0 && (
-          <div className={styles.tags} aria-label="감정 태그">
-            {tree.emotionTags.map((tag) => (
-              <span key={tag} className={styles.tag}>{tag}</span>
-            ))}
-          </div>
-        )}
-
-        <div className={styles.meta}>
-          <span className={styles.memoryCount}>🌳 기억 {tree.memoryCount}개</span>
-          <div className={styles.rightMeta}>
-            {tree.likeCount !== undefined && (
-              <span className={styles.metaItem} aria-label={`좋아요 ${tree.likeCount}`}>
-                ♥ {tree.likeCount}
-              </span>
-            )}
-            {tree.viewCount !== undefined && (
-              <span className={styles.metaItem} aria-label={`조회 ${tree.viewCount}`}>
-                조회 {tree.viewCount}
-              </span>
-            )}
+          <div className={styles.meta}>
+            <span className={styles.memoryCount}>🌳 기억 {tree.memoryCount}개</span>
+            <div className={styles.rightMeta}>
+              {tree.likeCount !== undefined && (
+                <span className={styles.metaItem} aria-label={`좋아요 ${tree.likeCount}`}>
+                  ♥ {tree.likeCount}
+                </span>
+              )}
+              {tree.viewCount !== undefined && (
+                <span className={styles.metaItem} aria-label={`조회 ${tree.viewCount}`}>
+                  조회 {tree.viewCount}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
     </article>
   );
 }
