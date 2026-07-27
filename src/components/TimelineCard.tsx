@@ -1,62 +1,133 @@
-import type { TimelineMemory } from "../data/treeDetailMockData";
-import styles from "./TimelineCard.module.css";
+import { useEffect, useState } from "react";
+import type { PublicTreeMemory } from "../types/publicTreeDetail";
+import { normalizeYouTubeUrl } from "../utils/youtube";
 import { YouTubeThumbnail } from "./YouTubeMedia";
+import styles from "./TimelineCard.module.css";
 
 interface Props {
-  memory: TimelineMemory;
+  memory: PublicTreeMemory;
+}
+
+function normalizeHttpsUrl(value: string | null) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || !url.hostname || url.username || url.password) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function formatDate(value: string | null) {
+  if (!value || !Number.isFinite(Date.parse(value))) return null;
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
+}
+
+function MediaFallback() {
+  return (
+    <span className={styles.mediaFallback} role="img" aria-label="기억 미디어 없음" data-testid="timeline-media-fallback">
+      <span aria-hidden="true">🌿</span>
+      <span>연결된 미디어가 없습니다</span>
+    </span>
+  );
+}
+
+function SafeImage({ src, title }: { src: string; title: string }) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (failed) return <MediaFallback />;
+
+  return (
+    <img
+      className={styles.image}
+      src={src}
+      alt={`${title} 기억 이미지`}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      data-testid="timeline-image-thumbnail"
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 export default function TimelineCard({ memory }: Props) {
+  const youtube = normalizeYouTubeUrl(memory.sourceUrl);
+  const thumbnail = normalizeHttpsUrl(memory.thumbnail);
+  const sourceUrl = normalizeHttpsUrl(memory.sourceUrl);
+  const channelUrl = normalizeHttpsUrl(memory.channelUrl);
+  const date = formatDate(memory.timestamp) ?? formatDate(memory.createdAt);
+
   return (
-    <article className={styles.card}>
+    <article className={styles.card} aria-labelledby={`memory-${memory.id}`}>
       <div className={styles.polaroidPhoto}>
-        {memory.youtubeUrl ? (
+        {youtube ? (
           <YouTubeThumbnail
-            youtubeUrl={memory.youtubeUrl}
+            youtubeUrl={youtube.watchUrl}
             title={memory.title}
             alt={`${memory.title} YouTube 썸네일`}
+            className={styles.youtubeThumbnail}
             testId="timeline-youtube-thumbnail"
           />
+        ) : thumbnail ? (
+          <SafeImage src={thumbnail} title={memory.title} />
         ) : (
-          <span className={styles.emoji} aria-hidden="true">
-            {memory.emoji}
-          </span>
+          <MediaFallback />
         )}
-        {memory.isFeatured ? (
-          <span className={styles.featuredBadge} data-testid="timeline-featured-badge">
-            ★ 대표 기억
-          </span>
-        ) : null}
       </div>
 
       <div className={styles.polaroidFrame}>
-        <div className={styles.cardMetaHeader}>
-          <span className={styles.typeBadge}>{memory.typeLabel}</span>
-          {memory.mediaLabel ? (
-            <span className={styles.mediaBadge}>{memory.mediaLabel}</span>
+        {date ? <time className={styles.date}>{date}</time> : null}
+        <h3 id={`memory-${memory.id}`} className={styles.title}>{memory.title}</h3>
+        {memory.memo ? <p className={styles.description}>{memory.memo}</p> : null}
+
+        <dl className={styles.metadata}>
+          {memory.artist ? (
+            <div><dt>아티스트</dt><dd>{memory.artist}</dd></div>
           ) : null}
-        </div>
+          {memory.source ? (
+            <div><dt>출처</dt><dd>{memory.source}</dd></div>
+          ) : null}
+          {memory.sourceType ? (
+            <div><dt>형식</dt><dd>{memory.sourceType}</dd></div>
+          ) : null}
+          {memory.channelName || memory.channelId ? (
+            <div>
+              <dt>채널</dt>
+              <dd>
+                {channelUrl ? (
+                  <a href={channelUrl} target="_blank" rel="noopener noreferrer">
+                    {memory.channelName || memory.channelId}
+                  </a>
+                ) : (memory.channelName || memory.channelId)}
+              </dd>
+            </div>
+          ) : null}
+        </dl>
 
-        <time className={styles.date}>{memory.date}</time>
-        <h3 className={styles.title}>{memory.title}</h3>
-        <p className={styles.description}>{memory.description}</p>
-
-        {memory.locationLabel ? (
-          <div className={styles.locationInfo}>
-            📍 <span className={styles.locationName}>{memory.locationLabel}</span>
-          </div>
+        {memory.emotionTags.length > 0 ? (
+          <ul className={styles.tags} aria-label="감정 태그">
+            {memory.emotionTags.map((tag) => (
+              <li key={tag} className={styles.tag}>#{tag}</li>
+            ))}
+          </ul>
         ) : null}
 
-        <ul className={styles.tags} aria-label="태그 목록">
-          {memory.tags.map((tag) => (
-            <li key={tag} className={styles.tag}>
-              #{tag}
-            </li>
-          ))}
-        </ul>
-
-        <div className={styles.reactionFooter}>
-          <span className={styles.reactionText}>❤️ 반응 {memory.reactionCount}</span>
+        <div className={styles.footer}>
+          <span className={styles.pending}>기억 상세 연결 준비 중</span>
+          {sourceUrl ? (
+            <a className={styles.sourceLink} href={sourceUrl} target="_blank" rel="noopener noreferrer">
+              원본 보기
+            </a>
+          ) : null}
         </div>
       </div>
     </article>
