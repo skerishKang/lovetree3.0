@@ -47,7 +47,7 @@ export function normalizePublicMemory(value: unknown): PublicTreeMemory {
 
   if (
     !isNonEmptyString(value.id) ||
-    !isNullableString(value.treeId) ||
+    !isNonEmptyString(value.treeId) ||
     !isNullableString(value.parentId) ||
     !isNonEmptyString(value.title) ||
     !isString(value.memo) ||

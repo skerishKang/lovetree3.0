@@ -171,13 +171,23 @@
   }
 }
 
-.cardLink {
-  display: block;
-  color: inherit;
+.detailLink {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  background: #f0ece6;
+  color: #4a3f35;
   text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
-.cardLink:hover {
-  transform: translateY(-2px);
-  transition: transform 0.2s ease;
+.detailLink:hover {
+  background: #e0d8ce;
+}
+
+.sourceLink {
+  color: #b87a7a;
+  text-decoration: underline;
+  font-size: 0.85rem;
 }

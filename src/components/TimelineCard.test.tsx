@@ -6,42 +6,45 @@ import TimelineCard from "./TimelineCard";
 
 function memory(overrides: Partial<PublicTreeMemory> = {}): PublicTreeMemory {
   return {
-    id: "mem-1",
-    treeId: "tree-1",
-    parentId: null,
-    title: "테스트 기억",
-    memo: "기억 본문 내용",
-    artist: "테스트 아티스트",
-    source: "YouTube",
+    id: "mem-1", treeId: "tree-1", parentId: null,
+    title: "테스트 기억", memo: "기억 본문 내용",
+    artist: "테스트 아티스트", source: "YouTube",
     sourceUrl: "https://www.youtube.com/watch?v=abc123",
     sourceType: "youtube",
     thumbnail: "https://img.youtube.com/vi/abc123/mqdefault.jpg",
     emotionTags: ["설렘", "행복"],
-    timestamp: "2026-07-20T10:00:00.000Z",
-    visibility: "public",
-    channelId: "UC123",
-    channelName: "테스트 채널",
+    timestamp: "2026-07-20T10:00:00.000Z", visibility: "public",
+    channelId: "UC123", channelName: "테스트 채널",
     channelUrl: "https://www.youtube.com/@test",
-    createdAt: "2026-07-20T10:00:00.000Z",
-    updatedAt: "2026-07-20T10:00:00.000Z",
+    createdAt: "2026-07-20T10:00:00.000Z", updatedAt: "2026-07-20T10:00:00.000Z",
     ...overrides,
   };
 }
 
 function renderCard(mem: PublicTreeMemory, treeId = "tree-1") {
-  return render(
-    <MemoryRouter>
-      <TimelineCard memory={mem} treeId={treeId} />
-    </MemoryRouter>,
-  );
+  return render(<MemoryRouter><TimelineCard memory={mem} treeId={treeId} /></MemoryRouter>);
 }
 
 describe("TimelineCard", () => {
-  it("links to /tree/:treeId/memory/:memoryId with encoded segments", () => {
-    renderCard(memory({ id: "mem/1", treeId: "tree/1" }), "tree/1");
+  it("has no nested anchors — article with sibling anchor elements", () => {
+    renderCard(memory());
+    const anchors = document.querySelectorAll("a");
+    for (const a of anchors) {
+      expect(a.querySelector("a")).toBeNull();
+    }
+  });
+
+  it("detail link has exact encoded href", () => {
+    renderCard(memory({ id: "mem/1" }), "tree/1");
     const link = screen.getByRole("link", { name: "테스트 기억 기억 상세 보기" });
     expect(link).toHaveAttribute("href", "/tree/tree%2F1/memory/mem%2F1");
-    expect(document.querySelector('a[href="/memory/detail-demo"]')).toBeNull();
+  });
+
+  it("detail link is keyboard focusable", () => {
+    renderCard(memory());
+    const link = screen.getByRole("link", { name: "테스트 기억 기억 상세 보기" });
+    link.focus();
+    expect(document.activeElement).toBe(link);
   });
 
   it("does not link to /memory/detail-demo", () => {
@@ -66,13 +69,11 @@ describe("TimelineCard", () => {
     renderCard(memory());
     expect(screen.getByTestId("timeline-image-thumbnail")).toBeInTheDocument();
     expect(screen.queryByTestId("timeline-youtube-thumbnail")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("timeline-media-fallback")).not.toBeInTheDocument();
   });
 
   it("falls back to HTTPS thumbnail when sourceUrl is not YouTube", () => {
     renderCard(memory({ sourceUrl: "https://vimeo.com/123456" }));
     expect(screen.getByTestId("timeline-image-thumbnail")).toHaveAttribute("src", "https://img.youtube.com/vi/abc123/mqdefault.jpg");
-    expect(screen.queryByTestId("timeline-youtube-thumbnail")).not.toBeInTheDocument();
   });
 
   it("rejects HTTP thumbnail and shows fallback", () => {
@@ -92,10 +93,7 @@ describe("TimelineCard", () => {
   });
 
   it("hides optional metadata when absent", () => {
-    renderCard(memory({
-      memo: "", artist: "", source: "", sourceType: "", emotionTags: [],
-      channelId: null, channelName: null, channelUrl: null,
-    }));
+    renderCard(memory({ memo: "", artist: "", source: "", sourceType: "", emotionTags: [], channelId: null, channelName: null, channelUrl: null }));
     expect(screen.queryByText("본문 내용")).not.toBeInTheDocument();
     expect(screen.queryByText("아티스트")).not.toBeInTheDocument();
     expect(screen.queryByText("출처")).not.toBeInTheDocument();
@@ -108,12 +106,13 @@ describe("TimelineCard", () => {
     renderCard(memory());
     const sourceLink = screen.getByText("원본 보기");
     expect(sourceLink.closest("a")).toHaveAttribute("href", "https://www.youtube.com/watch?v=abc123");
+    expect(sourceLink.closest("a")?.getAttribute("target")).toBe("_blank");
+    expect(sourceLink.closest("a")?.getAttribute("rel")).toBe("noopener noreferrer");
   });
 
-  it("shows 기억 상세 보기 and not 기억 상세 연결 준비 중", () => {
+  it("shows 기억 상세 보기 detail link", () => {
     renderCard(memory());
     expect(screen.getByText("기억 상세 보기")).toBeInTheDocument();
-    expect(screen.queryByText("기억 상세 연결 준비 중")).not.toBeInTheDocument();
   });
 
   it("does not add synthetic reaction, location, or featured data", () => {

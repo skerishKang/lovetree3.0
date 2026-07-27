@@ -71,7 +71,7 @@ export function usePublicMemoryDetail(
         ) {
           return;
         }
-        if (data.treeId !== null && data.treeId !== tId) {
+        if (data.treeId !== tId) {
           setMemory({ data, status: "membership-mismatch", error: "이 기억은 이 트리에 속하지 않습니다." });
           return;
         }

@@ -26,7 +26,7 @@ export default function TimelineSection({ memories, treeId }: Props) {
             className={`${styles.cardWrapper} ${index % 2 === 0 ? styles.sideTop : styles.sideBottom}`}
           >
             <span className={styles.nodeDot} aria-hidden="true" data-testid="timeline-memory-node" />
-            <div className={styles.cardContainer} data-testid="timeline-memory-card">
+            <div className={styles.cardContainer}>
               <TimelineCard memory={memory} treeId={treeId} />
             </div>
           </div>
