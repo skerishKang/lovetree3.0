@@ -43,7 +43,7 @@ afterEach(() => {
 });
 
 describe("CommunityPage public browse integration", () => {
-  it("loads both public APIs without auth and renders no static mock or demo link", async () => {
+  it("loads both public APIs without auth and links real cards to real tree routes", async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL, _init?: RequestInit) => {
       const url = requestUrl(input);
       if (url === "/api/community/trees?view=summary&sort=latest&limit=12") {
@@ -82,7 +82,12 @@ describe("CommunityPage public browse integration", () => {
 
     expect(screen.queryByText("BTS - Map of the Soul 7 Memories")).not.toBeInTheDocument();
     expect(screen.queryByText(/Featured 러브트리|이주의 추천 트리/)).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /러브트리 보기/ })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "메인 API 러브트리 상세 보기" }),
+    ).toHaveAttribute("href", "/tree/main-1");
+    expect(
+      screen.getByRole("link", { name: "성장 API 러브트리 상세 보기" }),
+    ).toHaveAttribute("href", "/tree/grow-1");
     expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
   });
 
