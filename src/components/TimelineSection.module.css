@@ -1,170 +1,129 @@
-/* TimelineSection — 중앙 가지선 + 카드 배치 */
 .timeline {
   position: relative;
-  padding: 3rem 1rem;
-  background: linear-gradient(180deg, #f7ece2 0%, #fadfc8 50%, #f7ece2 100%);
-  border-radius: var(--surface-panel-radius, 24px);
   margin-top: 1rem;
-  border: 1px solid rgba(45, 41, 38, 0.05);
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.02);
+  padding: 1.5rem 1rem 3rem;
   overflow: hidden;
+  border: 1px solid rgba(45, 41, 38, 0.05);
+  border-radius: var(--surface-panel-radius, 24px);
+  background: linear-gradient(180deg, #f7ece2 0%, #fadfc8 50%, #f7ece2 100%);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.02);
 }
 
-.timeline::before {
-  content: "커뮤니티 데모 트리";
-  position: absolute;
-  top: 1rem;
-  left: 1.5rem;
-  font-size: 0.85rem;
-  color: rgba(45, 41, 38, 0.45);
-  letter-spacing: 0.05em;
-  font-weight: 700;
+.sectionHeading {
+  position: relative;
   z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  padding: 0 0.5rem;
 }
 
-/* 중심 가지선 (장밋빛 실선 느낌) */
+.sectionHeading h2 {
+  margin: 0.15rem 0 0;
+  color: #382d25;
+  font-size: clamp(1.25rem, 2vw, 1.8rem);
+}
+
+.eyebrow {
+  color: rgba(70, 52, 42, 0.5);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.count {
+  color: #7e685b;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .branchLine {
   position: absolute;
-  top: 3.5rem;
-  bottom: 3.5rem;
+  z-index: 1;
+  top: 6.5rem;
+  bottom: 3rem;
   left: 50%;
   width: 4px;
-  background: var(--accent-rose, #e0a398);
-  opacity: 0.85;
   border-radius: 99px;
+  background: var(--accent-rose, #e0a398);
+  opacity: 0.78;
   transform: translateX(-50%);
-  z-index: 1;
 }
 
-/* 카드 그리드 */
 .cardsGrid {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 4.5rem;
-  padding: 2.5rem 0;
+  gap: 3.5rem;
 }
 
-/* 각 카드 래퍼 */
 .cardWrapper {
   position: relative;
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
-/* 연결 관계 라인 및 텍스트 배지 */
-.connectorLine {
-  position: absolute;
-  left: 50%;
-  top: calc(100% + 0.5rem);
-  transform: translateX(-50%);
-  z-index: 4;
-  pointer-events: none;
-}
-
-.connectionPathText {
-  display: inline-block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #fff;
-  background: var(--accent-rose, #e06b8b);
-  border: 1px solid #fff;
-  box-shadow: 0 2px 8px rgba(224, 107, 139, 0.2);
-  padding: 0.15rem 0.5rem;
-  border-radius: 99px;
-  white-space: nowrap;
-}
-
-/* 중앙 노드 점 */
 .nodeDot {
   position: absolute;
-  left: 50%;
+  z-index: 3;
   top: 50%;
+  left: 50%;
   width: 14px;
   height: 14px;
-  background: #ffffff;
   border: 3.5px solid var(--accent-rose, #e0a398);
   border-radius: 50%;
-  box-shadow: 0 0 12px rgba(255, 107, 139, 0.4);
+  background: #fff;
+  box-shadow: 0 0 12px rgba(224, 107, 139, 0.32);
   transform: translate(-50%, -50%);
-  z-index: 3;
-  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.cardWrapper:hover .nodeDot {
-  transform: translate(-50%, -50%) scale(1.3);
-  background: var(--accent-rose);
-  border-color: #ffffff;
-}
-
-/* top: 카드가 왼쪽 (중앙선 기준 위) */
 .sideTop {
   justify-content: flex-start;
   padding-right: calc(50% + 2rem);
 }
 
-.cardContainer {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.sideBottom .cardContainer {
-  justify-content: flex-start;
-}
-
-/* bottom: 카드가 오른쪽 (중앙선 기준 아래) */
 .sideBottom {
   justify-content: flex-end;
   padding-left: calc(50% + 2rem);
 }
 
-/* 모바일: 카드 전체폭, 중앙선은 얇게 */
+.cardContainer {
+  width: 100%;
+  min-width: 0;
+}
+
 @media (max-width: 768px) {
   .timeline {
-    padding: 2.5rem 0.75rem 1.5rem;
+    padding: 1.25rem 0.75rem 2rem;
   }
 
-  .timeline::before {
-    top: 0.75rem;
-    left: 1rem;
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
   }
 
   .branchLine {
+    top: 7.5rem;
+    bottom: 2rem;
     left: 20px;
     width: 3px;
-    top: 2.5rem;
-    bottom: 2.5rem;
   }
 
   .nodeDot {
     left: 20px;
     width: 12px;
     height: 12px;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .cardWrapper:hover .nodeDot {
-    transform: translate(-50%, -50%) scale(1.2);
   }
 
   .sideTop,
   .sideBottom {
-    padding-left: 2.5rem;
+    justify-content: flex-start;
     padding-right: 0;
-    justify-content: flex-start;
-  }
-
-  .cardContainer,
-  .sideBottom .cardContainer {
-    justify-content: flex-start;
-  }
-
-  .connectorLine {
-    left: 20px;
-    top: calc(100% + 0.2rem);
-    transform: translateX(-50%);
+    padding-left: 2.5rem;
   }
 }
