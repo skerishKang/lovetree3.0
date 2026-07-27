@@ -18,6 +18,7 @@ vi.mock("../context/authSession", () => ({
 import { MyTreesResponseError } from "../api/myTrees";
 import type { OwnerTreeSummary } from "../types/myTrees";
 import type { MyTreesApi } from "../api/myTrees";
+import { emitSessionExpired } from "../context/authSession";
 import { useMyTrees } from "./useMyTrees";
 
 function item(overrides: Partial<OwnerTreeSummary> = {}): OwnerTreeSummary {
@@ -76,6 +77,23 @@ describe("useMyTrees", () => {
     const api = mockApi({ fetchTrees: vi.fn().mockRejectedValue(apiError(403)) });
     const { result } = renderHook(() => useMyTrees(api));
     await waitFor(() => expect(result.current.status).toBe("forbidden"));
+  });
+
+  it("401 fires emitSessionExpired with source persistent-401 returnTo /my-trees exactly once", async () => {
+    const single = vi.mocked(emitSessionExpired);
+    single.mockClear();
+    const api = mockApi({ fetchTrees: vi.fn().mockRejectedValue(apiError(401)) });
+    const { result, rerender } = renderHook((a: MyTreesApi = api) => useMyTrees(a));
+    await waitFor(() => expect(result.current.status).toBe("unauthorized"));
+    expect(single).toHaveBeenCalledTimes(1);
+    expect(single).toHaveBeenCalledWith({ source: "persistent-401", returnTo: "/my-trees" });
+    rerender(api);
+    await waitFor(() => expect(result.current.status).toBe("unauthorized"));
+    expect(single).toHaveBeenCalledTimes(1);
+    const api2 = mockApi({ fetchTrees: vi.fn().mockRejectedValue(apiError(401)) });
+    rerender(api2);
+    await new Promise(r => setTimeout(r, 50));
+    expect(single).toHaveBeenCalledTimes(1);
   });
 
   it("transitions to retrying on user retry, then success", async () => {
