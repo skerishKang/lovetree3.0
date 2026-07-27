@@ -37,8 +37,16 @@ function isNonNegativeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= 0;
 }
 
-function optionalMetric(value: unknown): number | undefined {
-  return isNonNegativeInteger(value) ? value : undefined;
+function optionalStringArray(value: unknown): string[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || !value.every(isString)) throw new MyTreesResponseError();
+  return [...value];
+}
+
+function optionalNonNegativeInteger(value: unknown): number | undefined {
+  if (value === undefined) return undefined;
+  if (!isNonNegativeInteger(value)) throw new MyTreesResponseError();
+  return value;
 }
 
 export function normalizeTreeItem(value: unknown): OwnerTreeSummary {
@@ -47,12 +55,10 @@ export function normalizeTreeItem(value: unknown): OwnerTreeSummary {
     !isNonEmptyString(value.id) ||
     !isNonEmptyString(value.title) ||
     !isString(value.visibility) || (value.visibility !== "public" && value.visibility !== "private") ||
-    !isString(value.groupName) ||
-    !Array.isArray(value.keywords) ||
-    !value.keywords.every(isString) ||
+    (value.groupName !== undefined && !isString(value.groupName)) ||
+    (value.memoryCount !== undefined && !isNonNegativeInteger(value.memoryCount)) ||
     !isNullableTimestamp(value.createdAt) ||
-    !isNullableTimestamp(value.updatedAt) ||
-    !isNonNegativeInteger(value.memoryCount)
+    !isNullableTimestamp(value.updatedAt)
   ) {
     throw new MyTreesResponseError();
   }
@@ -61,13 +67,13 @@ export function normalizeTreeItem(value: unknown): OwnerTreeSummary {
     id: value.id,
     title: value.title,
     visibility,
-    groupName: value.groupName,
-    keywords: [...value.keywords],
+    groupName: isString(value.groupName) ? value.groupName : undefined,
+    keywords: optionalStringArray(value.keywords),
     createdAt: value.createdAt,
     updatedAt: value.updatedAt,
-    memoryCount: value.memoryCount,
-    likeCount: optionalMetric(value.likeCount),
-    viewCount: optionalMetric(value.viewCount),
+    memoryCount: optionalNonNegativeInteger(value.memoryCount),
+    likeCount: optionalNonNegativeInteger(value.likeCount),
+    viewCount: optionalNonNegativeInteger(value.viewCount),
   };
 }
 

@@ -1,12 +1,12 @@
 export interface OwnerTreeSummary {
   id: string;
   title: string;
-  visibility: string;
-  groupName: string;
-  keywords: string[];
+  visibility: "public" | "private";
+  groupName?: string;
+  keywords?: string[];
   createdAt: string | null;
   updatedAt: string | null;
-  memoryCount: number;
+  memoryCount?: number;
   likeCount?: number;
   viewCount?: number;
 }

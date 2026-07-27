@@ -1,21 +1,13 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styles from "./MyTreesEmptyPage.module.css";
 
 const EMPTY_STATE = {
   pageTitle: "아직 만든 러브트리가 없어요",
   pageDescription: "첫 기억을 연결하고 당신만의 이야기가 담긴 러브트리를 만들어 보세요.",
-  primaryCtaLabel: "체험용 러브트리 만들기",
   secondaryCtaLabel: "다른 팬들 트리 구경하기",
 };
 
-const QUICK_START_IDEAS = [
-  { id: "qs-1", title: "첫사랑 노래", description: "가장 처음 좋아하게 된 곡을 기록해 보세요.", variant: "rose" },
-  { id: "qs-2", title: "직캠 모음", description: "최애의 무대 직캠을 모아보세요.", variant: "sage" },
-  { id: "qs-3", title: "콘서트 후기", description: "가장 기억에 남는 공연의 감동을 기록해 보세요.", variant: "cream" },
-];
-
 export default function MyTreesEmptyPage() {
-  const navigate = useNavigate();
   return (
     <div className={styles.page}>
       <header className={styles.brandBar}>
@@ -42,27 +34,10 @@ export default function MyTreesEmptyPage() {
           <p className={styles.pageDescription}>{EMPTY_STATE.pageDescription}</p>
 
           <div className={styles.ctaGroup}>
-            <button type="button" className={styles.primaryCta} onClick={() => navigate("/tree/new-demo")}>
-              {EMPTY_STATE.primaryCtaLabel}
-            </button>
             <Link to="/community" className={styles.secondaryCta}>
               {EMPTY_STATE.secondaryCtaLabel}
             </Link>
           </div>
-
-          <section className={styles.quickStartSection} aria-labelledby="quick-start-heading">
-            <h2 id="quick-start-heading" className={styles.quickStartHeading}></h2>
-            <ul className={styles.quickStartList} aria-label="빠르게 시작할 수 있는 첫 기억 아이디어">
-              {QUICK_START_IDEAS.map((idea) => (
-                <li key={idea.id} data-testid="quick-start-item" className={styles.quickStartItem}>
-                  <button type="button" className={`${styles.quickStartButton} ${styles[idea.variant]}`} onClick={() => navigate("/tree/new-demo")}>
-                    <span>{idea.title}</span>
-                  </button>
-                  <p data-testid="quick-start-description" className={styles.quickStartDescription}>{idea.description}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
         </div>
       </main>
     </div>
