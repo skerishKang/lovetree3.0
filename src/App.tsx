@@ -43,6 +43,7 @@ function RouteElements() {
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/login" element={<AuthLoginPage />} />
         <Route path="/tree/:treeId" element={<TreeDetailPage />} />
+        <Route path="/tree/:treeId/memory/:memoryId" element={<MemoryDetailPage />} />
         <Route path="/memory/detail-demo" element={<MemoryDetailPage />} />
 
         <Route element={<PublicDemoRouteShell />}>

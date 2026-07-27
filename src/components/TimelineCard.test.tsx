@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import type { PublicTreeMemory } from "../types/publicTreeDetail";
 import TimelineCard from "./TimelineCard";
@@ -27,19 +28,24 @@ function memory(overrides: Partial<PublicTreeMemory> = {}): PublicTreeMemory {
   };
 }
 
+function renderCard(mem: PublicTreeMemory, treeId = "tree-1") {
+  return render(
+    <MemoryRouter>
+      <TimelineCard memory={mem} treeId={treeId} />
+    </MemoryRouter>,
+  );
+}
+
 describe("TimelineCard", () => {
-  it("is a non-link article with pending detail message", () => {
-    render(<TimelineCard memory={memory()} />);
-    const card = screen.getByRole("article", { name: "테스트 기억" });
-    expect(card.tagName).toBe("ARTICLE");
-    expect(card.closest("a")).toBeNull();
-    expect(screen.getByText("기억 상세 연결 준비 중")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /기억 상세/ })).not.toBeInTheDocument();
+  it("links to /tree/:treeId/memory/:memoryId with encoded segments", () => {
+    renderCard(memory({ id: "mem/1", treeId: "tree/1" }), "tree/1");
+    const link = screen.getByRole("link", { name: "테스트 기억 기억 상세 보기" });
+    expect(link).toHaveAttribute("href", "/tree/tree%2F1/memory/mem%2F1");
+    expect(document.querySelector('a[href="/memory/detail-demo"]')).toBeNull();
   });
 
   it("does not link to /memory/detail-demo", () => {
-    render(<TimelineCard memory={memory()} />);
-    expect(document.querySelector('a[href="/memory/detail-demo"]')).toBeNull();
+    renderCard(memory());
     const links = document.querySelectorAll("a");
     for (const link of links) {
       expect(link.getAttribute("href")).not.toBe("/memory/detail-demo");
@@ -47,7 +53,7 @@ describe("TimelineCard", () => {
   });
 
   it("renders real memo, tags, artist, source, channel", () => {
-    render(<TimelineCard memory={memory()} />);
+    renderCard(memory());
     expect(screen.getByText("기억 본문 내용")).toBeInTheDocument();
     expect(screen.getByText("#설렘")).toBeInTheDocument();
     expect(screen.getByText("#행복")).toBeInTheDocument();
@@ -57,74 +63,39 @@ describe("TimelineCard", () => {
   });
 
   it("shows thumbnail from sourceUrl when normalizeYouTubeUrl does not match", () => {
-    render(<TimelineCard memory={memory()} />);
+    renderCard(memory());
     expect(screen.getByTestId("timeline-image-thumbnail")).toBeInTheDocument();
     expect(screen.queryByTestId("timeline-youtube-thumbnail")).not.toBeInTheDocument();
     expect(screen.queryByTestId("timeline-media-fallback")).not.toBeInTheDocument();
   });
 
   it("falls back to HTTPS thumbnail when sourceUrl is not YouTube", () => {
-    render(
-      <TimelineCard
-        memory={memory({ sourceUrl: "https://vimeo.com/123456" })}
-      />,
-    );
-    expect(screen.getByTestId("timeline-image-thumbnail")).toHaveAttribute(
-      "src",
-      "https://img.youtube.com/vi/abc123/mqdefault.jpg",
-    );
+    renderCard(memory({ sourceUrl: "https://vimeo.com/123456" }));
+    expect(screen.getByTestId("timeline-image-thumbnail")).toHaveAttribute("src", "https://img.youtube.com/vi/abc123/mqdefault.jpg");
     expect(screen.queryByTestId("timeline-youtube-thumbnail")).not.toBeInTheDocument();
   });
 
   it("rejects HTTP thumbnail and shows fallback", () => {
-    render(
-      <TimelineCard
-        memory={memory({
-          sourceUrl: "",
-          thumbnail: "http://insecure.example.com/img.jpg",
-        })}
-      />,
-    );
+    renderCard(memory({ sourceUrl: "", thumbnail: "http://insecure.example.com/img.jpg" }));
     expect(screen.getByTestId("timeline-media-fallback")).toBeInTheDocument();
   });
 
   it("shows fallback for broken image", () => {
-    render(
-      <TimelineCard
-        memory={memory({
-          sourceUrl: "",
-          thumbnail: "https://images.example.com/broken.jpg",
-        })}
-      />,
-    );
+    renderCard(memory({ sourceUrl: "", thumbnail: "https://images.example.com/broken.jpg" }));
     fireEvent.error(screen.getByTestId("timeline-image-thumbnail"));
     expect(screen.getByTestId("timeline-media-fallback")).toBeInTheDocument();
   });
 
   it("shows fallback when both sourceUrl and thumbnail are empty", () => {
-    render(
-      <TimelineCard
-        memory={memory({ sourceUrl: "", thumbnail: "" })}
-      />,
-    );
+    renderCard(memory({ sourceUrl: "", thumbnail: "" }));
     expect(screen.getByTestId("timeline-media-fallback")).toBeInTheDocument();
   });
 
   it("hides optional metadata when absent", () => {
-    render(
-      <TimelineCard
-        memory={memory({
-          memo: "",
-          artist: "",
-          source: "",
-          sourceType: "",
-          emotionTags: [],
-          channelId: null,
-          channelName: null,
-          channelUrl: null,
-        })}
-      />,
-    );
+    renderCard(memory({
+      memo: "", artist: "", source: "", sourceType: "", emotionTags: [],
+      channelId: null, channelName: null, channelUrl: null,
+    }));
     expect(screen.queryByText("본문 내용")).not.toBeInTheDocument();
     expect(screen.queryByText("아티스트")).not.toBeInTheDocument();
     expect(screen.queryByText("출처")).not.toBeInTheDocument();
@@ -134,16 +105,19 @@ describe("TimelineCard", () => {
   });
 
   it("includes source link for valid HTTPS sourceUrl", () => {
-    render(<TimelineCard memory={memory()} />);
+    renderCard(memory());
     const sourceLink = screen.getByText("원본 보기");
-    expect(sourceLink.closest("a")).toHaveAttribute(
-      "href",
-      "https://www.youtube.com/watch?v=abc123",
-    );
+    expect(sourceLink.closest("a")).toHaveAttribute("href", "https://www.youtube.com/watch?v=abc123");
+  });
+
+  it("shows 기억 상세 보기 and not 기억 상세 연결 준비 중", () => {
+    renderCard(memory());
+    expect(screen.getByText("기억 상세 보기")).toBeInTheDocument();
+    expect(screen.queryByText("기억 상세 연결 준비 중")).not.toBeInTheDocument();
   });
 
   it("does not add synthetic reaction, location, or featured data", () => {
-    render(<TimelineCard memory={memory()} />);
+    renderCard(memory());
     expect(screen.queryByText(/반응/)).not.toBeInTheDocument();
     expect(screen.queryByText(/위치/)).not.toBeInTheDocument();
     expect(screen.queryByTestId("timeline-featured-badge")).not.toBeInTheDocument();

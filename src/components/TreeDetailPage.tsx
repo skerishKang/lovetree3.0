@@ -123,7 +123,7 @@ export default function TreeDetailPage() {
             </section>
           ) : null}
 
-          {memories.items.length > 0 ? <TimelineSection memories={memories.items} /> : null}
+          {memories.items.length > 0 ? <TimelineSection memories={memories.items} treeId={treeId} /> : null}
 
           {memories.status === "loading" && memories.items.length > 0 ? (
             <p className={styles.refreshing} role="status">기억 목록을 다시 확인하는 중입니다.</p>
