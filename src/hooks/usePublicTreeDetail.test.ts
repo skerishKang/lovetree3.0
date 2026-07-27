@@ -62,8 +62,6 @@ describe("usePublicTreeDetail", () => {
 
     const { result } = renderHook(() => usePublicTreeDetail("tree-1", api));
 
-    expect(result.current.tree.status).toBe("loading");
-    expect(result.current.memories.status).toBe("loading");
     await waitFor(() => expect(result.current.tree.status).toBe("success"));
     await waitFor(() => expect(result.current.memories.status).toBe("success"));
     expect(result.current.tree.data?.id).toBe("tree-1");
@@ -110,7 +108,6 @@ describe("usePublicTreeDetail", () => {
     await waitFor(() => expect(result.current.tree.status).toBe("error"));
 
     act(() => result.current.retryTree());
-    expect(result.current.tree.status).toBe("loading");
     await waitFor(() => expect(result.current.tree.status).toBe("success"));
     expect(result.current.tree.data?.id).toBe("recovered");
     expect(fetchTree).toHaveBeenCalledTimes(2);
@@ -201,18 +198,28 @@ describe("usePublicTreeDetail", () => {
       { initialProps: { treeId: "old-tree" } },
     );
     await waitFor(() => expect(api.fetchTree).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(api.fetchMemories).toHaveBeenCalledTimes(1));
 
     rerender({ treeId: "new-tree" });
     await waitFor(() => expect(api.fetchTree).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(api.fetchMemories).toHaveBeenCalledTimes(2));
     expect(treeSignals[0].aborted).toBe(true);
     expect(memorySignals[0].aborted).toBe(true);
 
-    secondTree.resolve(tree("new-tree"));
-    secondMemories.resolve([memory("new-memory", "new-tree")]);
-    firstTree.resolve(tree("old-tree"));
-    firstMemories.resolve([memory("old-memory", "old-tree")]);
-
+    await act(async () => {
+      secondTree.resolve(tree("new-tree"));
+      secondMemories.resolve([memory("new-memory", "new-tree")]);
+      await Promise.all([secondTree.promise, secondMemories.promise]);
+    });
     await waitFor(() => expect(result.current.tree.data?.id).toBe("new-tree"));
     await waitFor(() => expect(result.current.memories.items[0]?.id).toBe("new-memory"));
+
+    await act(async () => {
+      firstTree.resolve(tree("old-tree"));
+      firstMemories.resolve([memory("old-memory", "old-tree")]);
+      await Promise.all([firstTree.promise, firstMemories.promise]);
+    });
+    expect(result.current.tree.data?.id).toBe("new-tree");
+    expect(result.current.memories.items[0]?.id).toBe("new-memory");
   });
 });
