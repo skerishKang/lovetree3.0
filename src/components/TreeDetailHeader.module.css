@@ -1,31 +1,28 @@
-/* TreeDetailHeader — 트리 제목 + 작성자 */
 .header {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .backRow {
   flex-shrink: 0;
-  padding-top: 0.25rem;
+  padding-top: 0.1rem;
 }
 
 .backButton {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 8px;
-  color: #555;
-  transition: background 0.15s;
-  /* 44px minimum touch target (D-02) for the icon back button. */
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #555;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
 .backButton:hover {
@@ -37,236 +34,82 @@
   outline-offset: 2px;
 }
 
+.mainHeaderContent,
+.titleArea {
+  min-width: 0;
+}
+
 .mainHeaderContent {
   flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.5rem;
-  min-width: 0;
 }
 
 .titleArea {
-  flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
 }
 
-.categoryBadge {
+.visibilityBadge {
   align-self: flex-start;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-rose, #e06b8b);
-  background: rgba(224, 107, 139, 0.08);
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.01em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(224, 107, 139, 0.09);
+  color: var(--accent-rose, #d85f80);
+  font-size: 0.76rem;
+  font-weight: 750;
 }
 
 .title {
   margin: 0;
-  font-size: var(--heading-work-size);
-  font-weight: var(--heading-work-weight);
   color: #2a221a;
-  line-height: var(--heading-work-line-height);
-  word-break: keep-all;
+  font-size: clamp(1.8rem, 4vw, 3.15rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
-.subtitle {
-  margin: 0.35rem 0 0.75rem;
-  font-size: 0.95rem;
-  color: #8a7e72;
-  line-height: 1.45;
-  word-break: keep-all;
-}
-
-.metaSummary {
+.metaSummary,
+.statsSummary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.6rem;
+  gap: 0.5rem;
+}
+
+.metaItem,
+.statItem {
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 650;
 }
 
 .metaItem {
-  font-size: 0.8rem;
-  color: #6b6056;
-  font-weight: 600;
-}
-
-.metaDivider {
-  color: #c0b5a8;
-  font-size: 0.8rem;
-}
-
-.tagList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
-}
-
-.treeTag {
-  font-size: 0.75rem;
-  color: #8a7a6a;
-  background: #f5ede6;
-  padding: 0.15rem 0.5rem;
-  border-radius: 6px;
-  font-weight: 500;
+  color: #66584d;
+  background: #f5eee7;
 }
 
 .statsSummary {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: #fbf9f6;
-  border: 1px solid rgba(45, 41, 38, 0.03);
-  padding: 0.3rem 0.6rem;
-  border-radius: 8px;
   align-self: flex-start;
+  padding-top: 0.1rem;
 }
 
 .statItem {
-  font-size: 0.75rem;
-  color: #8a7e72;
-  font-weight: 500;
-}
-
-.statDivider {
-  color: #dcd6cd;
-  font-size: 0.75rem;
-}
-
-.authorArea {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-shrink: 0;
-  padding: 0.5rem 1rem;
-  background: #f7ede2;
-  border-radius: var(--card-radius, 16px);
-  border: 1px solid rgba(45, 41, 38, 0.04);
-}
-
-.avatar {
-  font-size: 2.2rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
+  color: #6e6156;
+  border: 1px solid rgba(45, 41, 38, 0.08);
   background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.authorInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.authorName {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #2a221a;
-}
-
-.authorHandle {
-  font-size: 0.8rem;
-  color: #8a7e72;
-}
-
-.badge {
-  display: inline-block;
-  align-self: flex-start;
-  margin-top: 0.2rem;
-  font-size: 0.7rem;
-  padding: 0.1rem 0.4rem;
-  background: #eae5db;
-  color: #6b6056;
-  border-radius: 4px;
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-@media (max-width: 900px) {
-  .mainHeaderContent {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .authorArea {
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 560px) {
   .header {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .mainHeaderContent {
-    padding: 0;
+    gap: 0.5rem;
   }
 
-  .title {
-    word-break: keep-all;
-    font-size: calc(var(--heading-work-size) * 0.85);
+  .titleArea {
+    gap: 0.6rem;
   }
 
-  .subtitle {
-    font-size: 0.85rem;
-    word-break: keep-all;
-  }
-
-  .metaSummary {
-    gap: 0.25rem;
-  }
-
-  .metaItem {
-    font-size: 0.72rem;
-  }
-
-  .statsSummary {
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
+  .metaItem,
   .statItem {
-    font-size: 0.68rem;
-  }
-
-  .categoryBadge {
-    font-size: 0.68rem;
-  }
-
-  .tagList {
-    gap: 0.25rem;
-  }
-
-  .treeTag {
-    font-size: 0.68rem;
-  }
-
-  .authorArea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.4rem 0.75rem;
-  }
-
-  .authorName {
-    font-size: 0.85rem;
-  }
-
-  .authorHandle {
     font-size: 0.72rem;
   }
 }
