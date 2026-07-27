@@ -16,11 +16,6 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     expect(screen.getByText("첫 기억을 연결하고 당신만의 이야기가 담긴 러브트리를 만들어 보세요.")).toBeInTheDocument();
   });
 
-  it("renders demo create CTA", () => {
-    renderPage();
-    expect(screen.getByText("체험용 러브트리 만들기")).toBeInTheDocument();
-  });
-
   it("renders Community link not /tree/community-demo", () => {
     renderPage();
     const link = screen.getByText("다른 팬들 트리 구경하기");
@@ -28,13 +23,10 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
   });
 
-  it("renders quick-start items", () => {
+  it("does not render demo CTA", () => {
     renderPage();
-    const items = screen.getAllByTestId("quick-start-item");
-    expect(items.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("첫사랑 노래")).toBeInTheDocument();
-    expect(screen.getByText("직캠 모음")).toBeInTheDocument();
-    expect(screen.getByText("콘서트 후기")).toBeInTheDocument();
+    expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
+    expect(screen.queryByText("새 러브트리 만들기")).not.toBeInTheDocument();
   });
 
   it("keeps decorative SVGs hidden", () => {

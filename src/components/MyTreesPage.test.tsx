@@ -15,6 +15,10 @@ function item(overrides: Partial<OwnerTreeSummary> = {}): OwnerTreeSummary {
   return { id: "t1", title: "테스트 트리", visibility: "public", groupName: "그룹A", keywords: ["키워드1"], createdAt: "2026-01-01T00:00:00Z", updatedAt: "2026-07-01T00:00:00Z", memoryCount: 5, likeCount: 3, viewCount: 10, ...overrides } as OwnerTreeSummary;
 }
 
+function coreItem(overrides: Partial<OwnerTreeSummary> = {}): OwnerTreeSummary {
+  return { id: "t1", title: "테스트 트리", visibility: "public", createdAt: "2026-01-01T00:00:00Z", updatedAt: null, ...overrides } as OwnerTreeSummary;
+}
+
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
 function renderPage() {
@@ -74,13 +78,14 @@ describe("MyTreesPage — /my-trees", () => {
     expect(screen.queryByText("테스트 트리")).not.toBeInTheDocument();
   });
 
-  it("shows empty state with demo and community CTAs", () => {
+  it("shows empty state with community link only, no demo CTA", () => {
     mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
     renderPage();
     expect(screen.getByText("아직 만든 러브트리가 없습니다.")).toBeInTheDocument();
-    expect(screen.getAllByText("체험용 러브트리 만들기").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("다른 팬들 트리 구경하기")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "다른 팬들 트리 구경하기" })).toHaveAttribute("href", "/community");
+    expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
+    expect(screen.queryByText("새 러브트리 만들기")).not.toBeInTheDocument();
   });
 
   it("shows success state with real tree titles and metrics", () => {
@@ -94,6 +99,47 @@ describe("MyTreesPage — /my-trees", () => {
     expect(screen.getByText("2개")).toBeInTheDocument();
     expect(screen.getAllByText("그룹A").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("비공개")).toBeInTheDocument();
+  });
+
+  it("renders core-only item with no optional fields", () => {
+    mockUseMyTrees.mockReturnValue({
+      items: [coreItem()],
+      status: "success", error: null, retry: vi.fn(),
+    });
+    renderPage();
+    expect(screen.getByText("테스트 트리")).toBeInTheDocument();
+    expect(screen.getByText("공개")).toBeInTheDocument();
+    expect(screen.queryByText("5개")).not.toBeInTheDocument();
+    expect(screen.queryByText("그룹A")).not.toBeInTheDocument();
+    expect(screen.queryByText("키워드1")).not.toBeInTheDocument();
+  });
+
+  it("does not render memoryCount row when memoryCount is absent", () => {
+    mockUseMyTrees.mockReturnValue({
+      items: [coreItem()],
+      status: "success", error: null, retry: vi.fn(),
+    });
+    renderPage();
+    expect(screen.queryByText("기억")).not.toBeInTheDocument();
+    expect(screen.queryByText("0개")).not.toBeInTheDocument();
+  });
+
+  it("does not render group row when groupName is absent", () => {
+    mockUseMyTrees.mockReturnValue({
+      items: [coreItem()],
+      status: "success", error: null, retry: vi.fn(),
+    });
+    renderPage();
+    expect(screen.queryByText("그룹")).not.toBeInTheDocument();
+  });
+
+  it("does not render keywords when keywords is absent", () => {
+    mockUseMyTrees.mockReturnValue({
+      items: [coreItem()],
+      status: "success", error: null, retry: vi.fn(),
+    });
+    renderPage();
+    expect(screen.queryByText("키워드1")).not.toBeInTheDocument();
   });
 
   it("shows public tree link for public trees only", () => {
@@ -130,10 +176,17 @@ describe("MyTreesPage — /my-trees", () => {
     expect(html).not.toContain("ownerId");
   });
 
-  it("no mock content, no /tree/community-demo, no /tree/edit-demo", () => {
+  it("no /tree/new-demo authenticated CTA or link", () => {
     mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
     renderPage();
-    expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
-    expect(document.querySelector('a[href="/tree/edit-demo"]')).toBeNull();
+    expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
+    expect(screen.queryByText("새 러브트리 만들기")).not.toBeInTheDocument();
+    expect(document.querySelector('a[href="/tree/new-demo"]')).toBeNull();
+  });
+
+  it("Community link remains /community in empty state", () => {
+    mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.getByRole("link", { name: "다른 팬들 트리 구경하기" })).toHaveAttribute("href", "/community");
   });
 });

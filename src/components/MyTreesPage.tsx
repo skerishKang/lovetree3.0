@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useMyTrees } from "../hooks/useMyTrees";
 import type { OwnerTreeSummary } from "../types/myTrees";
 import styles from "./MyTreesPage.module.css";
@@ -22,10 +22,12 @@ function TreeCard({ tree }: { tree: OwnerTreeSummary }) {
           </div>
 
           <dl className={styles.cardMeta}>
-            <div className={styles.metaItem}>
-              <dt className={styles.metaLabel}>기억</dt>
-              <dd className={styles.metaValue}>{tree.memoryCount}개</dd>
-            </div>
+            {tree.memoryCount !== undefined ? (
+              <div className={styles.metaItem}>
+                <dt className={styles.metaLabel}>기억</dt>
+                <dd className={styles.metaValue}>{tree.memoryCount}개</dd>
+              </div>
+            ) : null}
             {tree.groupName ? (
               <div className={styles.metaItem}>
                 <dt className={styles.metaLabel}>그룹</dt>
@@ -40,7 +42,7 @@ function TreeCard({ tree }: { tree: OwnerTreeSummary }) {
             ) : null}
           </dl>
 
-          {tree.keywords.length > 0 ? (
+          {tree.keywords && tree.keywords.length > 0 ? (
             <div className={styles.keywords}>
               {tree.keywords.map((kw) => <span key={kw} className={styles.keyword}>{kw}</span>)}
             </div>
@@ -84,7 +86,6 @@ function TreeCard({ tree }: { tree: OwnerTreeSummary }) {
 
 export default function MyTreesPage() {
   const { items, status, error, retry } = useMyTrees();
-  const navigate = useNavigate();
 
   return (
     <div className={styles.page}>
@@ -107,12 +108,6 @@ export default function MyTreesPage() {
           <h1 className={styles.pageTitle}>나의 러브트리</h1>
           <p className={styles.pageDescription}>지금까지 이어온 기억의 흐름을 한 곳에서 돌아보세요.</p>
         </div>
-        <button type="button" className={styles.newTreeButton} onClick={() => navigate("/tree/new-demo")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          <span>체험용 러브트리 만들기</span>
-        </button>
       </section>
 
       {status === "loading" ? (
@@ -151,9 +146,6 @@ export default function MyTreesPage() {
         <div className={styles.emptyState}>
           <p>아직 만든 러브트리가 없습니다.</p>
           <div className={styles.emptyActions}>
-            <button type="button" className={styles.primaryCta} onClick={() => navigate("/tree/new-demo")}>
-              체험용 러브트리 만들기
-            </button>
             <Link to="/community" className={styles.secondaryCta}>
               다른 팬들 트리 구경하기
             </Link>
