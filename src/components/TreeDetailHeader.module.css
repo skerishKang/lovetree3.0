@@ -67,6 +67,10 @@
   overflow-wrap: anywhere;
 }
 
+.headingTokenRef {
+  font-size: var(--heading-work-size);
+}
+
 .metaSummary,
 .statsSummary {
   display: flex;
