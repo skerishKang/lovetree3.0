@@ -45,7 +45,7 @@ const protectedRoutes = [
   ["/my-trees", "나의 러브트리"],
   ["/media/search-demo", "미디어 검색"],
   ["/settings/visibility-demo", "공개 범위 설정"],
-  ["/my-trees/empty-demo", "아직 러브트리가 없어요"],
+  ["/my-trees/empty-demo", "아직 만든 러브트리가 없어요"],
 ] as const;
 
 describe("Route graph — public demo isolation", () => {

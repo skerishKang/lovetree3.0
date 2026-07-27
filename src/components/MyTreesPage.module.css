@@ -544,8 +544,127 @@
   .treeList {
     grid-template-columns: minmax(0, 1fr);
   }
-
   .sidebar {
     position: static;
   }
+}
+
+.stateMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 1.5rem;
+  text-align: center;
+  color: #66584d;
+}
+
+.stateSub {
+  font-size: 0.85rem;
+  color: #8a7a6a;
+}
+
+.retryButton {
+  padding: 0.5rem 1.25rem;
+  border: 1px solid #b8a08e;
+  border-radius: 8px;
+  background: #fff;
+  color: #4a3f35;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background: #f5eee7;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 1.5rem;
+  text-align: center;
+  color: #66584d;
+}
+
+.emptyActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.primaryCta {
+  padding: 0.6rem 1.25rem;
+  border: 0;
+  border-radius: 8px;
+  background: #b87a7a;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.primaryCta:hover {
+  background: #a66a6a;
+}
+
+.secondaryCta {
+  padding: 0.6rem 1.25rem;
+  border: 1px solid #b8a08e;
+  border-radius: 8px;
+  background: #fff;
+  color: #4a3f35;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.secondaryCta:hover {
+  background: #f5eee7;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.5rem 0;
+}
+
+.keyword {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: #f0ece6;
+  color: #6e6156;
+  font-size: 0.75rem;
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cardActionButton {
+  display: inline-block;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #d4cdc4;
+  border-radius: 6px;
+  background: #fff;
+  color: #4a3f35;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cardActionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cardActionButton:hover:not(:disabled) {
+  background: #f5eee7;
 }

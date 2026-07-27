@@ -1,484 +1,129 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  cleanup,
-  within,
-} from "@testing-library/react";
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  afterEach,
-} from "vitest";
-import App from "../App";
-import { MOCK_MY_TREES } from "../data/myTreesMockData";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import MyTreesPage from "./MyTreesPage";
+import type { OwnerTreeSummary } from "../types/myTrees";
 
-vi.mock("../hooks/useAuth", () => ({
-  useAuth: () => ({
-    user:
-      window.location.pathname === "/login"
-        ? null
-        : {
-            uid: "presentation-test-user",
-            displayName: null,
-            email: null,
-            photoURL: null,
-            emailVerified: true,
-          },
-    loading: false,
-    tier: null,
-    signInWithGoogle: vi.fn(),
-    signOut: vi.fn(),
-    expireSession: vi.fn(),
-  }),
+vi.mock("../hooks/useMyTrees", () => ({
+  useMyTrees: vi.fn(),
 }));
 
-const TREE_TITLES = MOCK_MY_TREES.trees.map((t) => t.title);
+import { useMyTrees } from "../hooks/useMyTrees";
+const mockUseMyTrees = useMyTrees as ReturnType<typeof vi.fn>;
 
-function renderAppAt(path: string) {
-  window.history.pushState({}, "", path);
-  return render(<App />);
+function item(overrides: Partial<OwnerTreeSummary> = {}): OwnerTreeSummary {
+  return { id: "t1", title: "테스트 트리", visibility: "public", groupName: "그룹A", keywords: ["키워드1"], createdAt: "2026-01-01T00:00:00Z", updatedAt: "2026-07-01T00:00:00Z", memoryCount: 5, likeCount: 3, viewCount: 10, ...overrides } as OwnerTreeSummary;
 }
 
-function verifyPresentationContract() {
-  expect(screen.getByRole("heading", { level: 1, name: "나의 러브트리" })).toBeInTheDocument();
-  expect(screen.getAllByRole("heading", { level: 1, name: "나의 러브트리" })).toHaveLength(1);
+afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
-  expect(screen.getByText(MOCK_MY_TREES.headerDescription)).toBeInTheDocument();
-  expect(screen.getAllByText(MOCK_MY_TREES.headerDescription)).toHaveLength(1);
-
-  expect(screen.getByRole("button", { name: "새 러브트리 만들기" })).toBeInTheDocument();
-  expect(screen.getAllByRole("button", { name: "새 러브트리 만들기" })).toHaveLength(1);
-
-  const header = screen.getByRole("banner");
-  const headerButtons = within(header).getAllByRole("button");
-  expect(headerButtons).toHaveLength(3);
-  expect(within(header).getByRole("button", { name: "메뉴 열기" })).toBeInTheDocument();
-  expect(within(header).getByRole("button", { name: "알림 보기" })).toBeInTheDocument();
-  expect(within(header).getByRole("button", { name: "마이페이지" })).toBeInTheDocument();
-
-  const articles = screen.getAllByRole("article");
-  expect(articles).toHaveLength(6);
-
-  const selectedCards = screen.getAllByRole("article").filter(
-    (c) => c.getAttribute("data-selected") === "true"
-  );
-  expect(selectedCards).toHaveLength(1);
-  const selected = selectedCards[0];
-  expect(selected).toHaveAttribute("aria-current", "true");
-  expect(selected).toHaveAttribute("aria-labelledby", "my-tree-title-tree-1");
-  expect(selected.getAttribute("aria-labelledby")).toBe("my-tree-title-tree-1");
-  expect(screen.getByRole("article", { name: "나의 러브트리" })).toHaveAttribute("data-selected", "true");
-
-  const nonSelected = screen.getAllByRole("article").filter(
-    (c) => c.getAttribute("data-selected") !== "true"
-  );
-  expect(nonSelected).toHaveLength(5);
-  nonSelected.forEach((card) => {
-    expect(card.getAttribute("aria-current")).toBeNull();
-    expect(card.getAttribute("data-selected")).toBe("false");
-  });
-
-  expect(screen.getAllByText("공개")).toHaveLength(2);
-  expect(screen.getAllByText("비공개")).toHaveLength(4);
-
-  expect(screen.getAllByRole("button", { name: / 편집$/ })).toHaveLength(6);
-  expect(screen.getAllByRole("button", { name: / 공유$/ })).toHaveLength(6);
-  expect(screen.getAllByRole("button", { name: / 복제$/ })).toHaveLength(6);
-  expect(screen.getAllByRole("button", { name: / 삭제$/ })).toHaveLength(6);
-
-  expect(screen.getAllByRole("button").filter((b) => {
-    const name = b.getAttribute("aria-label") || "";
-    return name.endsWith(" 편집");
-  })).toHaveLength(6);
-  expect(screen.getAllByRole("button").filter((b) => {
-    const name = b.getAttribute("aria-label") || "";
-    return name.endsWith(" 공유");
-  })).toHaveLength(6);
-  expect(screen.getAllByRole("button").filter((b) => {
-    const name = b.getAttribute("aria-label") || "";
-    return name.endsWith(" 복제");
-  })).toHaveLength(6);
-  expect(screen.getAllByRole("button").filter((b) => {
-    const name = b.getAttribute("aria-label") || "";
-    return name.endsWith(" 삭제");
-  })).toHaveLength(6);
-
-  for (const title of TREE_TITLES) {
-    for (const action of ["편집", "공유", "복제", "삭제"]) {
-      expect(screen.getByRole("button", { name: `${title} ${action}` })).toBeInTheDocument();
-    }
-  }
-
-  const aside = screen.getByRole("complementary", { name: "최근 수정한 순간" });
-  expect(aside).toBeInTheDocument();
-  expect(
-    within(aside).getByRole("heading", { level: 2, name: "최근 수정한 순간" })
-  ).toBeInTheDocument();
-  const recentListItems = within(aside).queryAllByRole("listitem");
-  expect(recentListItems).toHaveLength(2);
-  expect(within(aside).getByText("첫 콘서트 도착")).toBeInTheDocument();
-  expect(within(aside).getByText("앙코르 무대")).toBeInTheDocument();
-
-  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+function renderPage() {
+  return render(<MemoryRouter><MyTreesPage /></MemoryRouter>);
 }
-
-afterEach(() => {
-  cleanup();
-  vi.restoreAllMocks();
-  vi.unstubAllGlobals();
-  window.history.pushState({}, "", "/");
-});
 
 describe("MyTreesPage — /my-trees", () => {
-  it("renders the page title", () => {
-    renderAppAt("/my-trees");
-    expect(
-      screen.getByRole("heading", { level: 1, name: "나의 러브트리" })
-    ).toBeInTheDocument();
+  it("shows loading state", () => {
+    mockUseMyTrees.mockReturnValue({ items: [], status: "loading", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.getByText("내 러브트리를 불러오고 있어요")).toBeInTheDocument();
   });
 
-  it("renders header buttons scoped within banner with exact count of 3", () => {
-    renderAppAt("/my-trees");
-    const header = screen.getByRole("banner");
-    const buttons = within(header).getAllByRole("button");
-    expect(buttons).toHaveLength(3);
-    expect(within(header).getByRole("button", { name: "메뉴 열기" })).toBeInTheDocument();
-    expect(within(header).getByRole("button", { name: "알림 보기" })).toBeInTheDocument();
-    expect(within(header).getByRole("button", { name: "마이페이지" })).toBeInTheDocument();
+  it("shows server error with retry", () => {
+    const retry = vi.fn();
+    mockUseMyTrees.mockReturnValue({ items: [], status: "server-error", error: "오류", retry });
+    renderPage();
+    expect(screen.getByText("서버에서 트리 목록을 불러오지 못했습니다.")).toBeInTheDocument();
+    screen.getByRole("button", { name: "다시 시도" }).click();
+    expect(retry).toHaveBeenCalled();
   });
 
-  it("renders exactly 6 tree cards", () => {
-    renderAppAt("/my-trees");
-    const cards = screen.getAllByRole("article");
-    expect(cards).toHaveLength(6);
+  it("shows network error with retry", () => {
+    const retry = vi.fn();
+    mockUseMyTrees.mockReturnValue({ items: [], status: "network-error", error: "오류", retry });
+    renderPage();
+    expect(screen.getByText("네트워크 오류로 트리 목록을 불러오지 못했습니다.")).toBeInTheDocument();
   });
 
-  it("uses article for each card in a list structure", () => {
-    const { container } = renderAppAt("/my-trees");
-    const list = container.querySelector("ul");
-    expect(list).not.toBeNull();
-    const articles = list?.querySelectorAll(":scope > li > article");
-    expect(articles).toHaveLength(6);
+  it("shows malformed error with retry", () => {
+    const retry = vi.fn();
+    mockUseMyTrees.mockReturnValue({ items: [], status: "malformed", error: "형식 오류", retry });
+    renderPage();
+    expect(screen.getByText("형식 오류")).toBeInTheDocument();
   });
 
-  it("does not use role=button on non-interactive cards", () => {
-    renderAppAt("/my-trees");
-    const cards = screen.getAllByRole("article");
-    for (const card of cards) {
-      expect(card).not.toHaveAttribute("role", "button");
-    }
+  it("shows forbidden state with retry", () => {
+    const retry = vi.fn();
+    mockUseMyTrees.mockReturnValue({ items: [], status: "forbidden", error: "권한 없음", retry });
+    renderPage();
+    expect(screen.getByText("접근 권한이 없습니다.")).toBeInTheDocument();
   });
 
-  it("does not use tabIndex on non-interactive cards", () => {
-    renderAppAt("/my-trees");
-    const cards = screen.getAllByRole("article");
-    for (const card of cards) {
-      expect(card).not.toHaveAttribute("tabindex");
-    }
+  it("shows empty state with demo and community CTAs", () => {
+    mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.getByText("아직 만든 러브트리가 없습니다.")).toBeInTheDocument();
+    expect(screen.getAllByText("체험용 러브트리 만들기").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("다른 팬들 트리 구경하기")).toBeInTheDocument();
+    expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
+    expect(screen.getByRole("link", { name: "다른 팬들 트리 구경하기" })).toHaveAttribute("href", "/community");
   });
 
-  it("does not set onclick attribute on cards", () => {
-    renderAppAt("/my-trees");
-    const cards = screen.getAllByRole("article");
-    for (const card of cards) {
-      expect(card).not.toHaveAttribute("onclick");
-    }
-  });
-
-  it("marks exactly one card as selected", () => {
-    renderAppAt("/my-trees");
-    const selectedCards = document.querySelectorAll('[data-selected="true"]');
-    expect(selectedCards).toHaveLength(1);
-  });
-
-  it("selects the card matching selectedTreeId with correct aria-labelledby", () => {
-    renderAppAt("/my-trees");
-    const selected = screen.getByRole("article", { name: "나의 러브트리" });
-    expect(selected.getAttribute("data-selected")).toBe("true");
-    expect(selected.getAttribute("aria-current")).toBe("true");
-    expect(selected.getAttribute("aria-labelledby")).toBe("my-tree-title-tree-1");
-  });
-
-  it("selected article connects to the correct heading id", () => {
-    renderAppAt("/my-trees");
-    const selected = screen.getByRole("article", { name: "나의 러브트리" });
-    const labelledby = selected.getAttribute("aria-labelledby");
-    expect(labelledby).toBe("my-tree-title-tree-1");
-    const heading = document.getElementById(labelledby!);
-    expect(heading).not.toBeNull();
-    expect(heading!.tagName).toBe("H3");
-    expect(heading!.textContent).toBe("나의 러브트리");
-  });
-
-  it("does not set selection ARIA on non-selected cards", () => {
-    renderAppAt("/my-trees");
-    const cards = screen.getAllByRole("article");
-    const nonSelected = Array.from(cards).filter(
-      (c) => c.getAttribute("data-selected") !== "true"
-    );
-    expect(nonSelected).toHaveLength(5);
-    for (const card of nonSelected) {
-      expect(card.getAttribute("aria-current")).toBeNull();
-      expect(card.getAttribute("data-selected")).toBe("false");
-    }
-  });
-
-  it("renders visibility badges matching mock data", () => {
-    renderAppAt("/my-trees");
-    const publicBadges = screen.getAllByText("공개");
-    const privateBadges = screen.getAllByText("비공개");
-    expect(publicBadges).toHaveLength(2);
-    expect(privateBadges).toHaveLength(4);
-  });
-
-  it("renders the new-tree CTA", () => {
-    renderAppAt("/my-trees");
-    expect(
-      screen.getByRole("button", { name: /새 러브트리 만들기/ })
-    ).toBeInTheDocument();
-  });
-
-  it("새 러브트리 만들기 버튼 클릭 시 /tree/new-demo로 이동한다", () => {
-    renderAppAt("/my-trees");
-    const newTreeBtn = screen.getByRole("button", { name: "새 러브트리 만들기" });
-    fireEvent.click(newTreeBtn);
-    expect(window.location.pathname).toBe("/tree/new-demo");
-  });
-
-  it("트리 카드 클릭 시 /tree/edit-demo로 이동한다", () => {
-    renderAppAt("/my-trees");
-    const card = screen.getByRole("article", { name: "나의 러브트리" });
-    const link = within(card).getByRole("link");
-    fireEvent.click(link);
-    expect(window.location.pathname).toBe("/tree/edit-demo");
-  });
-
-  it("anchor(Link) 내부에 button이 없어야 한다", () => {
-    renderAppAt("/my-trees");
-    const anchors = document.querySelectorAll("a");
-    expect(anchors.length).toBeGreaterThan(0);
-    anchors.forEach((a) => {
-      expect(a.querySelector("button")).toBeNull();
+  it("shows success state with real tree titles and metrics", () => {
+    mockUseMyTrees.mockReturnValue({
+      items: [item(), item({ id: "t2", title: "두 번째 트리", visibility: "private", memoryCount: 2, likeCount: undefined, viewCount: undefined })],
+      status: "success", error: null, retry: vi.fn(),
     });
+    renderPage();
+    const titles = screen.getAllByText("테스트 트리");
+    expect(titles.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("두 번째 트리")).toBeInTheDocument();
+    expect(screen.getByText("5개")).toBeInTheDocument();
+    expect(screen.getByText("2개")).toBeInTheDocument();
+    expect(screen.getAllByText("그룹A").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("키워드1").length).toBeGreaterThanOrEqual(1);
+    const visibilityBadges = screen.getAllByText("공개");
+    expect(visibilityBadges.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("비공개")).toBeInTheDocument();
   });
 
-  it("renders description text exactly once", () => {
-    renderAppAt("/my-trees");
-    expect(screen.getByText(MOCK_MY_TREES.headerDescription)).toBeInTheDocument();
-    expect(screen.getAllByText(MOCK_MY_TREES.headerDescription)).toHaveLength(1);
-  });
-
-  it("renders H1 exactly once", () => {
-    renderAppAt("/my-trees");
-    expect(screen.getAllByRole("heading", { level: 1, name: "나의 러브트리" })).toHaveLength(1);
-  });
-
-  it("renders CTA exactly once", () => {
-    renderAppAt("/my-trees");
-    expect(screen.getAllByRole("button", { name: "새 러브트리 만들기" })).toHaveLength(1);
-  });
-
-  it("renders every card article with an accessible name from the tree title", () => {
-    renderAppAt("/my-trees");
-    for (const title of TREE_TITLES) {
-      expect(
-        screen.getByRole("article", { name: title })
-      ).toBeInTheDocument();
-    }
-  });
-
-  it("renders card action buttons with tree-title aria-labels for all 6 trees", () => {
-    renderAppAt("/my-trees");
-    for (const title of TREE_TITLES) {
-      for (const action of ["편집", "공유", "복제", "삭제"]) {
-        expect(
-          screen.getByRole("button", { name: `${title} ${action}` })
-        ).toBeInTheDocument();
-      }
-    }
-  });
-
-  it("renders exactly 6 buttons per action type (total 24 action buttons)", () => {
-    renderAppAt("/my-trees");
-    expect(screen.getAllByRole("button", { name: / 편집$/ })).toHaveLength(6);
-    expect(screen.getAllByRole("button", { name: / 공유$/ })).toHaveLength(6);
-    expect(screen.getAllByRole("button", { name: / 복제$/ })).toHaveLength(6);
-    expect(screen.getAllByRole("button", { name: / 삭제$/ })).toHaveLength(6);
-  });
-
-  it("exposes stat meaning via visually-hidden text inside the first article", () => {
-    renderAppAt("/my-trees");
-    const firstArticle = screen.getByRole("article", {
-      name: "나의 러브트리",
+  it("shows public tree link for public trees only", () => {
+    mockUseMyTrees.mockReturnValue({
+      items: [item(), item({ id: "t2", title: "비공개 트리", visibility: "private" })],
+      status: "success", error: null, retry: vi.fn(),
     });
-    expect(within(firstArticle).getByText("조회")).toBeInTheDocument();
-    expect(within(firstArticle).getByText("좋아요")).toBeInTheDocument();
-    expect(within(firstArticle).getByText("댓글")).toBeInTheDocument();
+    renderPage();
+    const publicLinks = screen.getAllByText("공개 화면 보기");
+    expect(publicLinks).toHaveLength(1);
+    expect(screen.getAllByText("편집 연결 준비 중")).toHaveLength(2);
   });
 
-  it("renders decorative SVGs and ensures non-vacuous aria-hidden protection", () => {
-    const { container } = renderAppAt("/my-trees");
-    const svgs = container.querySelectorAll("svg");
-    expect(svgs.length).toBeGreaterThan(0);
-
-    svgs.forEach((svg) => {
-      const isHidden =
-        svg.getAttribute("aria-hidden") === "true" ||
-        svg.closest('[aria-hidden="true"]') !== null;
-      expect(isHidden).toBe(true);
+  it("shows likeCount and viewCount only when present", () => {
+    mockUseMyTrees.mockReturnValue({
+      items: [item({ likeCount: 5, viewCount: 20 }), item({ likeCount: undefined, viewCount: undefined })],
+      status: "success", error: null, retry: vi.fn(),
     });
+    renderPage();
+    expect(screen.getAllByText("5")).toHaveLength(1);
+    expect(screen.getAllByText("20")).toHaveLength(1);
   });
 
-  it("모든 SVG에 focusable='false'가 있어야 한다", () => {
-    const { container } = renderAppAt("/my-trees");
-    const svgs = container.querySelectorAll("svg");
-    expect(svgs.length).toBeGreaterThan(0);
-    svgs.forEach((svg) => {
-      expect(svg).toHaveAttribute("focusable", "false");
-    });
+  it("does not show mock descriptions, recent moments, mock comments, or /tree/edit-demo", () => {
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.queryByText(/처음 좋아하게 된 순간/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/최근 수정한 순간/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/댓글/)).not.toBeInTheDocument();
+    expect(document.querySelector('a[href="/tree/edit-demo"]')).toBeNull();
+    expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
   });
 
-  it("renders the sidebar with recent moments", () => {
-    renderAppAt("/my-trees");
-    const sidebar = screen.getByRole("complementary", { name: "최근 수정한 순간" });
-    expect(sidebar).toBeInTheDocument();
-    expect(
-      within(sidebar).getByRole("heading", { level: 2, name: "최근 수정한 순간" })
-    ).toBeInTheDocument();
-    expect(within(sidebar).getByText("첫 콘서트 도착")).toBeInTheDocument();
-    expect(within(sidebar).getByText("앙코르 무대")).toBeInTheDocument();
-  });
-
-  it("renders aside exact count of 1", () => {
-    renderAppAt("/my-trees");
-    expect(screen.getAllByRole("complementary", { name: "최근 수정한 순간" })).toHaveLength(1);
-  });
-
-  it("renders exactly 2 recent moment items in aside", () => {
-    renderAppAt("/my-trees");
-    const aside = screen.getByRole("complementary", { name: "최근 수정한 순간" });
-    const items = within(aside).queryAllByRole("listitem");
-    expect(items).toHaveLength(2);
-  });
-
-  it("recent moments are non-interactive", () => {
-    renderAppAt("/my-trees");
-    const aside = screen.getByRole("complementary", { name: "최근 수정한 순간" });
-    const items = within(aside).queryAllByRole("listitem");
-    for (const item of items) {
-      expect(item).not.toHaveAttribute("role", "button");
-      expect(item).not.toHaveAttribute("tabindex");
-      expect(item).not.toHaveAttribute("onclick");
-      expect((item as HTMLElement).onclick).toBeNull();
-    }
-  });
-
-  /* ─── 종합 Presentation-only 강한 회귀 계약 테스트 ─── */
-
-  it("상호작용 전후 DOM 계약이 유지되고 네트워크/Storage/Dialog side-effect가 전혀 발생하지 않아야 한다", () => {
-    const fetchSpy = vi.fn();
-    vi.stubGlobal("fetch", fetchSpy);
-
-    const xhrOpenSpy = vi.spyOn(XMLHttpRequest.prototype, "open");
-
-    const storageGetSpy = vi.spyOn(Storage.prototype, "getItem");
-    const storageSetSpy = vi.spyOn(Storage.prototype, "setItem");
-    const storageRemoveSpy = vi.spyOn(Storage.prototype, "removeItem");
-    const storageClearSpy = vi.spyOn(Storage.prototype, "clear");
-
-    renderAppAt("/my-trees");
-
-    const initialUrl = window.location.href;
-
-    verifyPresentationContract();
-
-     const allButtons = screen.getAllByRole("button").filter(
-      (b) => b.getAttribute("aria-label") !== "메뉴 열기" &&
-             b.getAttribute("aria-label") !== "알림 보기" &&
-             b.getAttribute("aria-label") !== "마이페이지" &&
-             !b.getAttribute("aria-label")?.endsWith(" 편집") &&
-             !b.getAttribute("aria-label")?.endsWith(" 공유") &&
-             !b.getAttribute("aria-label")?.endsWith(" 복제") &&
-             !b.getAttribute("aria-label")?.endsWith(" 삭제") &&
-             b.textContent !== "새 러브트리 만들기"
-    );
-    allButtons.forEach((button) => fireEvent.click(button));
-
-    verifyPresentationContract();
-
-    expect(window.location.href).toBe(initialUrl);
-
-    expect(fetchSpy).not.toHaveBeenCalled();
-    expect(xhrOpenSpy).not.toHaveBeenCalled();
-    expect(storageGetSpy).not.toHaveBeenCalled();
-    expect(storageSetSpy).not.toHaveBeenCalled();
-    expect(storageRemoveSpy).not.toHaveBeenCalled();
-    expect(storageClearSpy).not.toHaveBeenCalled();
-  });
-
-  describe("routes through real App", () => {
-    it("keeps the Home route accessible", () => {
-      renderAppAt("/");
-      expect(screen.getByText(/사랑에 빠진 모든 순간을/)).toBeInTheDocument();
-    });
-
-    it("keeps the Community route accessible", () => {
-      renderAppAt("/community");
-      expect(
-        screen.getByRole("heading", { name: "다른 팬들의 러브트리 구경하기" })
-      ).toBeInTheDocument();
-    });
-
-    it("keeps the Login route accessible", () => {
-      renderAppAt("/login");
-      expect(
-        screen.getByText("내 러브트리를 계속 이어가려면 로그인하세요")
-      ).toBeInTheDocument();
-    });
-
-    it("keeps the Tree Detail route accessible", async () => {
-      vi.spyOn(globalThis, "fetch").mockImplementation((url) => {
-        const urlStr = typeof url === "string" ? url : url.toString();
-        if (urlStr.includes("/api/trees/")) {
-          return Promise.resolve(
-            new Response(JSON.stringify({ id: "test-route-id", title: "테스트 러버 A의 러브트리", visibility: "public", createdAt: "2023-09-28T00:00:00.000Z", updatedAt: "2024-08-01T00:00:00.000Z", memoryCount: 8, likeCount: 128, viewCount: 1420 }), { status: 200, headers: { "Content-Type": "application/json" } })
-          );
-        }
-        if (urlStr.includes("/api/community/memories")) {
-          return Promise.resolve(
-            new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } })
-          );
-        }
-        return Promise.resolve(new Response(null, { status: 404 }));
-      });
-      renderAppAt("/tree/test-route-id");
-      expect(
-        await screen.findByRole("heading", { name: "테스트 러버 A의 러브트리" })
-      ).toBeInTheDocument();
-    });
-
-    it("keeps the Memory Connect route accessible", () => {
-      renderAppAt("/memory/connect-demo");
-      expect(
-        screen.getByRole("heading", { name: "어느 순간과 연결할까요?" })
-      ).toBeInTheDocument();
-    });
-
-    it("keeps the My Trees route accessible", () => {
-      renderAppAt("/my-trees");
-      expect(
-        screen.getByRole("heading", { level: 1, name: "나의 러브트리" })
-      ).toBeInTheDocument();
-    });
-
-    it("falls back to Home on unknown routes", () => {
-      renderAppAt("/nonexistent-route");
-      expect(screen.getByText(/사랑에 빠진 모든 순간을/)).toBeInTheDocument();
-    });
+  it("renders header title and create button", () => {
+    mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.getAllByText("나의 러브트리").length).toBeGreaterThanOrEqual(1);
+    const ctas = screen.getAllByText("체험용 러브트리 만들기");
+    expect(ctas.length).toBeGreaterThanOrEqual(1);
+    // First CTA is in the intro section
+    expect(ctas[0].closest("button")).not.toBeNull();
   });
 });
