@@ -1,7 +1,7 @@
 export interface OwnerTreeSummary {
   id: string;
   title: string;
-  visibility: string;
+  visibility: "public" | "private";
   groupName?: string;
   keywords?: string[];
   createdAt: string | null;

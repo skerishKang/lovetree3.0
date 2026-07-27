@@ -45,7 +45,8 @@ function optionalStringArray(value: unknown): string[] | undefined {
 
 function optionalNonNegativeInteger(value: unknown): number | undefined {
   if (value === undefined) return undefined;
-  return isNonNegativeInteger(value) ? value : undefined;
+  if (!isNonNegativeInteger(value)) throw new MyTreesResponseError();
+  return value;
 }
 
 export function normalizeTreeItem(value: unknown): OwnerTreeSummary {

@@ -82,34 +82,28 @@ describe("normalizeTreeItem", () => {
     expect(r.viewCount).toBe(10);
   });
 
-  it("omits negative likeCount", () => {
-    const r = normalizeTreeItem(treePayload({ likeCount: -1 }));
-    expect(r.likeCount).toBeUndefined();
+  it("rejects negative likeCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ likeCount: -1 }))).toThrow(MyTreesResponseError);
   });
 
-  it("omits non-integer likeCount", () => {
-    const r = normalizeTreeItem(treePayload({ likeCount: 1.5 }));
-    expect(r.likeCount).toBeUndefined();
+  it("rejects fractional likeCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ likeCount: 1.5 }))).toThrow(MyTreesResponseError);
   });
 
-  it("omits NaN likeCount", () => {
-    const r = normalizeTreeItem(treePayload({ likeCount: NaN }));
-    expect(r.likeCount).toBeUndefined();
+  it("rejects NaN likeCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ likeCount: NaN }))).toThrow(MyTreesResponseError);
   });
 
-  it("omits Infinity likeCount", () => {
-    const r = normalizeTreeItem(treePayload({ likeCount: Infinity }));
-    expect(r.likeCount).toBeUndefined();
+  it("rejects Infinity likeCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ likeCount: Infinity }))).toThrow(MyTreesResponseError);
   });
 
-  it("omits string likeCount", () => {
-    const r = normalizeTreeItem(treePayload({ likeCount: "5" }));
-    expect(r.likeCount).toBeUndefined();
+  it("rejects string likeCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ likeCount: "5" }))).toThrow(MyTreesResponseError);
   });
 
-  it("omits null likeCount", () => {
-    const r = normalizeTreeItem(treePayload({ likeCount: null }));
-    expect(r.likeCount).toBeUndefined();
+  it("rejects null likeCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ likeCount: null }))).toThrow(MyTreesResponseError);
   });
 
   it("includes zero likeCount", () => {
@@ -117,9 +111,25 @@ describe("normalizeTreeItem", () => {
     expect(r.likeCount).toBe(0);
   });
 
-  it("omits negative viewCount", () => {
-    const r = normalizeTreeItem(treePayload({ viewCount: -1 }));
-    expect(r.viewCount).toBeUndefined();
+  it("includes positive likeCount", () => {
+    const r = normalizeTreeItem(treePayload({ likeCount: 5 }));
+    expect(r.likeCount).toBe(5);
+  });
+
+  it("rejects negative viewCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ viewCount: -1 }))).toThrow(MyTreesResponseError);
+  });
+
+  it("rejects fractional viewCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ viewCount: 1.5 }))).toThrow(MyTreesResponseError);
+  });
+
+  it("rejects string viewCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ viewCount: "10" }))).toThrow(MyTreesResponseError);
+  });
+
+  it("rejects null viewCount", () => {
+    expect(() => normalizeTreeItem(treePayload({ viewCount: null }))).toThrow(MyTreesResponseError);
   });
 
   it("includes zero viewCount", () => {
