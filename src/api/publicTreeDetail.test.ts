@@ -149,6 +149,7 @@ describe("public tree detail adapter", () => {
       status: 200,
       headers: { "content-type": "application/json" },
     }));
+    vi.stubGlobal("crypto", { randomUUID: () => "public-tree-request-id" });
     vi.stubGlobal("fetch", fetchMock);
 
     await createPublicTreeDetailApi().fetchTree("tree-1");
