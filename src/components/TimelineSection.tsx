@@ -4,9 +4,10 @@ import styles from "./TimelineSection.module.css";
 
 interface Props {
   memories: PublicTreeMemory[];
+  treeId: string;
 }
 
-export default function TimelineSection({ memories }: Props) {
+export default function TimelineSection({ memories, treeId }: Props) {
   return (
     <section className={styles.timeline} aria-labelledby="public-memory-heading">
       <div className={styles.sectionHeading}>
@@ -25,8 +26,8 @@ export default function TimelineSection({ memories }: Props) {
             className={`${styles.cardWrapper} ${index % 2 === 0 ? styles.sideTop : styles.sideBottom}`}
           >
             <span className={styles.nodeDot} aria-hidden="true" data-testid="timeline-memory-node" />
-            <div className={styles.cardContainer} data-testid="timeline-memory-card">
-              <TimelineCard memory={memory} />
+            <div className={styles.cardContainer}>
+              <TimelineCard memory={memory} treeId={treeId} />
             </div>
           </div>
         ))}

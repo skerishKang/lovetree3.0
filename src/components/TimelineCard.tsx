@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import type { PublicTreeMemory } from "../types/publicTreeDetail";
 import { normalizeYouTubeUrl } from "../utils/youtube";
 import { YouTubeThumbnail } from "./YouTubeMedia";
@@ -6,6 +7,7 @@ import styles from "./TimelineCard.module.css";
 
 interface Props {
   memory: PublicTreeMemory;
+  treeId: string;
 }
 
 function normalizeHttpsUrl(value: string | null) {
@@ -39,13 +41,8 @@ function MediaFallback() {
 
 function SafeImage({ src, title }: { src: string; title: string }) {
   const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    setFailed(false);
-  }, [src]);
-
+  useEffect(() => { setFailed(false); }, [src]);
   if (failed) return <MediaFallback />;
-
   return (
     <img
       className={styles.image}
@@ -59,15 +56,16 @@ function SafeImage({ src, title }: { src: string; title: string }) {
   );
 }
 
-export default function TimelineCard({ memory }: Props) {
+export default function TimelineCard({ memory, treeId }: Props) {
   const youtube = normalizeYouTubeUrl(memory.sourceUrl);
   const thumbnail = normalizeHttpsUrl(memory.thumbnail);
   const sourceUrl = normalizeHttpsUrl(memory.sourceUrl);
   const channelUrl = normalizeHttpsUrl(memory.channelUrl);
   const date = formatDate(memory.timestamp) ?? formatDate(memory.createdAt);
+  const detailPath = `/tree/${encodeURIComponent(treeId)}/memory/${encodeURIComponent(memory.id)}`;
 
   return (
-    <article className={styles.card} aria-labelledby={`memory-${memory.id}`}>
+    <article className={styles.card} aria-labelledby={`memory-${memory.id}`} data-testid="timeline-memory-card">
       <div className={styles.polaroidPhoto}>
         {youtube ? (
           <YouTubeThumbnail
@@ -122,7 +120,9 @@ export default function TimelineCard({ memory }: Props) {
         ) : null}
 
         <div className={styles.footer}>
-          <span className={styles.pending}>기억 상세 연결 준비 중</span>
+          <Link to={detailPath} className={styles.detailLink} aria-label={`${memory.title} 기억 상세 보기`}>
+            기억 상세 보기
+          </Link>
           {sourceUrl ? (
             <a className={styles.sourceLink} href={sourceUrl} target="_blank" rel="noopener noreferrer">
               원본 보기
