@@ -375,10 +375,24 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
       ).toBeInTheDocument();
     });
 
-    it("/tree/community-demo 경로가 정상 렌더링되어야 한다", () => {
-      renderAppAt("/tree/community-demo");
+    it("/tree/:treeId 경로가 정상 렌더링되어야 한다", async () => {
+      vi.spyOn(globalThis, "fetch").mockImplementation((url) => {
+        const urlStr = typeof url === "string" ? url : url.toString();
+        if (urlStr.includes("/api/trees/")) {
+          return Promise.resolve(
+            new Response(JSON.stringify({ id: "test-route-id", title: "테스트 러버 A의 러브트리", visibility: "public", createdAt: "2023-09-28T00:00:00.000Z", updatedAt: "2024-08-01T00:00:00.000Z", memoryCount: 8, likeCount: 128, viewCount: 1420 }), { status: 200, headers: { "Content-Type": "application/json" } })
+          );
+        }
+        if (urlStr.includes("/api/community/memories")) {
+          return Promise.resolve(
+            new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } })
+          );
+        }
+        return Promise.resolve(new Response(null, { status: 404 }));
+      });
+      renderAppAt("/tree/test-route-id");
       expect(
-        screen.getByRole("heading", { level: 1, name: "테스트 러버 A의 러브트리" })
+        await screen.findByRole("heading", { level: 1, name: "테스트 러버 A의 러브트리" })
       ).toBeInTheDocument();
     });
 

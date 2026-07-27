@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import type { CommunityTreeSnapshot } from "../types/community";
 import CommunityTreeCard from "./CommunityTreeCard";
@@ -23,10 +24,19 @@ function tree(overrides: Partial<CommunityTreeSnapshot> = {}): CommunityTreeSnap
   };
 }
 
-describe("CommunityTreeCard", () => {
-  it("renders only real browse fields as a non-link article", () => {
-    render(<CommunityTreeCard tree={tree()} />);
+function renderCard(treeData: CommunityTreeSnapshot) {
+  return render(
+    <MemoryRouter>
+      <CommunityTreeCard tree={treeData} />
+    </MemoryRouter>,
+  );
+}
 
+describe("CommunityTreeCard", () => {
+  it("renders real browse fields with a link to /tree/:encodedTreeId", () => {
+    renderCard(tree());
+    const link = screen.getByRole("link", { name: "라이브 공개 트리 상세 보기" });
+    expect(link).toHaveAttribute("href", "/tree/tree-live");
     expect(screen.getByRole("article", { name: "라이브 공개 트리" })).toBeInTheDocument();
     expect(screen.getByText("공개 범위: public")).toBeInTheDocument();
     expect(screen.getByText("단계: mature")).toBeInTheDocument();
@@ -35,20 +45,33 @@ describe("CommunityTreeCard", () => {
     expect(screen.getByText("🌳 기억 5개")).toBeInTheDocument();
     expect(screen.getByText("설렘")).toBeInTheDocument();
     expect(screen.getByText("행복")).toBeInTheDocument();
-    expect(screen.getByText("상세 연결 준비 중")).toBeInTheDocument();
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.getByText("공개 트리 보기")).toBeInTheDocument();
+    expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
+  });
+
+  it("encodes special characters in treeId", () => {
+    renderCard(tree({ id: "a/b c?d", title: "특수 ID 트리" }));
+    const link = screen.getByRole("link", { name: "특수 ID 트리 상세 보기" });
+    expect(link).toHaveAttribute("href", "/tree/a%2Fb%20c%3Fd");
+  });
+
+  it("whole card is a keyboard-accessible link", () => {
+    renderCard(tree());
+    const link = screen.getByRole("link", { name: "라이브 공개 트리 상세 보기" });
+    expect(link.getAttribute("href")).toBe("/tree/tree-live");
+    expect(link.tabIndex).toBe(0);
   });
 
   it("shows valid optional metrics including zero and hides absent metrics", () => {
-    const { rerender } = render(<CommunityTreeCard tree={tree()} />);
+    const { rerender } = renderCard(tree());
 
     expect(screen.getByLabelText("좋아요 0")).toBeInTheDocument();
     expect(screen.getByLabelText("조회 12")).toBeInTheDocument();
 
     rerender(
-      <CommunityTreeCard
-        tree={tree({ likeCount: undefined, viewCount: undefined })}
-      />,
+      <MemoryRouter>
+        <CommunityTreeCard tree={tree({ likeCount: undefined, viewCount: undefined })} />
+      </MemoryRouter>,
     );
 
     expect(screen.queryByLabelText(/좋아요/)).not.toBeInTheDocument();
@@ -56,7 +79,7 @@ describe("CommunityTreeCard", () => {
   });
 
   it("prefers a valid YouTube source and never creates an inline player", () => {
-    render(<CommunityTreeCard tree={tree()} />);
+    renderCard(tree());
 
     expect(screen.getByTestId("community-youtube-thumbnail")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "라이브 공개 트리 YouTube 대표 썸네일" })).toBeInTheDocument();
@@ -65,10 +88,8 @@ describe("CommunityTreeCard", () => {
   });
 
   it("uses a safe HTTPS thumbnail when the source is not YouTube", () => {
-    render(
-      <CommunityTreeCard
-        tree={tree({ representativeMemorySourceUrl: "https://video.example.com/watch/1" })}
-      />,
+    renderCard(
+      tree({ representativeMemorySourceUrl: "https://video.example.com/watch/1" }),
     );
 
     expect(screen.getByTestId("community-image-thumbnail")).toHaveAttribute(
@@ -79,24 +100,24 @@ describe("CommunityTreeCard", () => {
   });
 
   it("falls back for missing, unsafe, or broken images", () => {
-    const { rerender } = render(
-      <CommunityTreeCard
-        tree={tree({
-          representativeMemorySourceUrl: "not-a-url",
-          representativeThumbnail: "http://images.example.com/tree.jpg",
-        })}
-      />,
+    const { rerender } = renderCard(
+      tree({
+        representativeMemorySourceUrl: "not-a-url",
+        representativeThumbnail: "http://images.example.com/tree.jpg",
+      }),
     );
 
     expect(screen.getByTestId("community-media-fallback")).toBeInTheDocument();
 
     rerender(
-      <CommunityTreeCard
-        tree={tree({
-          representativeMemorySourceUrl: "",
-          representativeThumbnail: "https://images.example.com/broken.jpg",
-        })}
-      />,
+      <MemoryRouter>
+        <CommunityTreeCard
+          tree={tree({
+            representativeMemorySourceUrl: "",
+            representativeThumbnail: "https://images.example.com/broken.jpg",
+          })}
+        />
+      </MemoryRouter>,
     );
     fireEvent.error(screen.getByTestId("community-image-thumbnail"));
     expect(screen.getByTestId("community-media-fallback")).toBeInTheDocument();

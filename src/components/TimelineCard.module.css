@@ -1,184 +1,172 @@
-/* TimelineCard — 폴라로이드형 기억 카드 */
 .card {
   display: flex;
+  width: 100%;
+  max-width: 520px;
+  min-width: 0;
   flex-direction: column;
-  background: #ffffff;
+  overflow: hidden;
   border: 1px solid rgba(45, 41, 38, 0.08);
-  border-radius: 12px;
-  padding: 0.75rem 0.75rem 1.25rem;
-  box-shadow: 0 8px 24px rgba(45, 41, 38, 0.06);
-  max-width: 260px;
-  width: 100%;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
-  box-sizing: border-box;
-  background-clip: padding-box;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(45, 41, 38, 0.07);
 }
 
-.card:hover {
-  transform: translateY(-8px) rotate(1deg);
-  box-shadow: 0 16px 36px rgba(45, 41, 38, 0.12);
-}
-
-.card:focus-within {
-  outline: 2px solid var(--accent-rose);
-  outline-offset: 3px;
-}
-
-/* 폴라로이드 사진 영역 */
 .polaroidPhoto {
-  width: 100%;
-  aspect-ratio: 1.15 / 1;
-  background: #fbf7f0;
-  border-radius: 8px;
+  position: relative;
   display: flex;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(45, 41, 38, 0.03);
-  position: relative;
   overflow: hidden;
+  background: #fbf7f0;
 }
 
-/* 사진 내 감성 필터 오버레이 */
-.polaroidPhoto::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
-  pointer-events: none;
+.youtubeThumbnail,
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.emoji {
-  font-size: 2.8rem;
-  line-height: 1;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
-  transition: transform 0.3s ease;
+.youtubeThumbnail :global(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.card:hover .emoji {
-  transform: scale(1.15) rotate(-3deg);
+.mediaFallback {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #817266;
+  text-align: center;
 }
 
-/* 폴라로이드 프레임 하단 텍스트 본문 */
+.mediaFallback > span:first-child {
+  font-size: 2.5rem;
+}
+
 .polaroidFrame {
   display: flex;
+  min-width: 0;
   flex-direction: column;
-  padding: 0.75rem 0.25rem 0;
+  gap: 0.65rem;
+  padding: 1rem 1.05rem 1.1rem;
 }
 
 .date {
-  display: block;
+  color: #9b8474;
   font-size: 0.75rem;
-  color: #b09a88;
-  margin-bottom: 0.3rem;
-  font-weight: 600;
-  font-family: var(--ff-mono, monospace);
+  font-weight: 650;
 }
 
 .title {
-  margin: 0 0 0.4rem;
-  font-size: clamp(0.95rem, 1.1vw, 1.15rem);
-  font-weight: 800;
+  margin: 0;
   color: #2a221a;
-  line-height: 1.25;
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .description {
-  margin: 0 0 0.6rem;
-  font-size: 0.8rem;
-  color: #6b6056;
-  line-height: 1.45;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
+  color: #62574e;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
-/* 태그 */
+.metadata {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: #faf6f1;
+}
+
+.metadata > div {
+  display: grid;
+  grid-template-columns: minmax(3.2rem, auto) 1fr;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.metadata dt,
+.metadata dd {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.metadata dt {
+  color: #9a887a;
+  font-weight: 700;
+}
+
+.metadata dd,
+.metadata a {
+  color: #5d5047;
+}
+
 .tags {
-  list-style: none;
-  margin: 0 0 0.5rem;
-  padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .tag {
-  font-size: 0.65rem;
-  color: #8a7a6a;
-  background: #f7f1ea;
-  padding: 0.1rem 0.45rem;
-  border-radius: 4px;
-  font-weight: 500;
+  max-width: 100%;
+  padding: 0.18rem 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f7ece8;
+  color: #b45f76;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.featuredBadge {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #fff;
-  background: var(--accent-rose, #e06b8b);
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(224, 107, 139, 0.3);
-}
-
-.cardMetaHeader {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-bottom: 0.35rem;
-}
-
-.typeBadge {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--accent-rose, #e06b8b);
-  background: rgba(224, 107, 139, 0.06);
-  padding: 0.1rem 0.35rem;
-  border-radius: 4px;
-}
-
-.mediaBadge {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: #8a7e72;
-  background: #f1ede6;
-  padding: 0.1rem 0.35rem;
-  border-radius: 4px;
-}
-
-.locationInfo {
-  font-size: 0.72rem;
-  color: #8a7e72;
-  margin-bottom: 0.5rem;
+.footer {
   display: flex;
   align-items: center;
-  gap: 0.15rem;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed rgba(45, 41, 38, 0.1);
 }
 
-.locationName {
-  font-weight: 500;
+.pending {
+  color: #8b796c;
+  font-size: 0.74rem;
+  font-weight: 650;
 }
 
-.reactionFooter {
-  border-top: 1px solid rgba(45, 41, 38, 0.05);
-  padding-top: 0.4rem;
-  margin-top: auto;
-}
-
-.reactionText {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #b09a88;
+.sourceLink {
+  flex-shrink: 0;
+  color: #9f5268;
+  font-size: 0.75rem;
+  font-weight: 750;
 }
 
 @media (max-width: 768px) {
   .card {
-    max-width: 100%;
+    max-width: none;
+  }
+
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

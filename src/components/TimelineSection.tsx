@@ -1,64 +1,36 @@
-import { Link } from "react-router-dom";
-import type { TimelineMemory } from "../data/treeDetailMockData";
+import type { PublicTreeMemory } from "../types/publicTreeDetail";
 import TimelineCard from "./TimelineCard";
 import styles from "./TimelineSection.module.css";
 
 interface Props {
-  memories: TimelineMemory[];
+  memories: PublicTreeMemory[];
 }
 
 export default function TimelineSection({ memories }: Props) {
   return (
-    <section className={styles.timeline} aria-label="기억 타임라인">
-      {/* 중심 가지선 */}
+    <section className={styles.timeline} aria-labelledby="public-memory-heading">
+      <div className={styles.sectionHeading}>
+        <div>
+          <span className={styles.eyebrow}>PUBLIC MEMORIES</span>
+          <h2 id="public-memory-heading">공개 기억 타임라인</h2>
+        </div>
+        <span className={styles.count}>{memories.length}개</span>
+      </div>
+
       <div className={styles.branchLine} aria-hidden="true" />
-
-      {/* 타임라인 카드들 — 중앙선 기준 위(top)/아래(bottom) 배치 */}
       <div className={styles.cardsGrid}>
-        {memories.map((memory, index) => {
-          // Generate a connector line for each node to represent relationships
-          const nextNode = memories[index + 1];
-          const hasNext = !!nextNode;
-
-          return (
-            <div
-              key={memory.id}
-              className={`${styles.cardWrapper} ${
-                memory.side === "top" ? styles.sideTop : styles.sideBottom
-              }`}
-              style={{ "--card-index": index } as React.CSSProperties}
-            >
-              {/* 노드 점 */}
-              <div
-                className={styles.nodeDot}
-                aria-hidden="true"
-                data-testid="timeline-memory-node"
-              />
-
-              {/* 연결 관계 라벨 또는 노드별 연결선 */}
-              {hasNext && (
-                <div
-                  className={styles.connectorLine}
-                  aria-hidden="true"
-                  data-testid="timeline-connection"
-                >
-                  <span className={styles.connectionPathText}>{memory.connectionLabel}</span>
-                </div>
-              )}
-
-              {/* 기억 카드 */}
-              <Link
-                to="/memory/detail-demo"
-                data-testid="timeline-memory-card"
-                className={styles.cardContainer}
-              >
-                <TimelineCard memory={memory} />
-              </Link>
+        {memories.map((memory, index) => (
+          <div
+            key={memory.id}
+            className={`${styles.cardWrapper} ${index % 2 === 0 ? styles.sideTop : styles.sideBottom}`}
+          >
+            <span className={styles.nodeDot} aria-hidden="true" data-testid="timeline-memory-node" />
+            <div className={styles.cardContainer} data-testid="timeline-memory-card">
+              <TimelineCard memory={memory} />
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </section>
   );
 }
-
