@@ -41,11 +41,9 @@ export default function CreateTreePage() {
   }
 
   const fieldError = localError || (status === "validation-error" ? error : null);
-  const showAmbiguous = status === "ambiguous" || status === "malformed";
-  const showForbidden = status === "forbidden";
-  const showConflict = status === "conflict";
-  const showTooLarge = status === "too-large";
+  const showForm = status !== "unauthorized" && status !== "ambiguous" && status !== "malformed";
   const showUnauthorized = status === "unauthorized";
+  const showAmbiguous = status === "ambiguous" || status === "malformed";
 
   return (
     <div className={styles.page}>
@@ -73,19 +71,9 @@ export default function CreateTreePage() {
               내 러브트리에서 확인
             </button>
           </div>
-        ) : showForbidden ? (
-          <div className={styles.stateMessage} role="alert">
-            <p>{error}</p>
-          </div>
-        ) : showConflict ? (
-          <div className={styles.stateMessage} role="alert">
-            <p>{error}</p>
-          </div>
-        ) : showTooLarge ? (
-          <div className={styles.stateMessage} role="alert">
-            <p>{error}</p>
-          </div>
-        ) : (
+        ) : null}
+
+        {showForm ? (
           <form className={styles.form} onSubmit={handleSubmit} noValidate>
             <div className={styles.fieldGroup}>
               <label htmlFor="tree-title" className={styles.label}>러브트리 제목</label>
@@ -136,6 +124,20 @@ export default function CreateTreePage() {
               ) : null}
             </fieldset>
 
+            {status === "forbidden" ? (
+              <div className={styles.inlineError} role="alert">
+                <p>{error}</p>
+              </div>
+            ) : status === "conflict" ? (
+              <div className={styles.inlineError} role="alert">
+                <p>{error}</p>
+              </div>
+            ) : status === "too-large" ? (
+              <div className={styles.inlineError} role="alert">
+                <p>{error}</p>
+              </div>
+            ) : null}
+
             <button
               type="submit"
               className={styles.submitButton}
@@ -144,7 +146,7 @@ export default function CreateTreePage() {
               {submitting ? "저장 중..." : "러브트리 만들기"}
             </button>
           </form>
-        )}
+        ) : null}
       </main>
     </div>
   );

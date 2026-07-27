@@ -17,8 +17,15 @@ function item(overrides: Partial<OwnerTreeSummary> = {}): OwnerTreeSummary {
 
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
-function renderPage() {
-  return render(<MemoryRouter><MyTreesPage /></MemoryRouter>);
+function renderPage(initialState?: Record<string, unknown>) {
+  const initialEntries = initialState
+    ? [{ pathname: "/my-trees", state: initialState }]
+    : ["/my-trees"];
+  return render(
+    <MemoryRouter initialEntries={initialEntries}>
+      <MyTreesPage />
+    </MemoryRouter>
+  );
 }
 
 describe("MyTreesPage — /my-trees", () => {
@@ -143,5 +150,25 @@ describe("MyTreesPage — /my-trees", () => {
     const ctas = screen.getAllByText("새 러브트리 만들기");
     expect(ctas.length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
+  });
+
+  it("shows success message from router state with title", () => {
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    renderPage({ createSuccess: true, treeTitle: "나의 첫 트리" });
+    expect(screen.getByText("나의 첫 트리 러브트리를 만들었습니다.")).toBeInTheDocument();
+  });
+
+  it("success message does not show tree ID or ownerId", () => {
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    renderPage({ createSuccess: true, treeTitle: "나의 첫 트리" });
+    expect(screen.getByText("나의 첫 트리 러브트리를 만들었습니다.")).toBeInTheDocument();
+    expect(screen.queryByText("t1")).not.toBeInTheDocument();
+    expect(screen.queryByText("ownerId")).not.toBeInTheDocument();
+  });
+
+  it("no message without router state", () => {
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.queryByText("러브트리를 만들었습니다.")).not.toBeInTheDocument();
   });
 });

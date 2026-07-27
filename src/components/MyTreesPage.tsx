@@ -1,6 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useMyTrees } from "../hooks/useMyTrees";
 import type { OwnerTreeSummary } from "../types/myTrees";
+import { useEffect, useRef } from "react";
 import styles from "./MyTreesPage.module.css";
 
 function TreeCard({ tree }: { tree: OwnerTreeSummary }) {
@@ -85,9 +86,30 @@ function TreeCard({ tree }: { tree: OwnerTreeSummary }) {
 export default function MyTreesPage() {
   const { items, status, error, retry } = useMyTrees();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as Record<string, unknown> | null;
+  const successTitle = state?.createSuccess === true && typeof state?.treeTitle === "string"
+    ? state.treeTitle
+    : undefined;
+  const clearedRef = useRef(false);
+
+  useEffect(() => {
+    if (successTitle && !clearedRef.current) {
+      clearedRef.current = true;
+      const id = setTimeout(() => {
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 0);
+      return () => clearTimeout(id);
+    }
+  }, [successTitle, navigate, location.pathname]);
 
   return (
     <div className={styles.page}>
+      {successTitle ? (
+        <div className={styles.successBanner} role="status">
+          <p>{successTitle} 러브트리를 만들었습니다.</p>
+        </div>
+      ) : null}
       <header className={styles.topBar}>
         <div className={styles.brandArea}>
           <span className={styles.logo}>Relovetree</span>

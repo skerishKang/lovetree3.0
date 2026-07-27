@@ -3,6 +3,7 @@ import {
   createCreateTreeApi,
   normalizeCreatedTree,
   CreateTreeResponseError,
+  CreateTreeInputError,
 } from "./createTree";
 
 function mockClient() {
@@ -47,7 +48,7 @@ describe("normalizeCreatedTree", () => {
   it("rejects non-object input", () => expect(() => normalizeCreatedTree([])).toThrow(CreateTreeResponseError));
 });
 
-describe("createCreateTreeApi", () => {
+describe("createCreateTreeApi — write-boundary input validation", () => {
   it("calls POST /trees with title and visibility", async () => {
     const client = mockClient();
     client.post.mockResolvedValue(treePayload());
@@ -104,5 +105,53 @@ describe("createCreateTreeApi", () => {
     client.post.mockResolvedValue({});
     const api = createCreateTreeApi(client);
     await expect(api.createTree({ title: "내 트리", visibility: "public" })).rejects.toThrow(CreateTreeResponseError);
+  });
+
+  it("blocks empty title — POST 0", async () => {
+    const client = mockClient();
+    client.post.mockResolvedValue(treePayload());
+    const api = createCreateTreeApi(client);
+    await expect(api.createTree({ title: "", visibility: "public" })).rejects.toThrow(CreateTreeInputError);
+    expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it("blocks whitespace-only title — POST 0", async () => {
+    const client = mockClient();
+    const api = createCreateTreeApi(client);
+    await expect(api.createTree({ title: "   ", visibility: "public" })).rejects.toThrow(CreateTreeInputError);
+    expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it("allows 80-character title — POST 1", async () => {
+    const client = mockClient();
+    client.post.mockResolvedValue(treePayload());
+    const api = createCreateTreeApi(client);
+    const title80 = "a".repeat(80);
+    await api.createTree({ title: title80, visibility: "public" });
+    expect(client.post).toHaveBeenCalledTimes(1);
+    expect(client.post).toHaveBeenCalledWith("/trees", { title: title80, visibility: "public" }, { signal: undefined });
+  });
+
+  it("blocks 81-character title — POST 0", async () => {
+    const client = mockClient();
+    const api = createCreateTreeApi(client);
+    await expect(api.createTree({ title: "a".repeat(81), visibility: "public" })).rejects.toThrow(CreateTreeInputError);
+    expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it("blocks invalid visibility runtime value — POST 0", async () => {
+    const client = mockClient();
+    const api = createCreateTreeApi(client);
+    await expect(api.createTree({ title: "내 트리", visibility: "unknown" as "public" })).rejects.toThrow(CreateTreeInputError);
+    expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it("CreateTreeInputError has correct field name", async () => {
+    const client = mockClient();
+    const api = createCreateTreeApi(client);
+    let err: unknown;
+    try { await api.createTree({ title: "", visibility: "public" }); } catch (e) { err = e; }
+    expect(err).toBeInstanceOf(CreateTreeInputError);
+    expect((err as CreateTreeInputError).field).toBe("title");
   });
 });

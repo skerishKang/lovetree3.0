@@ -123,6 +123,16 @@
   color: #c0392b;
 }
 
+.inlineError {
+  padding: 12px 14px;
+  background: #fef0ef;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #c0392b;
+  line-height: 1.4;
+}
+
 .radioGroup {
   display: flex;
   gap: 20px;

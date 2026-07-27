@@ -2,6 +2,14 @@ import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../api/createTree", () => ({
+  CreateTreeInputError: class CreateTreeInputError extends Error {
+    field: "title" | "visibility";
+    constructor(field: "title" | "visibility", message: string) {
+      super(message);
+      this.name = "CreateTreeInputError";
+      this.field = field;
+    }
+  },
   CreateTreeResponseError: class CreateTreeResponseError extends Error {
     constructor() {
       super("트리 생성 응답 형식이 올바르지 않습니다.");
@@ -96,27 +104,35 @@ describe("useCreateTree", () => {
     expect(result.current.status).toBe("submitting");
   });
 
-  it("stale completion ignored after sequential submits", async () => {
-    let resolveFirst!: (v: CreatedTree) => void;
-    const firstPromise = new Promise<CreatedTree>(r => { resolveFirst = r; });
-    let resolveSecond!: (v: CreatedTree) => void;
-    const secondPromise = new Promise<CreatedTree>(r => { resolveSecond = r; });
-    let callCount = 0;
+  it("unmount 후 late success — state update 없음", async () => {
+    let resolve!: (v: CreatedTree) => void;
     const api: CreateTreeApi = {
       createTree: ((_input: unknown, _signal?: AbortSignal) => {
-        callCount++;
-        return callCount === 1 ? firstPromise : secondPromise;
+        return new Promise<CreatedTree>(r => { resolve = r; });
       }) as CreateTreeApi["createTree"],
     };
-    const { result } = renderHook(() => useCreateTree(api));
-    act(() => result.current.submit({ title: "처음", visibility: "public" }));
-    act(() => resolveFirst!(createdPayload({ id: "t-first", title: "첫번째" })));
-    await vi.waitFor(() => expect(result.current.status).toBe("idle"));
-    expect(result.current.created?.id).toBe("t-first");
-    act(() => result.current.submit({ title: "두번째", visibility: "public" }));
-    act(() => resolveSecond!(createdPayload({ id: "t-final", title: "최종" })));
-    await vi.waitFor(() => expect(result.current.status).toBe("idle"));
-    expect(result.current.created?.id).toBe("t-final");
+    const { result, unmount } = renderHook(() => useCreateTree(api));
+    act(() => result.current.submit({ title: "내 트리", visibility: "public" }));
+    expect(result.current.status).toBe("submitting");
+    unmount();
+    act(() => resolve(createdPayload({ id: "t-late", title: "늦음" })));
+    expect(result.current.status).toBe("submitting");
+    expect(result.current.created).toBeNull();
+  });
+
+  it("unmount 후 late failure — state update 없음", async () => {
+    let reject!: (e: Error) => void;
+    const api: CreateTreeApi = {
+      createTree: ((_input: unknown, _signal?: AbortSignal) => {
+        return new Promise<CreatedTree>((_, rj) => { reject = rj; });
+      }) as CreateTreeApi["createTree"],
+    };
+    const { result, unmount } = renderHook(() => useCreateTree(api));
+    act(() => result.current.submit({ title: "내 트리", visibility: "public" }));
+    expect(result.current.status).toBe("submitting");
+    unmount();
+    act(() => reject(new Error("late failure")));
+    expect(result.current.status).toBe("submitting");
   });
 
   it("transitions to validation-error on 400", async () => {

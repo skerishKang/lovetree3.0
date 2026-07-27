@@ -11,6 +11,15 @@ export class CreateTreeResponseError extends Error {
   }
 }
 
+export class CreateTreeInputError extends Error {
+  readonly field: "title" | "visibility";
+  constructor(field: "title" | "visibility", message: string) {
+    super(message);
+    this.name = "CreateTreeInputError";
+    this.field = field;
+  }
+}
+
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
   const prototype = Object.getPrototypeOf(value);
@@ -69,8 +78,21 @@ export function createCreateTreeApi(
 ): CreateTreeApi {
   return {
     async createTree(input, signal) {
+      if (typeof input.title !== "string") {
+        throw new CreateTreeInputError("title", "러브트리 제목을 입력해 주세요.");
+      }
+      const trimmed = input.title.trim();
+      if (trimmed.length === 0) {
+        throw new CreateTreeInputError("title", "러브트리 제목을 입력해 주세요.");
+      }
+      if (trimmed.length > 80) {
+        throw new CreateTreeInputError("title", "제목은 최대 80자까지 입력할 수 있습니다.");
+      }
+      if (input.visibility !== "public" && input.visibility !== "private") {
+        throw new CreateTreeInputError("visibility", "공개 범위는 공개 또는 비공개만 선택할 수 있습니다.");
+      }
       const response = await client.post<unknown>("/trees", {
-        title: input.title.trim(),
+        title: trimmed,
         visibility: input.visibility,
       }, { signal });
       if (response === undefined) throw new CreateTreeResponseError();

@@ -579,6 +579,16 @@
   background: #f5eee7;
 }
 
+.successBanner {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 12px 28px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .emptyState {
   display: flex;
   flex-direction: column;

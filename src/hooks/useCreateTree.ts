@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createTreeApi, CreateTreeResponseError, type CreateTreeApi } from "../api/createTree";
+import { createTreeApi, CreateTreeResponseError, CreateTreeInputError, type CreateTreeApi } from "../api/createTree";
 import { isApiError } from "../types/api";
 import type { CreateTreeInput, CreatedTree, CreateTreeStatus } from "../types/createTree";
 import { emitSessionExpired } from "../context/authSession";
@@ -55,6 +55,11 @@ export function useCreateTree(api: CreateTreeApi = createTreeApi): UseCreateTree
           return;
         }
         submittingRef.current = false;
+        if (cause instanceof CreateTreeInputError) {
+          setStatus("validation-error");
+          setError(cause.message);
+          return;
+        }
         if (cause instanceof CreateTreeResponseError) {
           setStatus("malformed");
           setError("트리 생성 응답 형식이 올바르지 않습니다.");

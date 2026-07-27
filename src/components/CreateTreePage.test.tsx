@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import CreateTreePage from "./CreateTreePage";
 
 vi.mock("../hooks/useCreateTree", () => ({
@@ -82,42 +83,67 @@ describe("CreateTreePage — /tree/new", () => {
     expect(screen.getByText("제목이 유효하지 않습니다.")).toBeInTheDocument();
   });
 
-  it("shows forbidden state", () => {
+  it("403 form retained — title input and radios exist", () => {
     mockUseCreateTree.mockReturnValue({ ...defaultReturn, status: "forbidden", error: "비공개 저장이 제한됩니다." });
     renderPage();
+    expect(screen.getByLabelText("러브트리 제목")).toBeInTheDocument();
+    expect(screen.getByLabelText("공개")).toBeInTheDocument();
+    expect(screen.getByLabelText("비공개")).toBeInTheDocument();
     expect(screen.getByText("비공개 저장이 제한됩니다.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "러브트리 만들기" })).toBeEnabled();
   });
 
-  it("shows conflict state", () => {
+  it("403 후 public으로 변경 가능", async () => {
+    mockUseCreateTree.mockReturnValue({ ...defaultReturn, status: "forbidden", error: "비공개 저장이 제한됩니다." });
+    renderPage();
+    await userEvent.click(screen.getByLabelText("공개"));
+    expect(screen.getByLabelText("공개")).toBeChecked();
+    expect(screen.getByRole("button", { name: "러브트리 만들기" })).toBeEnabled();
+  });
+
+  it("409 form retained — submit enabled", () => {
     mockUseCreateTree.mockReturnValue({ ...defaultReturn, status: "conflict", error: "중복 트리" });
     renderPage();
+    expect(screen.getByLabelText("러브트리 제목")).toBeInTheDocument();
     expect(screen.getByText("중복 트리")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "러브트리 만들기" })).toBeEnabled();
   });
 
-  it("shows too-large state", () => {
+  it("413 form retained — submit enabled", () => {
     mockUseCreateTree.mockReturnValue({ ...defaultReturn, status: "too-large", error: "너무 큼" });
     renderPage();
+    expect(screen.getByLabelText("러브트리 제목")).toBeInTheDocument();
     expect(screen.getByText("너무 큼")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "러브트리 만들기" })).toBeEnabled();
   });
 
-  it("shows unauthorized state", () => {
+  it("validation-error form retained — submit enabled", () => {
+    mockUseCreateTree.mockReturnValue({ ...defaultReturn, status: "validation-error", error: "입력 오류" });
+    renderPage();
+    expect(screen.getByLabelText("러브트리 제목")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "러브트리 만들기" })).toBeEnabled();
+  });
+
+  it("shows unauthorized state without form", () => {
     mockUseCreateTree.mockReturnValue({ ...defaultReturn, status: "unauthorized" });
     renderPage();
     expect(screen.getByText("세션을 다시 확인하고 있어요. 로그인 화면으로 이동합니다.")).toBeInTheDocument();
+    expect(screen.queryByLabelText("러브트리 제목")).not.toBeInTheDocument();
   });
 
-  it("shows ambiguous state with error and /my-trees action", () => {
+  it("shows ambiguous state without form", () => {
     mockUseCreateTree.mockReturnValue({ ...defaultReturn, status: "ambiguous", error: "저장 결과를 확인할 수 없습니다." });
     renderPage();
     expect(screen.getByText("저장 결과를 확인할 수 없습니다.")).toBeInTheDocument();
     expect(screen.getByText("내 러브트리에서 확인")).toBeInTheDocument();
+    expect(screen.queryByLabelText("러브트리 제목")).not.toBeInTheDocument();
   });
 
-  it("shows malformed state as ambiguous", () => {
+  it("shows malformed state without form", () => {
     mockUseCreateTree.mockReturnValue({ ...defaultReturn, status: "malformed", error: "응답 형식 오류" });
     renderPage();
     expect(screen.getByText("응답 형식 오류")).toBeInTheDocument();
-    expect(screen.getByText("내 러브트리에서 확인")).toBeInTheDocument();
+    expect(screen.queryByLabelText("러브트리 제목")).not.toBeInTheDocument();
   });
 
   it("shows char count", () => {
@@ -143,5 +169,24 @@ describe("CreateTreePage — /tree/new", () => {
     await userEvent.click(screen.getByLabelText("비공개"));
     await userEvent.click(screen.getByRole("button", { name: "러브트리 만들기" }));
     expect(submit).toHaveBeenCalledWith({ title: "비공개 트리", visibility: "private" });
+  });
+
+  it("navigates to /my-trees with replace and state on success", () => {
+    const submit = vi.fn();
+    mockUseCreateTree.mockReturnValue({
+      status: "idle",
+      error: null,
+      created: { id: "t-1", title: "내 트리", visibility: "public" },
+      submit,
+    });
+    const { container } = render(
+      <MemoryRouter initialEntries={["/tree/new"]}>
+        <Routes>
+          <Route path="/tree/new" element={<CreateTreePage />} />
+          <Route path="/my-trees" element={<div>My Trees Page</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+    expect(container.textContent).toContain("My Trees Page");
   });
 });
