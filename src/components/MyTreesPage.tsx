@@ -107,11 +107,11 @@ export default function MyTreesPage() {
           <h1 className={styles.pageTitle}>나의 러브트리</h1>
           <p className={styles.pageDescription}>지금까지 이어온 기억의 흐름을 한 곳에서 돌아보세요.</p>
         </div>
-        <button type="button" className={styles.newTreeButton} onClick={() => navigate("/tree/new-demo")}>
+        <button type="button" className={styles.newTreeButton} onClick={() => navigate("/tree/new")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
-          <span>체험용 러브트리 만들기</span>
+          <span>새 러브트리 만들기</span>
         </button>
       </section>
 
@@ -151,8 +151,8 @@ export default function MyTreesPage() {
         <div className={styles.emptyState}>
           <p>아직 만든 러브트리가 없습니다.</p>
           <div className={styles.emptyActions}>
-            <button type="button" className={styles.primaryCta} onClick={() => navigate("/tree/new-demo")}>
-              체험용 러브트리 만들기
+            <button type="button" className={styles.primaryCta} onClick={() => navigate("/tree/new")}>
+              새 러브트리 만들기
             </button>
             <Link to="/community" className={styles.secondaryCta}>
               다른 팬들 트리 구경하기

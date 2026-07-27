@@ -16,9 +16,9 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     expect(screen.getByText("첫 기억을 연결하고 당신만의 이야기가 담긴 러브트리를 만들어 보세요.")).toBeInTheDocument();
   });
 
-  it("renders demo create CTA", () => {
+  it("renders create CTA", () => {
     renderPage();
-    expect(screen.getByText("체험용 러브트리 만들기")).toBeInTheDocument();
+    expect(screen.getByText("새 러브트리 만들기")).toBeInTheDocument();
   });
 
   it("renders Community link not /tree/community-demo", () => {

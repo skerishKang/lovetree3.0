@@ -4,7 +4,7 @@ import styles from "./MyTreesEmptyPage.module.css";
 const EMPTY_STATE = {
   pageTitle: "아직 만든 러브트리가 없어요",
   pageDescription: "첫 기억을 연결하고 당신만의 이야기가 담긴 러브트리를 만들어 보세요.",
-  primaryCtaLabel: "체험용 러브트리 만들기",
+  primaryCtaLabel: "새 러브트리 만들기",
   secondaryCtaLabel: "다른 팬들 트리 구경하기",
 };
 
@@ -42,7 +42,7 @@ export default function MyTreesEmptyPage() {
           <p className={styles.pageDescription}>{EMPTY_STATE.pageDescription}</p>
 
           <div className={styles.ctaGroup}>
-            <button type="button" className={styles.primaryCta} onClick={() => navigate("/tree/new-demo")}>
+            <button type="button" className={styles.primaryCta} onClick={() => navigate("/tree/new")}>
               {EMPTY_STATE.primaryCtaLabel}
             </button>
             <Link to="/community" className={styles.secondaryCta}>
@@ -55,7 +55,7 @@ export default function MyTreesEmptyPage() {
             <ul className={styles.quickStartList} aria-label="빠르게 시작할 수 있는 첫 기억 아이디어">
               {QUICK_START_IDEAS.map((idea) => (
                 <li key={idea.id} data-testid="quick-start-item" className={styles.quickStartItem}>
-                  <button type="button" className={`${styles.quickStartButton} ${styles[idea.variant]}`} onClick={() => navigate("/tree/new-demo")}>
+                  <button type="button" className={`${styles.quickStartButton} ${styles[idea.variant]}`} onClick={() => navigate("/tree/new")}>
                     <span>{idea.title}</span>
                   </button>
                   <p data-testid="quick-start-description" className={styles.quickStartDescription}>{idea.description}</p>

@@ -26,6 +26,7 @@ import EmptyTreeEditorPage from "./components/EmptyTreeEditorPage";
 import PublicDemoEditorPage from "./components/PublicDemoEditorPage";
 import PublicDemoMemoryFormPage from "./components/PublicDemoMemoryFormPage";
 import PublicDemoPreviewPage from "./components/PublicDemoPreviewPage";
+import CreateTreePage from "./components/CreateTreePage";
 
 function PublicDemoRouteShell() {
   return (
@@ -56,6 +57,7 @@ function RouteElements() {
 
         <Route path="/memory/connect-demo" element={<RequireAuth><MemoryConnectPage /></RequireAuth>} />
         <Route path="/my-trees" element={<RequireAuth><MyTreesPage /></RequireAuth>} />
+        <Route path="/tree/new" element={<RequireAuth><CreateTreePage /></RequireAuth>} />
         <Route path="/tree/edit-demo" element={<RequireAuth><TreeEditorPage /></RequireAuth>} />
         <Route path="/media/search-demo" element={<RequireAuth><MediaSearchPage /></RequireAuth>} />
         <Route path="/settings/visibility-demo" element={<RequireAuth><VisibilitySettingsPage /></RequireAuth>} />

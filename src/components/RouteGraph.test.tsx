@@ -40,6 +40,7 @@ const publicRoutes = [
 ] as const;
 
 const protectedRoutes = [
+  ["/tree/new", "새 러브트리 만들기"],
   ["/tree/edit-demo", "러브트리 편집"],
   ["/memory/connect-demo", "어느 순간과 연결할까요?"],
   ["/my-trees", "나의 러브트리"],
