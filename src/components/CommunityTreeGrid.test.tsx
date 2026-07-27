@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import type { CommunityTreeSnapshot } from "../types/community";
 import CommunityTreeGrid from "./CommunityTreeGrid";
@@ -21,9 +22,13 @@ function tree(id: string): CommunityTreeSnapshot {
   };
 }
 
+function renderGrid(element: React.ReactNode) {
+  return render(<MemoryRouter>{element}</MemoryRouter>);
+}
+
 describe("CommunityTreeGrid", () => {
   it("renders loading skeletons", () => {
-    render(
+    renderGrid(
       <CommunityTreeGrid trees={[]} status="loading" error={null} onRetry={vi.fn()} />,
     );
 
@@ -31,7 +36,7 @@ describe("CommunityTreeGrid", () => {
   });
 
   it("renders the empty state", () => {
-    render(
+    renderGrid(
       <CommunityTreeGrid trees={[]} status="empty" error={null} onRetry={vi.fn()} />,
     );
 
@@ -41,7 +46,7 @@ describe("CommunityTreeGrid", () => {
   it("renders an error with explicit retry", async () => {
     const onRetry = vi.fn();
     const user = userEvent.setup();
-    render(
+    renderGrid(
       <CommunityTreeGrid
         trees={[]}
         status="error"
@@ -55,10 +60,10 @@ describe("CommunityTreeGrid", () => {
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 
-  it("renders live cards without demo-detail links", () => {
-    render(
+  it("renders live cards with real public-detail links and no demo route", () => {
+    renderGrid(
       <CommunityTreeGrid
-        trees={[tree("one"), tree("two")]}
+        trees={[tree("one"), tree("two")]} 
         status="success"
         error={null}
         onRetry={vi.fn()}
@@ -66,8 +71,14 @@ describe("CommunityTreeGrid", () => {
     );
 
     expect(screen.getAllByTestId("community-tree-card")).toHaveLength(2);
-    expect(screen.getByText("공개 트리 one")).toBeInTheDocument();
-    expect(screen.getByText("공개 트리 two")).toBeInTheDocument();
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "공개 트리 one 상세 보기" })).toHaveAttribute(
+      "href",
+      "/tree/one",
+    );
+    expect(screen.getByRole("link", { name: "공개 트리 two 상세 보기" })).toHaveAttribute(
+      "href",
+      "/tree/two",
+    );
+    expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
   });
 });
