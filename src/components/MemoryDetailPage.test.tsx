@@ -118,11 +118,16 @@ describe("MemoryDetailPage — /tree/:treeId/memory/:memoryId", () => {
     expect(await screen.findByText("테스트 기억")).toBeInTheDocument();
   });
 
-  it("shows membership mismatch with tree context", async () => {
+  it("shows membership mismatch with neutral return link only", async () => {
     setupApi(mockMemoryPayload({ treeId: "other-tree" }), mockTreePayload());
     renderRoute(["/tree/tree-abc/memory/mem-abc"]);
     expect(await screen.findByText(/속하지 않습니다/)).toBeInTheDocument();
-    expect(screen.getByText(/이 기억이 속한 트리/)).toBeInTheDocument();
+    expect(screen.queryByText(/이 기억이 속한 트리/)).not.toBeInTheDocument();
+    expect(screen.queryByText("아파트")).not.toBeInTheDocument();
+    expect(screen.queryByText("기억 본문 내용")).not.toBeInTheDocument();
+    expect(screen.queryByText("테스트 아티스트")).not.toBeInTheDocument();
+    expect(screen.getByText("요청한 트리로 돌아가기")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "요청한 트리로 돌아가기" })).toHaveAttribute("href", "/tree/tree-abc");
   });
 
   it("memory error + tree failure falls back to community link only", async () => {

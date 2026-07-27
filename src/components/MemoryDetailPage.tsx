@@ -53,19 +53,22 @@ function MemoryMedia({ memory }: { memory: import("../types/publicTreeDetail").P
 }
 
 function MemoryRequestState({
-  kind, message, onRetry, treeData,
+  kind, message, onRetry, treeData, routeTreeId,
 }: {
   kind: "loading" | "error" | "malformed" | "not-found" | "membership-mismatch";
   message: string;
   onRetry?: () => void;
   treeData?: import("../types/publicTreeDetail").PublicTreeDetail | null;
+  routeTreeId?: string;
 }) {
   return (
     <div className={styles.fullState} role={kind === "loading" ? "status" : "alert"}>
       <span aria-hidden="true">{kind === "loading" ? "🌱" : kind === "not-found" ? "🍂" : kind === "membership-mismatch" ? "⚠️" : "🌿"}</span>
       <h1 className={styles.stateHeading}>{kind === "loading" ? "공개 기억을 불러오는 중입니다" : message}</h1>
       {onRetry ? <button type="button" className={styles.retryButton} onClick={onRetry}>다시 시도</button> : null}
-      {treeData ? (
+      {kind === "membership-mismatch" && routeTreeId ? (
+        <Link to={`/tree/${encodeURIComponent(routeTreeId)}`} className={styles.communityLink}>요청한 트리로 돌아가기</Link>
+      ) : treeData && kind !== "membership-mismatch" ? (
         <p className={styles.treeContextLine}>
           이 기억이 속한 트리: <Link to={`/tree/${encodeURIComponent(treeData.id)}`} className={styles.treeLink}>{treeData.title}</Link>
         </p>
@@ -116,7 +119,7 @@ function LivePublicMemoryDetailContent({ treeId, memoryId }: { treeId: string; m
           </button>
           <h1 className={styles.screenTitle}>기억 상세</h1>
         </header>
-        <MemoryRequestState kind="membership-mismatch" message="이 기억은 요청된 트리에 속하지 않습니다." treeData={tree.data} />
+        <MemoryRequestState kind="membership-mismatch" message="이 기억은 요청된 트리에 속하지 않습니다." routeTreeId={treeId} />
       </div>
     );
   }
