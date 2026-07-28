@@ -1,11 +1,27 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import MyTreesPage from "./MyTreesPage";
 import type { OwnerTreeSummary } from "../types/myTrees";
 
 vi.mock("../hooks/useMyTrees", () => ({
   useMyTrees: vi.fn(),
+}));
+
+const authMocks = vi.hoisted(() => ({
+  context: null as null | {
+    user: null | { uid: string; displayName: null; email: string; photoURL: null; emailVerified: boolean };
+    loading: boolean;
+    tier: null;
+    signInWithGoogle: ReturnType<typeof vi.fn>;
+    signOut: ReturnType<typeof vi.fn>;
+    expireSession: ReturnType<typeof vi.fn>;
+  },
+}));
+
+vi.mock("../context/AuthContext", () => ({
+  useAuthContext: () => authMocks.context,
 }));
 
 import { useMyTrees } from "../hooks/useMyTrees";
@@ -19,10 +35,33 @@ function coreItem(overrides: Partial<OwnerTreeSummary> = {}): OwnerTreeSummary {
   return { id: "t1", title: "테스트 트리", visibility: "public", createdAt: "2026-01-01T00:00:00Z", updatedAt: null, ...overrides } as OwnerTreeSummary;
 }
 
-afterEach(() => { cleanup(); vi.clearAllMocks(); });
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+  authMocks.context = null;
+});
 
-function renderPage() {
-  return render(<MemoryRouter><MyTreesPage /></MemoryRouter>);
+function renderPage(initialEntry = "/my-trees") {
+  return render(
+    <MemoryRouter initialEntries={[initialEntry]}>
+      <MyTreesPage />
+      <Routes>
+        <Route path="/login" element={<span>login destination</span>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
+function signedInAuth(overrides: Record<string, unknown> = {}) {
+  return {
+    user: { uid: "u1", displayName: null, email: "u@example.com", photoURL: null, emailVerified: true },
+    loading: false,
+    tier: null,
+    signInWithGoogle: vi.fn(),
+    signOut: vi.fn().mockResolvedValue(undefined),
+    expireSession: vi.fn(),
+    ...overrides,
+  };
 }
 
 describe("MyTreesPage — /my-trees", () => {
@@ -214,5 +253,55 @@ describe("MyTreesPage — /my-trees", () => {
     expect(screen.queryByText("형식 오류")).not.toBeInTheDocument();
     expect(screen.getByText("0개")).toBeInTheDocument();
     expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
+  });
+
+  it("profile button has aria-label 로그아웃", () => {
+    authMocks.context = signedInAuth();
+    mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.getByRole("button", { name: "로그아웃" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "마이페이지" })).not.toBeInTheDocument();
+  });
+
+  it("profile button calls signOut and navigates to /login on click", async () => {
+    const signOut = vi.fn().mockResolvedValue(undefined);
+    authMocks.context = signedInAuth({ signOut });
+    mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
+    renderPage();
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "로그아웃" }));
+    expect(signOut).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(screen.getByText("login destination")).toBeInTheDocument());
+  });
+
+  it("profile button is no-op when auth.user is null", async () => {
+    authMocks.context = { ...signedInAuth(), user: null };
+    mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
+    renderPage();
+    const signOut = authMocks.context.signOut;
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "로그아웃" }));
+    expect(signOut).not.toHaveBeenCalled();
+  });
+
+  it("profile button swallows signOut failure without unmounting", async () => {
+    const signOut = vi.fn().mockRejectedValue(new Error("signOut failed"));
+    authMocks.context = signedInAuth({ signOut });
+    mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
+    renderPage();
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "로그아웃" }));
+    expect(signOut).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("아직 만든 러브트리가 없습니다.")).toBeInTheDocument();
+    expect(screen.queryByText("login destination")).not.toBeInTheDocument();
+  });
+
+  it("no ownerId exposure in profile button area", () => {
+    authMocks.context = signedInAuth();
+    mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
+    renderPage();
+    const html = document.body.innerHTML;
+    expect(html).not.toContain("u@example.com");
+    expect(html).not.toContain("u1");
   });
 });
