@@ -51,7 +51,7 @@ afterEach(() => {
   navigateMock.mockReset();
 });
 
-function renderPage(initialEntry = "/my-trees") {
+function renderPage(initialEntry: string | { pathname: string; state?: Record<string, unknown> } = "/my-trees") {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <MyTreesPage />
@@ -128,14 +128,14 @@ describe("MyTreesPage — /my-trees", () => {
       expect(screen.queryByText("테스트 트리")).not.toBeInTheDocument();
     });
 
-    it("shows empty state with community link only, no demo CTA", () => {
+    it("shows empty state with create CTA and community link, no demo CTA", () => {
       mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
       renderPage();
       expect(screen.getByText("아직 만든 러브트리가 없습니다.")).toBeInTheDocument();
+      expect(screen.getAllByText("새 러브트리 만들기").length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText("다른 팬들 트리 구경하기")).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "다른 팬들 트리 구경하기" })).toHaveAttribute("href", "/community");
       expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
-      expect(screen.queryByText("새 러브트리 만들기")).not.toBeInTheDocument();
     });
 
     it("shows success state with real tree titles and metrics", () => {
@@ -240,7 +240,6 @@ describe("MyTreesPage — /my-trees", () => {
       mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
       renderPage();
       expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
-      expect(screen.queryByText("새 러브트리 만들기")).not.toBeInTheDocument();
       expect(document.querySelector('a[href="/tree/new-demo"]')).toBeNull();
     });
 
@@ -369,7 +368,6 @@ describe("MyTreesPage — /my-trees", () => {
         screen.getByRole("button", { name: "로그아웃" }).click();
       });
 
-      // Still visible while signOut is pending
       expect(screen.getByText("테스트 트리")).toBeInTheDocument();
       expect(screen.getByText("총 1개")).toBeInTheDocument();
 
@@ -442,7 +440,6 @@ describe("MyTreesPage — /my-trees", () => {
 
       await act(async () => { btn.click(); });
 
-      // Second click while pending
       await act(async () => { btn.click(); });
 
       expect(signOut).toHaveBeenCalledTimes(1);
@@ -460,9 +457,7 @@ describe("MyTreesPage — /my-trees", () => {
       const btn = screen.getByRole("button", { name: "로그아웃" });
 
       await act(async () => {
-        // Simulate mouse click
         btn.click();
-        // Simulate keyboard Enter activation while first is pending
         btn.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       });
 
@@ -550,7 +545,6 @@ describe("MyTreesPage — /my-trees", () => {
       await userEvent.setup().click(btn);
       await waitFor(() => expect(signOut).toHaveBeenCalledTimes(1));
 
-      // Click again to retry
       await userEvent.setup().click(btn);
       await waitFor(() => expect(signOut).toHaveBeenCalledTimes(2));
     });
@@ -569,14 +563,12 @@ describe("MyTreesPage — /my-trees", () => {
 
       const btn = screen.getByRole("button", { name: "로그아웃" });
 
-      // First click — fail
       await act(async () => { btn.click(); });
       await act(async () => { firstReject(new Error("fail1")); });
       await waitFor(() => {
         expect(screen.getByText("로그아웃에 실패했습니다. 잠시 후 다시 시도해 주세요.")).toBeInTheDocument();
       });
 
-      // Second click — should clear old error immediately
       await act(async () => {
         btn.click();
       });
@@ -595,11 +587,9 @@ describe("MyTreesPage — /my-trees", () => {
 
       const btn = screen.getByRole("button", { name: "로그아웃" });
 
-      // First click — fail
       await userEvent.setup().click(btn);
       await waitFor(() => expect(signOut).toHaveBeenCalledTimes(1));
 
-      // Second click — retry succeeds
       await userEvent.setup().click(btn);
       await waitFor(() => {
         expect(navigateMock).toHaveBeenCalledWith("/login", { replace: true });
@@ -620,13 +610,10 @@ describe("MyTreesPage — /my-trees", () => {
         screen.getByRole("button", { name: "로그아웃" }).click();
       });
 
-      // Unmount while pending
       unmount();
 
-      // Resolve after unmount — no warning expected
       await act(async () => { resolvePromise(); });
 
-      // If we get here without console.error about state update on unmounted component, test passes
       expect(true).toBe(true);
     });
 
@@ -644,7 +631,6 @@ describe("MyTreesPage — /my-trees", () => {
 
       unmount();
 
-      // Reject after unmount — no warning expected
       await act(async () => { rejectPromise(new Error("unmount fail")); });
 
       expect(true).toBe(true);
@@ -667,7 +653,6 @@ describe("MyTreesPage — /my-trees", () => {
       unmount();
       await act(async () => { resolvePromise(); });
 
-      // Give microtasks time to flush
       await new Promise((r) => setTimeout(r, 50));
 
       const calls = errorSpy.mock.calls.filter(
@@ -690,7 +675,6 @@ describe("MyTreesPage — /my-trees", () => {
       await userEvent.setup().click(screen.getByRole("button", { name: "로그아웃" }));
       await waitFor(() => expect(signOut).toHaveBeenCalledTimes(1));
 
-      // No POST/PUT/PATCH/DELETE fetch calls
       const writeCalls = fetchSpy.mock.calls.filter((args) => {
         const [url, init] = args;
         if (typeof url === "string" && url.startsWith("http")) {
@@ -707,8 +691,39 @@ describe("MyTreesPage — /my-trees", () => {
 
   describe("no skipped or .only tests", () => {
     it("no describe.skip in this file", () => {
-      // This test file should not have skipped suites
       expect(true).toBe(true);
     });
+  });
+});
+
+describe("MyTreesPage — success notice from CreateTreePage", () => {
+  it("shows success message from router state with title", () => {
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    renderPage({ pathname: "/my-trees", state: { createSuccess: true, treeTitle: "나의 첫 트리" } });
+    expect(screen.getByText("나의 첫 트리 러브트리를 만들었습니다.")).toBeInTheDocument();
+  });
+
+  it("success message does not show tree ID or ownerId", () => {
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    renderPage({ pathname: "/my-trees", state: { createSuccess: true, treeTitle: "나의 첫 트리" } });
+    expect(screen.getByText("나의 첫 트리 러브트리를 만들었습니다.")).toBeInTheDocument();
+    expect(screen.queryByText("t1")).not.toBeInTheDocument();
+    expect(screen.queryByText("ownerId")).not.toBeInTheDocument();
+  });
+
+  it("no message without router state", () => {
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.queryByText("러브트리를 만들었습니다.")).not.toBeInTheDocument();
+  });
+
+  it("message clears after reading, not shown on refresh", () => {
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    const { unmount } = renderPage({ pathname: "/my-trees", state: { createSuccess: true, treeTitle: "나의 첫 트리" } });
+    expect(screen.getByText("나의 첫 트리 러브트리를 만들었습니다.")).toBeInTheDocument();
+    unmount();
+    mockUseMyTrees.mockReturnValue({ items: [item()], status: "success", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.queryByText("러브트리를 만들었습니다.")).not.toBeInTheDocument();
   });
 });

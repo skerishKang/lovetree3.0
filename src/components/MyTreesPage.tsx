@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import { useMyTrees } from "../hooks/useMyTrees";
 import type { OwnerTreeSummary } from "../types/myTrees";
@@ -90,6 +90,12 @@ export default function MyTreesPage() {
   const { items, status, error, retry } = useMyTrees();
   const auth = useAuthContext();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as Record<string, unknown> | null;
+  const successTitle = state?.createSuccess === true && typeof state?.treeTitle === "string"
+    ? state.treeTitle
+    : undefined;
+  const clearedRef = useRef(false);
   const [logoutPending, setLogoutPending] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
   const logoutPendingRef = useRef(false);
@@ -101,6 +107,16 @@ export default function MyTreesPage() {
       mountedRef.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (successTitle && !clearedRef.current) {
+      clearedRef.current = true;
+      const id = setTimeout(() => {
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 0);
+      return () => clearTimeout(id);
+    }
+  }, [successTitle, navigate, location.pathname]);
 
   const handleLogout = async () => {
     if (!auth?.user || logoutPendingRef.current) {
@@ -128,6 +144,11 @@ export default function MyTreesPage() {
 
   return (
     <div className={styles.page}>
+      {successTitle ? (
+        <div className={styles.successBanner} role="status">
+          <p>{successTitle} 러브트리를 만들었습니다.</p>
+        </div>
+      ) : null}
       <header className={styles.topBar}>
         <div className={styles.brandArea}>
           <span className={styles.logo}>Relovetree</span>
@@ -160,6 +181,12 @@ export default function MyTreesPage() {
           <h1 className={styles.pageTitle}>나의 러브트리</h1>
           <p className={styles.pageDescription}>지금까지 이어온 기억의 흐름을 한 곳에서 돌아보세요.</p>
         </div>
+        <button type="button" className={styles.newTreeButton} onClick={() => navigate("/tree/new")}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span>새 러브트리 만들기</span>
+        </button>
       </section>
 
       {status === "loading" ? (
@@ -198,6 +225,9 @@ export default function MyTreesPage() {
         <div className={styles.emptyState}>
           <p>아직 만든 러브트리가 없습니다.</p>
           <div className={styles.emptyActions}>
+            <button type="button" className={styles.primaryCta} onClick={() => navigate("/tree/new")}>
+              새 러브트리 만들기
+            </button>
             <Link to="/community" className={styles.secondaryCta}>
               다른 팬들 트리 구경하기
             </Link>

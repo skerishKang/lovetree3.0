@@ -1,0 +1,214 @@
+.page {
+  min-height: 100vh;
+  background: #faf6f1;
+  color: #2a2622;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  background: #ffffff;
+  border-bottom: 1px solid #ede6dc;
+}
+
+.brandArea {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #d96b8f;
+  letter-spacing: -0.02em;
+}
+
+.cancelButton {
+  padding: 8px 16px;
+  min-height: 44px;
+  background: transparent;
+  border: 1px solid #d4cdc4;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5a544c;
+  cursor: pointer;
+}
+
+.cancelButton:hover {
+  background: #f5eee7;
+}
+
+.layout {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+.pageTitle {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2a2622;
+}
+
+.pageDescription {
+  margin: 0 0 32px;
+  font-size: 14px;
+  color: #7a7268;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fieldGroup {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2a2622;
+  margin-bottom: 2px;
+}
+
+.textInput {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d4cdc4;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #2a2622;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.textInput:focus {
+  outline: 2px solid #d96b8f;
+  outline-offset: -1px;
+  border-color: #d96b8f;
+}
+
+.inputError {
+  border-color: #c0392b;
+}
+
+.inputError:focus {
+  outline-color: #c0392b;
+  border-color: #c0392b;
+}
+
+.charCount {
+  text-align: right;
+  font-size: 12px;
+  color: #9a9088;
+}
+
+.fieldError {
+  margin: 0;
+  font-size: 13px;
+  color: #c0392b;
+}
+
+.inlineError {
+  padding: 12px 14px;
+  background: #fef0ef;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #c0392b;
+  line-height: 1.4;
+}
+
+.radioGroup {
+  display: flex;
+  gap: 20px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2a2622;
+}
+
+.radioInput {
+  width: 18px;
+  height: 18px;
+  accent-color: #d96b8f;
+  cursor: pointer;
+}
+
+.radioText {
+  font-weight: 500;
+}
+
+.visibilityNote {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #8a7a6a;
+  line-height: 1.4;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 14px;
+  min-height: 48px;
+  background: #d96b8f;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #c95c7f;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.stateMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  color: #66584d;
+}
+
+.actionButton {
+  padding: 10px 20px;
+  border: 1px solid #b8a08e;
+  border-radius: 8px;
+  background: #fff;
+  color: #4a3f35;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  background: #f5eee7;
+}
