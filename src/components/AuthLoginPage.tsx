@@ -7,8 +7,6 @@ import styles from "./AuthLoginPage.module.css";
 import { TRUST_CONTEXT } from "../data/authMockData";
 import {
   getFirebaseAuthConfigStatus,
-  signInWithEmail,
-  signUpWithEmail,
 } from "../api/auth";
 import type { EmailAuthSubmitInput } from "./EmailAuthForm";
 import { useAuth } from "../hooks/useAuth";
@@ -62,7 +60,7 @@ function getEmailAuthMessage(reason: string | null): string {
     case "email-already-in-use":
       return "이미 사용 중인 이메일입니다. 로그인해 주세요.";
     case "weak-password":
-      return "비밀번호가 너무 약합니다. 더 긴 비밀번호를 사용해 주세요.";
+      return "비밀번호가 요구사항을 충족하지 않습니다. 다른 비밀번호를 사용해 주세요.";
     case "too-many-requests":
       return "시도 횟수가 많습니다. 잠시 후 다시 시도해 주세요.";
     case "network-request-failed":
@@ -80,13 +78,20 @@ function getEmailAuthMessage(reason: string | null): string {
 }
 
 export default function AuthLoginPage() {
-  const { user, loading, signInWithGoogle } = useAuth();
+  const {
+    user,
+    loading,
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+  } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [pendingFlow, setPendingFlow] = useState<PendingFlow>(null);
   const [localMessage, setLocalMessage] = useState<string | null>(null);
   const [statusFocusToken, setStatusFocusToken] = useState(0);
   const pendingRef = useRef(false);
+  const mountedRef = useRef(true);
   const statusRef = useRef<HTMLParagraphElement>(null);
   const configStatus = useMemo(() => getFirebaseAuthConfigStatus(), []);
   const navigationState = location.state as AuthNavigationState | null;
@@ -104,6 +109,8 @@ export default function AuthLoginPage() {
     }
   }, [statusFocusToken]);
 
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const handleGoogleSignIn = async () => {
     if (pendingRef.current || !configStatus.configured) {
       return;
@@ -118,6 +125,9 @@ export default function AuthLoginPage() {
       // onIdTokenChanged owns the authenticated user state. Navigation occurs
       // from the effect above once AuthContext observes that user.
     } catch (error) {
+      if (!mountedRef.current) {
+        return;
+      }
       pendingRef.current = false;
       setPendingFlow(null);
       setLocalMessage(getGoogleSignInMessage(error));
@@ -142,6 +152,9 @@ export default function AuthLoginPage() {
       // onIdTokenChanged owns the authenticated user state. Navigation occurs
       // from the effect above once AuthContext observes that user.
     } catch (error) {
+      if (!mountedRef.current) {
+        return;
+      }
       pendingRef.current = false;
       setPendingFlow(null);
       setLocalMessage(getEmailAuthMessage(readEmailAuthReason(error)));

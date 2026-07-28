@@ -13,6 +13,8 @@ export interface AuthContextValue {
   loading: boolean;
   tier: AuthTier;
   signInWithGoogle(): Promise<void>;
+  signInWithEmail(email: string, password: string): Promise<void>;
+  signUpWithEmail(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
   expireSession(): Promise<void>;
 }

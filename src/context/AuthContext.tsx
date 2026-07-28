@@ -100,6 +100,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authApi.signInWithGoogle();
   }, []);
 
+  const signInWithEmail = useCallback(async (email: string, password: string) => {
+    await authApi.signInWithEmail(email, password);
+  }, []);
+
+  const signUpWithEmail = useCallback(async (email: string, password: string) => {
+    await authApi.signUpWithEmail(email, password);
+  }, []);
+
   const signOut = useCallback(async () => {
     await authApi.signOutFirebase();
     clearAuthState();
@@ -122,10 +130,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       tier,
       signInWithGoogle,
+      signInWithEmail,
+      signUpWithEmail,
       signOut,
       expireSession,
     }),
-    [user, loading, tier, signInWithGoogle, signOut, expireSession]
+    [
+      user,
+      loading,
+      tier,
+      signInWithGoogle,
+      signInWithEmail,
+      signUpWithEmail,
+      signOut,
+      expireSession,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -31,12 +31,12 @@ const authMocks = vi.hoisted(() => ({
     loading: false,
     tier: null,
     signInWithGoogle: vi.fn(),
+    signInWithEmail: vi.fn(),
+    signUpWithEmail: vi.fn(),
     signOut: vi.fn(),
     expireSession: vi.fn(),
   },
   configStatus: vi.fn(),
-  signInWithEmail: vi.fn(),
-  signUpWithEmail: vi.fn(),
 }));
 
 vi.mock("../hooks/useAuth", () => ({
@@ -45,8 +45,6 @@ vi.mock("../hooks/useAuth", () => ({
 
 vi.mock("../api/auth", () => ({
   getFirebaseAuthConfigStatus: authMocks.configStatus,
-  signInWithEmail: authMocks.signInWithEmail,
-  signUpWithEmail: authMocks.signUpWithEmail,
 }));
 
 function LocationProbe() {
@@ -79,12 +77,12 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     authMocks.value.loading = false;
     authMocks.value.signInWithGoogle.mockReset();
     authMocks.value.signInWithGoogle.mockResolvedValue(undefined);
+    authMocks.value.signInWithEmail.mockReset();
+    authMocks.value.signInWithEmail.mockResolvedValue(undefined);
+    authMocks.value.signUpWithEmail.mockReset();
+    authMocks.value.signUpWithEmail.mockResolvedValue(undefined);
     authMocks.value.signOut.mockReset();
     authMocks.value.expireSession.mockReset();
-    authMocks.signInWithEmail.mockReset();
-    authMocks.signInWithEmail.mockResolvedValue(undefined);
-    authMocks.signUpWithEmail.mockReset();
-    authMocks.signUpWithEmail.mockResolvedValue(undefined);
     authMocks.configStatus.mockReset();
     authMocks.configStatus.mockReturnValue({
       configured: true,
@@ -200,8 +198,8 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     await user.type(screen.getByLabelText("비밀번호"), "secret-pw");
     await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
 
-    expect(authMocks.signInWithEmail).not.toHaveBeenCalled();
-    expect(authMocks.signUpWithEmail).not.toHaveBeenCalled();
+    expect(authMocks.value.signInWithEmail).not.toHaveBeenCalled();
+    expect(authMocks.value.signUpWithEmail).not.toHaveBeenCalled();
     expect(
       screen.getByText("이메일 형식이 올바르지 않습니다. 다시 확인해 주세요.")
     ).toBeInTheDocument();
@@ -220,8 +218,8 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     await user.type(screen.getByLabelText("비밀번호 확인"), "secret-two");
     await user.click(screen.getByRole("button", { name: "이메일로 회원가입" }));
 
-    expect(authMocks.signUpWithEmail).not.toHaveBeenCalled();
-    expect(authMocks.signInWithEmail).not.toHaveBeenCalled();
+    expect(authMocks.value.signUpWithEmail).not.toHaveBeenCalled();
+    expect(authMocks.value.signInWithEmail).not.toHaveBeenCalled();
   });
 
   it("calls the adapter once for a valid email login", async () => {
@@ -233,12 +231,12 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     await user.type(screen.getByLabelText("비밀번호"), "secret-pw");
     await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
 
-    expect(authMocks.signInWithEmail).toHaveBeenCalledTimes(1);
-    expect(authMocks.signInWithEmail).toHaveBeenCalledWith(
+    expect(authMocks.value.signInWithEmail).toHaveBeenCalledTimes(1);
+    expect(authMocks.value.signInWithEmail).toHaveBeenCalledWith(
       "user@example.com",
       "secret-pw"
     );
-    expect(authMocks.signUpWithEmail).not.toHaveBeenCalled();
+    expect(authMocks.value.signUpWithEmail).not.toHaveBeenCalled();
   });
 
   it("calls signup once for a valid email signup", async () => {
@@ -254,8 +252,8 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     await user.type(screen.getByLabelText("비밀번호 확인"), "secret-pw");
     await user.click(screen.getByRole("button", { name: "이메일로 회원가입" }));
 
-    expect(authMocks.signUpWithEmail).toHaveBeenCalledTimes(1);
-    expect(authMocks.signUpWithEmail).toHaveBeenCalledWith(
+    expect(authMocks.value.signUpWithEmail).toHaveBeenCalledTimes(1);
+    expect(authMocks.value.signUpWithEmail).toHaveBeenCalledWith(
       "user@example.com",
       "secret-pw"
     );
@@ -263,7 +261,7 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
 
   it("submits Firebase once under a rapid repeated submit race", async () => {
     let resolveSignIn: () => void = () => undefined;
-    authMocks.signInWithEmail.mockReturnValue(
+    authMocks.value.signInWithEmail.mockReturnValue(
       new Promise<void>((resolve) => {
         resolveSignIn = resolve;
       })
@@ -279,7 +277,7 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     fireEvent.submit(form);
     fireEvent.submit(form);
 
-    expect(authMocks.signInWithEmail).toHaveBeenCalledTimes(1);
+    expect(authMocks.value.signInWithEmail).toHaveBeenCalledTimes(1);
 
     resolveSignIn();
   });
@@ -289,11 +287,11 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     ["user-not-found", "이메일 또는 비밀번호가 올바르지 않습니다"],
     ["wrong-password", "이메일 또는 비밀번호가 올바르지 않습니다"],
     ["email-already-in-use", "이미 사용 중인 이메일입니다"],
-    ["weak-password", "비밀번호가 너무 약합니다"],
+    ["weak-password", "비밀번호가 요구사항을 충족하지 않습니다"],
     ["too-many-requests", "시도 횟수가 많습니다"],
     ["network-request-failed", "네트워크 연결을 확인한 뒤"],
   ])("maps email provider failure %s to one bounded status", async (reason, message) => {
-    authMocks.signInWithEmail.mockRejectedValue({
+    authMocks.value.signInWithEmail.mockRejectedValue({
       name: "EmailAuthError",
       reason,
       code: "auth/raw-code",
@@ -474,5 +472,176 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     expect(
       screen.getByRole("heading", { name: "다른 팬들의 러브트리 구경하기" })
     ).toBeInTheDocument();
+  });
+
+  it("locks the Google button while an email request is pending", async () => {
+    let resolveEmail: () => void = () => undefined;
+    authMocks.value.signInWithEmail.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveEmail = resolve;
+      })
+    );
+    render(createTree("/login"));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+    await user.type(screen.getByLabelText("이메일"), "user@example.com");
+    await user.type(screen.getByLabelText("비밀번호"), "secret-pw");
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+
+    const google = screen.getByRole("button", {
+      name: "구글 계정으로 계속하기",
+    });
+    expect(google).toBeDisabled();
+
+    resolveEmail();
+  });
+
+  it("locks the email toggle while a Google request is pending", async () => {
+    let resolveGoogle: () => void = () => undefined;
+    authMocks.value.signInWithGoogle.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveGoogle = resolve;
+      })
+    );
+    render(createTree("/login"));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "구글 계정으로 계속하기" }));
+
+    const emailToggle = screen.getByRole("button", { name: "이메일로 로그인" });
+    expect(emailToggle).toBeDisabled();
+
+    resolveGoogle();
+  });
+
+  it("locks the email form controls while a Google request is pending", async () => {
+    let resolveGoogle: () => void = () => undefined;
+    authMocks.value.signInWithGoogle.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveGoogle = resolve;
+      })
+    );
+    render(createTree("/login"));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+    await user.click(screen.getByRole("button", { name: "구글 계정으로 계속하기" }));
+
+    expect(screen.getByLabelText("이메일")).toBeDisabled();
+    expect(screen.getByLabelText("비밀번호")).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "이메일로 로그인" })
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "계정이 없으신가요? 이메일로 회원가입" })
+    ).toBeDisabled();
+
+    resolveGoogle();
+  });
+
+  it("cross-provider click race results in exactly one provider call", async () => {
+    let resolveEmail: () => void = () => undefined;
+    authMocks.value.signInWithEmail.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveEmail = resolve;
+      })
+    );
+    render(createTree("/login"));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+    await user.type(screen.getByLabelText("이메일"), "user@example.com");
+    await user.type(screen.getByLabelText("비밀번호"), "secret-pw");
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+
+    await user.click(screen.getByRole("button", { name: "구글 계정으로 계속하기" }));
+
+    expect(authMocks.value.signInWithEmail).toHaveBeenCalledTimes(1);
+    expect(authMocks.value.signInWithGoogle).not.toHaveBeenCalled();
+
+    resolveEmail();
+  });
+
+  it("ignores late email rejection after unmount with no React warning", async () => {
+    let rejectEmail: (error: unknown) => void = () => undefined;
+    authMocks.value.signInWithEmail.mockReturnValue(
+      new Promise<void>((_resolve, reject) => {
+        rejectEmail = reject;
+      })
+    );
+
+    const errors: string[] = [];
+    const originalError = console.error;
+    console.error = (...args: unknown[]) => {
+      errors.push(args.map(String).join(" "));
+    };
+
+    const { unmount } = render(createTree("/login"));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+    await user.type(screen.getByLabelText("이메일"), "user@example.com");
+    await user.type(screen.getByLabelText("비밀번호"), "secret-pw");
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+
+    unmount();
+
+    await act(async () => {
+      rejectEmail({ name: "EmailAuthError", reason: "network-request-failed" });
+      await Promise.resolve();
+    });
+
+    console.error = originalError;
+
+    expect(errors).not.toContain(
+      expect.stringContaining("Can't perform a React state update on an unmounted component")
+    );
+    expect(authMocks.value.signInWithEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores late Google rejection after unmount with no React warning", async () => {
+    let rejectGoogle: (error: unknown) => void = () => undefined;
+    authMocks.value.signInWithGoogle.mockReturnValue(
+      new Promise<void>((_resolve, reject) => {
+        rejectGoogle = reject;
+      })
+    );
+
+    const errors: string[] = [];
+    const originalError = console.error;
+    console.error = (...args: unknown[]) => {
+      errors.push(args.map(String).join(" "));
+    };
+
+    const { unmount } = render(createTree("/login"));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "구글 계정으로 계속하기" }));
+
+    unmount();
+
+    await act(async () => {
+      rejectGoogle({ reason: "auth-failed" });
+      await Promise.resolve();
+    });
+
+    console.error = originalError;
+
+    expect(errors).not.toContain(
+      expect.stringContaining("Can't perform a React state update on an unmounted component")
+    );
+    expect(authMocks.value.signInWithGoogle).toHaveBeenCalledTimes(1);
+  });
+
+  it("has no clickable no-op controls while configured and idle", () => {
+    render(createTree("/login"));
+    const google = screen.getByRole("button", {
+      name: "구글 계정으로 계속하기",
+    });
+    const emailToggle = screen.getByRole("button", { name: "이메일로 로그인" });
+
+    expect(google).toBeEnabled();
+    expect(emailToggle).toBeEnabled();
   });
 });

@@ -55,7 +55,7 @@ export default function LoginPanel({
           icon={googleButton.icon}
           label={googleButton.label}
           variant={googleButton.variant}
-          disabled={!configured}
+          disabled={!configured || anyPending}
           pending={googlePending}
           onClick={onGoogleSignIn}
         />
@@ -77,7 +77,7 @@ export default function LoginPanel({
         <div id={EMAIL_FORM_REGION_ID} className={styles.emailFormRegion}>
           <EmailAuthForm
             pending={emailPending}
-            disabled={!configured}
+            disabled={!configured || googlePending || emailPending}
             onSubmit={onEmailSubmit}
           />
         </div>
