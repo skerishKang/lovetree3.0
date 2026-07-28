@@ -7,6 +7,8 @@ interface Props {
   disabled?: boolean;
   pending?: boolean;
   describedBy?: string;
+  expanded?: boolean;
+  controls?: string;
   onClick?: () => void;
 }
 
@@ -17,6 +19,8 @@ export default function SocialLoginButton({
   disabled = false,
   pending = false,
   describedBy,
+  expanded,
+  controls,
   onClick,
 }: Props) {
   return (
@@ -26,6 +30,8 @@ export default function SocialLoginButton({
       aria-label={label}
       aria-busy={pending || undefined}
       aria-describedby={describedBy}
+      aria-expanded={expanded === undefined ? undefined : expanded}
+      aria-controls={controls}
       disabled={disabled || pending}
       onClick={onClick}
     >
