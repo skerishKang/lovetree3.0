@@ -55,7 +55,7 @@ export function normalizeTreeItem(value: unknown): OwnerTreeSummary {
     !isNonEmptyString(value.id) ||
     !isNonEmptyString(value.title) ||
     !isString(value.visibility) || (value.visibility !== "public" && value.visibility !== "private") ||
-    (value.groupName !== undefined && !isString(value.groupName)) ||
+    (value.groupName != null && !isString(value.groupName)) ||
     (value.memoryCount !== undefined && !isNonNegativeInteger(value.memoryCount)) ||
     !isNullableTimestamp(value.createdAt) ||
     !isNullableTimestamp(value.updatedAt)
