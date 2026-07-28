@@ -5,10 +5,17 @@ import {
   browserLocalPersistence,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
   type Auth,
 } from "firebase/auth";
 import type { AccessTokenProvider } from "../types/api";
+import {
+  hasValidEmailShape,
+  hasValidPasswordLength,
+  normalizeEmailInput,
+} from "../utils/emailAuthValidation";
 
 interface FirebaseConfig {
   apiKey: string;
@@ -209,6 +216,113 @@ export async function signInWithGoogle(): Promise<void> {
 
     throw new GoogleSignInError(classifyGoogleSignInError(error));
   }
+}
+
+export type EmailAuthFailureReason =
+  | "invalid-email"
+  | "empty-password"
+  | "input-too-long"
+  | "user-not-found"
+  | "wrong-password"
+  | "invalid-credential"
+  | "email-already-in-use"
+  | "weak-password"
+  | "too-many-requests"
+  | "network-request-failed"
+  | "operation-not-allowed"
+  | "config-unavailable"
+  | "auth-failed";
+
+export class EmailAuthError extends Error {
+  readonly reason: EmailAuthFailureReason;
+
+  constructor(reason: EmailAuthFailureReason) {
+    super("Email authentication could not be completed");
+    this.name = "EmailAuthError";
+    this.reason = reason;
+  }
+}
+
+function classifyEmailAuthError(error: unknown): EmailAuthFailureReason {
+  const code = readFirebaseErrorCode(error);
+
+  switch (code) {
+    case "auth/invalid-email":
+      return "invalid-email";
+    case "auth/user-not-found":
+      return "user-not-found";
+    case "auth/wrong-password":
+      return "wrong-password";
+    case "auth/invalid-credential":
+      return "invalid-credential";
+    case "auth/email-already-in-use":
+      return "email-already-in-use";
+    case "auth/weak-password":
+      return "weak-password";
+    case "auth/too-many-requests":
+      return "too-many-requests";
+    case "auth/network-request-failed":
+      return "network-request-failed";
+    case "auth/operation-not-allowed":
+      return "operation-not-allowed";
+    default:
+      return "auth-failed";
+  }
+}
+
+function assertEmailAuthInput(email: string, password: string): void {
+  if (!hasValidEmailShape(email)) {
+    throw new EmailAuthError("invalid-email");
+  }
+
+  if (password.length === 0) {
+    throw new EmailAuthError("empty-password");
+  }
+
+  if (!hasValidPasswordLength(password)) {
+    throw new EmailAuthError("input-too-long");
+  }
+}
+
+async function runEmailAuthAction(
+  action: (auth: Auth, email: string, password: string) => Promise<unknown>,
+  email: string,
+  password: string
+): Promise<void> {
+  assertEmailAuthInput(email, password);
+
+  if (!getFirebaseAuthConfigStatus().configured) {
+    throw new EmailAuthError("config-unavailable");
+  }
+
+  try {
+    const auth = await ensureFirebaseAuthReady();
+    await action(auth, normalizeEmailInput(email), password);
+  } catch (error) {
+    if (error instanceof EmailAuthError) {
+      throw error;
+    }
+
+    throw new EmailAuthError(classifyEmailAuthError(error));
+  }
+}
+
+export async function signInWithEmail(email: string, password: string): Promise<void> {
+  await runEmailAuthAction(
+    (auth, normalizedEmail, rawPassword) =>
+      signInWithEmailAndPassword(auth, normalizedEmail, rawPassword),
+    email,
+    password
+  );
+}
+
+export async function signUpWithEmail(email: string, password: string): Promise<void> {
+  await runEmailAuthAction(
+    (auth, normalizedEmail, rawPassword) =>
+      createUserWithEmailAndPassword(auth, normalizedEmail, rawPassword),
+    email,
+    password
+  );
 }
 
 export const firebaseAccessTokenProvider: AccessTokenProvider = {

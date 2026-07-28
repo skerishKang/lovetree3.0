@@ -1,16 +1,23 @@
+import { useState, type RefObject } from "react";
 import {
   LOGIN_BUTTONS,
   PREVIEW_PROFILE,
   AUTH_FEATURES,
 } from "../data/authMockData";
 import SocialLoginButton from "./SocialLoginButton";
+import EmailAuthForm, { type EmailAuthSubmitInput } from "./EmailAuthForm";
 import styles from "./LoginPanel.module.css";
+
+const EMAIL_FORM_REGION_ID = "email-auth-form-region";
 
 interface LoginPanelProps {
   configured: boolean;
-  pending: boolean;
+  googlePending: boolean;
+  emailPending: boolean;
   statusMessage: string | null;
+  statusRef: RefObject<HTMLParagraphElement | null>;
   onGoogleSignIn(): void;
+  onEmailSubmit(input: EmailAuthSubmitInput): void;
 }
 
 const FeatureIcon = () => (
@@ -29,35 +36,61 @@ const FeatureIcon = () => (
 
 export default function LoginPanel({
   configured,
-  pending,
+  googlePending,
+  emailPending,
   statusMessage,
+  statusRef,
   onGoogleSignIn,
+  onEmailSubmit,
 }: LoginPanelProps) {
+  const [emailFormOpen, setEmailFormOpen] = useState(false);
+  const googleButton = LOGIN_BUTTONS.find((button) => button.id === "google");
+  const emailButton = LOGIN_BUTTONS.find((button) => button.id === "email");
+  const anyPending = googlePending || emailPending;
+
   return (
     <div className={styles.loginPanel}>
-      {LOGIN_BUTTONS.map((button) => {
-        const isGoogle = button.id === "google";
+      {googleButton ? (
+        <SocialLoginButton
+          icon={googleButton.icon}
+          label={googleButton.label}
+          variant={googleButton.variant}
+          disabled={!configured || anyPending}
+          pending={googlePending}
+          onClick={onGoogleSignIn}
+        />
+      ) : null}
 
-        return (
-          <SocialLoginButton
-            key={button.id}
-            icon={button.icon}
-            label={button.label}
-            variant={button.variant}
-            disabled={isGoogle ? !configured : true}
-            pending={isGoogle && pending}
-            describedBy={isGoogle ? undefined : "email-login-availability"}
-            onClick={isGoogle ? onGoogleSignIn : undefined}
+      {emailButton ? (
+        <SocialLoginButton
+          icon={emailButton.icon}
+          label={emailFormOpen ? "이메일 로그인 닫기" : emailButton.label}
+          variant={emailButton.variant}
+          disabled={!configured || anyPending}
+          expanded={emailFormOpen}
+          controls={EMAIL_FORM_REGION_ID}
+          onClick={() => setEmailFormOpen((open) => !open)}
+        />
+      ) : null}
+
+      {emailFormOpen ? (
+        <div id={EMAIL_FORM_REGION_ID} className={styles.emailFormRegion}>
+          <EmailAuthForm
+            pending={emailPending}
+            disabled={!configured || googlePending || emailPending}
+            onSubmit={onEmailSubmit}
           />
-        );
-      })}
-
-      <p id="email-login-availability" className={styles.availabilityNote}>
-        이메일 로그인은 준비 중입니다.
-      </p>
+        </div>
+      ) : null}
 
       {statusMessage ? (
-        <p role="status" aria-live="polite" className={styles.statusMessage}>
+        <p
+          ref={statusRef}
+          tabIndex={-1}
+          role="status"
+          aria-live="polite"
+          className={styles.statusMessage}
+        >
           {statusMessage}
         </p>
       ) : null}
