@@ -7,7 +7,7 @@ export interface CreatedTree {
   id: string;
   title: string;
   visibility: "public" | "private";
-  groupName: string;
+  groupName: string | null;
   keywords: string[];
   createdAt: string | null;
   updatedAt: string | null;

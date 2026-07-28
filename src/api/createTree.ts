@@ -48,7 +48,7 @@ export function normalizeCreatedTree(value: unknown): CreatedTree {
     !isNonEmptyString(value.id) ||
     !isNonEmptyString(value.title) ||
     !isString(value.visibility) || (value.visibility !== "public" && value.visibility !== "private") ||
-    !isString(value.groupName) ||
+    (value.groupName !== null && !isString(value.groupName)) ||
     !Array.isArray(value.keywords) ||
     !value.keywords.every(isString) ||
     !isNullableTimestamp(value.createdAt) ||

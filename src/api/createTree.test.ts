@@ -46,6 +46,45 @@ describe("normalizeCreatedTree", () => {
   it("rejects missing memoryCount", () => expect(() => normalizeCreatedTree(treePayload({ memoryCount: undefined }))).toThrow(CreateTreeResponseError));
   it("rejects null input", () => expect(() => normalizeCreatedTree(null)).toThrow(CreateTreeResponseError));
   it("rejects non-object input", () => expect(() => normalizeCreatedTree([])).toThrow(CreateTreeResponseError));
+
+  describe("nullable groupName contract", () => {
+    it("accepts null groupName", () => {
+      const r = normalizeCreatedTree(treePayload({ groupName: null }));
+      expect(r.groupName).toBeNull();
+    });
+
+    it("accepts string groupName and preserves it", () => {
+      const r = normalizeCreatedTree(treePayload({ groupName: "my-group" }));
+      expect(r.groupName).toBe("my-group");
+    });
+
+    it("accepts empty string groupName", () => {
+      const r = normalizeCreatedTree(treePayload({ groupName: "" }));
+      expect(r.groupName).toBe("");
+    });
+
+    it("rejects number groupName", () => {
+      expect(() => normalizeCreatedTree(treePayload({ groupName: 123 }))).toThrow(CreateTreeResponseError);
+    });
+
+    it("rejects plain object groupName", () => {
+      expect(() => normalizeCreatedTree(treePayload({ groupName: {} }))).toThrow(CreateTreeResponseError);
+    });
+
+    it("rejects array groupName", () => {
+      expect(() => normalizeCreatedTree(treePayload({ groupName: [] }))).toThrow(CreateTreeResponseError);
+    });
+
+    it("rejects undefined groupName", () => {
+      expect(() => normalizeCreatedTree(treePayload({ groupName: undefined }))).toThrow(CreateTreeResponseError);
+    });
+
+    it("rejects missing groupName", () => {
+      const payload: Record<string, unknown> = treePayload();
+      delete payload.groupName;
+      expect(() => normalizeCreatedTree(payload)).toThrow(CreateTreeResponseError);
+    });
+  });
 });
 
 describe("createCreateTreeApi — write-boundary input validation", () => {
@@ -144,6 +183,28 @@ describe("createCreateTreeApi — write-boundary input validation", () => {
     const api = createCreateTreeApi(client);
     await expect(api.createTree({ title: "내 트리", visibility: "unknown" as "public" })).rejects.toThrow(CreateTreeInputError);
     expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it("accepts Production-shaped response with null groupName", async () => {
+    const client = mockClient();
+    client.post.mockResolvedValue({
+      id: "t-production-shaped",
+      title: "내 러브트리",
+      visibility: "public",
+      groupName: null,
+      keywords: [],
+      createdAt: "2026-07-28T23:00:00.000Z",
+      updatedAt: null,
+      memoryCount: 0,
+    });
+    const api = createCreateTreeApi(client);
+    const result = await api.createTree({ title: "내 트리", visibility: "public" });
+    expect(result.groupName).toBeNull();
+    expect(client.post).toHaveBeenCalledTimes(1);
+    expect(client.post).toHaveBeenCalledWith("/trees", {
+      title: "내 트리",
+      visibility: "public",
+    }, { signal: undefined });
   });
 
   it("CreateTreeInputError has correct field name", async () => {
