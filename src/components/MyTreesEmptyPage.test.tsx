@@ -28,6 +28,11 @@ describe("MyTreesEmptyPage — /my-trees/empty-demo", () => {
     expect(document.querySelector('a[href="/tree/community-demo"]')).toBeNull();
   });
 
+  it("does not render demo CTA", () => {
+    renderPage();
+    expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
+  });
+
   it("renders quick-start items", () => {
     renderPage();
     const items = screen.getAllByTestId("quick-start-item");
