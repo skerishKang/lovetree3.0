@@ -137,8 +137,49 @@ describe("normalizeTreeItem", () => {
     expect(r.viewCount).toBe(0);
   });
 
-  it("rejects invalid present groupName", () => {
+  it("accepts groupName null as unavailable", () => {
+    const r = normalizeTreeItem(treePayload({ groupName: null }));
+    expect(r.groupName).toBeUndefined();
+  });
+
+  it("accepts production-shaped item with groupName null", () => {
+    const r = normalizeTreeItem({
+      id: "t-prod-1",
+      title: "프로덕션 트리",
+      visibility: "public",
+      groupName: null,
+      keywords: [],
+      createdAt: "2026-07-20T10:00:00.000Z",
+      updatedAt: "2026-07-26T10:00:00.000Z",
+      memoryCount: 0,
+    });
+    expect(r.id).toBe("t-prod-1");
+    expect(r.title).toBe("프로덕션 트리");
+    expect(r.visibility).toBe("public");
+    expect(r.groupName).toBeUndefined();
+    expect(r.keywords).toEqual([]);
+    expect(r.memoryCount).toBe(0);
+  });
+
+  it("preserves empty string groupName", () => {
+    const r = normalizeTreeItem(treePayload({ groupName: "" }));
+    expect(r.groupName).toBe("");
+  });
+
+  it("rejects numeric groupName", () => {
     expect(() => normalizeTreeItem(treePayload({ groupName: 123 }))).toThrow(MyTreesResponseError);
+  });
+
+  it("rejects boolean groupName", () => {
+    expect(() => normalizeTreeItem(treePayload({ groupName: true }))).toThrow(MyTreesResponseError);
+  });
+
+  it("rejects array groupName", () => {
+    expect(() => normalizeTreeItem(treePayload({ groupName: ["a"] }))).toThrow(MyTreesResponseError);
+  });
+
+  it("rejects object groupName", () => {
+    expect(() => normalizeTreeItem(treePayload({ groupName: { a: 1 } }))).toThrow(MyTreesResponseError);
   });
 
   it("rejects invalid present keywords (non-array)", () => {

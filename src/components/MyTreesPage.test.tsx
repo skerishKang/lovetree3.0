@@ -133,6 +133,16 @@ describe("MyTreesPage — /my-trees", () => {
     expect(screen.queryByText("그룹")).not.toBeInTheDocument();
   });
 
+  it("does not render group row when groupName is null", () => {
+    mockUseMyTrees.mockReturnValue({
+      items: [coreItem({ groupName: undefined })],
+      status: "success", error: null, retry: vi.fn(),
+    });
+    renderPage();
+    expect(screen.queryByText("그룹")).not.toBeInTheDocument();
+    expect(screen.getByText("테스트 트리")).toBeInTheDocument();
+  });
+
   it("does not render keywords when keywords is absent", () => {
     mockUseMyTrees.mockReturnValue({
       items: [coreItem()],
@@ -188,5 +198,21 @@ describe("MyTreesPage — /my-trees", () => {
     mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
     renderPage();
     expect(screen.getByRole("link", { name: "다른 팬들 트리 구경하기" })).toHaveAttribute("href", "/community");
+  });
+
+  it("renders production-shaped item with groupName null", () => {
+    const prodItem = {
+      id: "t-prod", title: "실제 트리", visibility: "public" as const,
+      groupName: undefined, keywords: [], createdAt: "2026-07-01T00:00:00Z", updatedAt: null,
+      memoryCount: 0,
+    } as OwnerTreeSummary;
+    mockUseMyTrees.mockReturnValue({ items: [prodItem], status: "success", error: null, retry: vi.fn() });
+    renderPage();
+    expect(screen.getByText("실제 트리")).toBeInTheDocument();
+    expect(screen.queryByText("그룹")).not.toBeInTheDocument();
+    expect(screen.queryByText("malformed")).not.toBeInTheDocument();
+    expect(screen.queryByText("형식 오류")).not.toBeInTheDocument();
+    expect(screen.getByText("0개")).toBeInTheDocument();
+    expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
   });
 });
