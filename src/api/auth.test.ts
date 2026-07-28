@@ -6,6 +6,8 @@ import * as firebaseAuth from "firebase/auth";
 const firebaseAuthMocks = vi.hoisted(() => ({
   GoogleAuthProvider: vi.fn(function GoogleAuthProviderMock() {}),
   signInWithPopup: vi.fn(),
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
   signOut: vi.fn(),
 }));
 
@@ -21,6 +23,8 @@ vi.mock("firebase/auth", () => ({
   browserLocalPersistence: { type: "LOCAL" },
   GoogleAuthProvider: firebaseAuthMocks.GoogleAuthProvider,
   signInWithPopup: firebaseAuthMocks.signInWithPopup,
+  signInWithEmailAndPassword: firebaseAuthMocks.signInWithEmailAndPassword,
+  createUserWithEmailAndPassword: firebaseAuthMocks.createUserWithEmailAndPassword,
   signOut: firebaseAuthMocks.signOut,
 }));
 
@@ -222,6 +226,200 @@ describe("Firebase auth module", () => {
 
       const { signInWithGoogle } = await import("./auth");
       const result = await signInWithGoogle();
+
+      expect(result).toBeUndefined();
+      expect(storageSet).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("email/password sign-in and sign-up", () => {
+    it("signs in with email after auth readiness using one Firebase call", async () => {
+      stubConfiguredEnv();
+      const { auth } = setupFirebaseAuth();
+      firebaseAuthMocks.signInWithEmailAndPassword.mockResolvedValue({
+        user: { uid: "u1" },
+      });
+
+      const { signInWithEmail } = await import("./auth");
+      await signInWithEmail("user@example.com", "secret-pw");
+
+      expect(firebaseAuth.setPersistence).toHaveBeenCalledTimes(1);
+      expect(firebaseAuthMocks.signInWithEmailAndPassword).toHaveBeenCalledTimes(1);
+      expect(firebaseAuthMocks.signInWithEmailAndPassword).toHaveBeenCalledWith(
+        auth,
+        "user@example.com",
+        "secret-pw"
+      );
+      expect(firebaseAuthMocks.createUserWithEmailAndPassword).not.toHaveBeenCalled();
+    });
+
+    it("signs up with email using one Firebase create call", async () => {
+      stubConfiguredEnv();
+      const { auth } = setupFirebaseAuth();
+      firebaseAuthMocks.createUserWithEmailAndPassword.mockResolvedValue({
+        user: { uid: "u2" },
+      });
+
+      const { signUpWithEmail } = await import("./auth");
+      await signUpWithEmail("new@example.com", "secret-pw");
+
+      expect(firebaseAuthMocks.createUserWithEmailAndPassword).toHaveBeenCalledTimes(1);
+      expect(firebaseAuthMocks.createUserWithEmailAndPassword).toHaveBeenCalledWith(
+        auth,
+        "new@example.com",
+        "secret-pw"
+      );
+      expect(firebaseAuthMocks.signInWithEmailAndPassword).not.toHaveBeenCalled();
+    });
+
+    it("trims surrounding whitespace from the email before calling Firebase", async () => {
+      stubConfiguredEnv();
+      const { auth } = setupFirebaseAuth();
+      firebaseAuthMocks.signInWithEmailAndPassword.mockResolvedValue({ user: {} });
+
+      const { signInWithEmail } = await import("./auth");
+      await signInWithEmail("   user@example.com   ", "secret-pw");
+
+      expect(firebaseAuthMocks.signInWithEmailAndPassword).toHaveBeenCalledWith(
+        auth,
+        "user@example.com",
+        "secret-pw"
+      );
+    });
+
+    it.each(["", "   ", "notanemail", "a@b", "a b@c.com", "a@@b.com"])(
+      "rejects invalid email %s before calling Firebase",
+      async (email) => {
+        stubConfiguredEnv();
+        setupFirebaseAuth();
+
+        const { signInWithEmail } = await import("./auth");
+        const error = await signInWithEmail(email, "secret-pw").catch(
+          (caught: unknown) => caught
+        );
+
+        expect(error).toMatchObject({ name: "EmailAuthError", reason: "invalid-email" });
+        expect(firebaseAuthMocks.signInWithEmailAndPassword).not.toHaveBeenCalled();
+        expect(firebaseAuthMocks.createUserWithEmailAndPassword).not.toHaveBeenCalled();
+      }
+    );
+
+    it("rejects an empty password before calling Firebase", async () => {
+      stubConfiguredEnv();
+      setupFirebaseAuth();
+
+      const { signUpWithEmail } = await import("./auth");
+      const error = await signUpWithEmail("user@example.com", "").catch(
+        (caught: unknown) => caught
+      );
+
+      expect(error).toMatchObject({ name: "EmailAuthError", reason: "empty-password" });
+      expect(firebaseAuthMocks.createUserWithEmailAndPassword).not.toHaveBeenCalled();
+    });
+
+    it("rejects bounded maximum input lengths before calling Firebase", async () => {
+      stubConfiguredEnv();
+      setupFirebaseAuth();
+
+      const { signInWithEmail, signUpWithEmail } = await import("./auth");
+
+      const longPasswordError = await signInWithEmail(
+        "user@example.com",
+        "x".repeat(129)
+      ).catch((caught: unknown) => caught);
+      expect(longPasswordError).toMatchObject({
+        name: "EmailAuthError",
+        reason: "input-too-long",
+      });
+
+      const longEmailError = await signUpWithEmail(
+        `a@${"b".repeat(250)}.com`,
+        "secret-pw"
+      ).catch((caught: unknown) => caught);
+      expect(longEmailError).toMatchObject({
+        name: "EmailAuthError",
+        reason: "invalid-email",
+      });
+
+      expect(firebaseAuthMocks.signInWithEmailAndPassword).not.toHaveBeenCalled();
+      expect(firebaseAuthMocks.createUserWithEmailAndPassword).not.toHaveBeenCalled();
+    });
+
+    it("does not call Firebase when configuration is missing", async () => {
+      setupFirebaseAuth();
+
+      const { signInWithEmail } = await import("./auth");
+      const error = await signInWithEmail("user@example.com", "secret-pw").catch(
+        (caught: unknown) => caught
+      );
+
+      expect(error).toMatchObject({
+        name: "EmailAuthError",
+        reason: "config-unavailable",
+      });
+      expect(firebaseAuthMocks.signInWithEmailAndPassword).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["auth/invalid-email", "invalid-email"],
+      ["auth/user-not-found", "user-not-found"],
+      ["auth/wrong-password", "wrong-password"],
+      ["auth/invalid-credential", "invalid-credential"],
+      ["auth/email-already-in-use", "email-already-in-use"],
+      ["auth/weak-password", "weak-password"],
+      ["auth/too-many-requests", "too-many-requests"],
+      ["auth/network-request-failed", "network-request-failed"],
+      ["auth/operation-not-allowed", "operation-not-allowed"],
+      ["auth/internal-error", "auth-failed"],
+    ])("maps %s to bounded reason %s", async (code, reason) => {
+      stubConfiguredEnv();
+      setupFirebaseAuth();
+      firebaseAuthMocks.signInWithEmailAndPassword.mockRejectedValue({
+        code,
+        message: "RAW_FIREBASE_SECRET_DETAIL",
+      });
+
+      const { signInWithEmail } = await import("./auth");
+      const error = await signInWithEmail("user@example.com", "secret-pw").catch(
+        (caught: unknown) => caught
+      );
+
+      expect(error).toMatchObject({
+        name: "EmailAuthError",
+        reason,
+        message: "Email authentication could not be completed",
+      });
+      expect(JSON.stringify(error)).not.toContain("RAW_FIREBASE_SECRET_DETAIL");
+    });
+
+    it("maps signup provider errors to bounded reasons", async () => {
+      stubConfiguredEnv();
+      setupFirebaseAuth();
+      firebaseAuthMocks.createUserWithEmailAndPassword.mockRejectedValue({
+        code: "auth/email-already-in-use",
+        message: "RAW_FIREBASE_SECRET_DETAIL",
+      });
+
+      const { signUpWithEmail } = await import("./auth");
+      const error = await signUpWithEmail("user@example.com", "secret-pw").catch(
+        (caught: unknown) => caught
+      );
+
+      expect(error).toMatchObject({ name: "EmailAuthError", reason: "email-already-in-use" });
+      expect(JSON.stringify(error)).not.toContain("RAW_FIREBASE_SECRET_DETAIL");
+    });
+
+    it("does not create token or credential cache from the result", async () => {
+      stubConfiguredEnv();
+      setupFirebaseAuth();
+      const storageSet = vi.spyOn(Storage.prototype, "setItem");
+      firebaseAuthMocks.signInWithEmailAndPassword.mockResolvedValue({
+        user: { uid: "u1", accessToken: "raw-token" },
+        credential: { accessToken: "credential-token" },
+      });
+
+      const { signInWithEmail } = await import("./auth");
+      const result = await signInWithEmail("user@example.com", "secret-pw");
 
       expect(result).toBeUndefined();
       expect(storageSet).not.toHaveBeenCalled();

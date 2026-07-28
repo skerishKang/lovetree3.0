@@ -9,6 +9,8 @@ import { useAuth } from "../hooks/useAuth";
 const authApiMocks = vi.hoisted(() => ({
   ensureFirebaseAuthReady: vi.fn(),
   signInWithGoogle: vi.fn(),
+  signInWithEmail: vi.fn(),
+  signUpWithEmail: vi.fn(),
   signOutFirebase: vi.fn(),
 }));
 
@@ -19,6 +21,8 @@ vi.mock("firebase/auth", () => ({
 vi.mock("../api/auth", () => ({
   ensureFirebaseAuthReady: authApiMocks.ensureFirebaseAuthReady,
   signInWithGoogle: authApiMocks.signInWithGoogle,
+  signInWithEmail: authApiMocks.signInWithEmail,
+  signUpWithEmail: authApiMocks.signUpWithEmail,
   signOutFirebase: authApiMocks.signOutFirebase,
 }));
 
@@ -69,6 +73,8 @@ describe("AuthContext", () => {
     vi.clearAllMocks();
     authApiMocks.ensureFirebaseAuthReady.mockResolvedValue({});
     authApiMocks.signInWithGoogle.mockResolvedValue(undefined);
+    authApiMocks.signInWithEmail.mockResolvedValue(undefined);
+    authApiMocks.signUpWithEmail.mockResolvedValue(undefined);
     authApiMocks.signOutFirebase.mockResolvedValue(undefined);
   });
 
@@ -155,8 +161,100 @@ describe("AuthContext", () => {
 
     expect(authApiMocks.signInWithGoogle).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("keys")).toHaveTextContent(
-      "expireSession,loading,signInWithGoogle,signOut,tier,user"
+      "expireSession,loading,signInWithEmail,signInWithGoogle,signOut,signUpWithEmail,tier,user"
     );
+  });
+
+  it("delegates signInWithEmail exactly once with preserved arguments", async () => {
+    setupListener();
+
+    function Probe() {
+      const { signInWithEmail } = useAuth();
+      return (
+        <button
+          onClick={() => signInWithEmail("user@example.com", "secret-pw")}
+        >
+          EmailLogin
+        </button>
+      );
+    }
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "EmailLogin" }));
+
+    expect(authApiMocks.signInWithEmail).toHaveBeenCalledTimes(1);
+    expect(authApiMocks.signInWithEmail).toHaveBeenCalledWith(
+      "user@example.com",
+      "secret-pw"
+    );
+  });
+
+  it("delegates signUpWithEmail exactly once with preserved arguments", async () => {
+    setupListener();
+
+    function Probe() {
+      const { signUpWithEmail } = useAuth();
+      return (
+        <button
+          onClick={() => signUpWithEmail("user@example.com", "secret-pw")}
+        >
+          EmailSignup
+        </button>
+      );
+    }
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "EmailSignup" }));
+
+    expect(authApiMocks.signUpWithEmail).toHaveBeenCalledTimes(1);
+    expect(authApiMocks.signUpWithEmail).toHaveBeenCalledWith(
+      "user@example.com",
+      "secret-pw"
+    );
+  });
+
+  it("does not let context actions directly set user state", async () => {
+    const listener = setupListener();
+
+    function Probe() {
+      const { signInWithEmail, user } = useAuth();
+      return (
+        <>
+          <span data-testid="user">{user?.uid ?? "none"}</span>
+          <button
+            onClick={async () => {
+              await signInWithEmail("user@example.com", "secret-pw");
+            }}
+          >
+            EmailLogin
+          </button>
+        </>
+      );
+    }
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "EmailLogin" }));
+
+    expect(screen.getByTestId("user")).toHaveTextContent("none");
+    expect(authApiMocks.signInWithEmail).toHaveBeenCalledTimes(1);
+
+    await listener.emit(createMockUser());
+    expect(screen.getByTestId("user")).toHaveTextContent("test-uid");
   });
 
   it("clears state only after successful normal sign-out", async () => {
