@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import { useMyTrees } from "../hooks/useMyTrees";
@@ -89,14 +90,39 @@ export default function MyTreesPage() {
   const { items, status, error, retry } = useMyTrees();
   const auth = useAuthContext();
   const navigate = useNavigate();
+  const [logoutPending, setLogoutPending] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+  const logoutPendingRef = useRef(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const handleLogout = async () => {
-    if (!auth?.user) return;
+    if (!auth?.user || logoutPendingRef.current) {
+      return;
+    }
+
+    logoutPendingRef.current = true;
+    setLogoutPending(true);
+    setLogoutError(null);
+
     try {
       await auth.signOut();
+      if (!mountedRef.current) return;
       navigate("/login", { replace: true });
     } catch {
-      // sign-out failure is non-critical; session observer will handle stale state
+      if (!mountedRef.current) return;
+      setLogoutError("로그아웃에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      logoutPendingRef.current = false;
+      if (mountedRef.current) {
+        setLogoutPending(false);
+      }
     }
   };
 
@@ -107,12 +133,25 @@ export default function MyTreesPage() {
           <span className={styles.logo}>Relovetree</span>
         </div>
         <div className={styles.topBarRight}>
-          <button type="button" className={styles.profileButton} aria-label="로그아웃" onClick={handleLogout}>
+          <button
+            type="button"
+            className={styles.profileButton}
+            aria-label="로그아웃"
+            title="로그아웃"
+            onClick={handleLogout}
+            disabled={logoutPending}
+            aria-busy={logoutPending || undefined}
+          >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
               <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2" />
               <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
+          {logoutError ? (
+            <span role="status" aria-live="polite" className={styles.logoutError}>
+              {logoutError}
+            </span>
+          ) : null}
         </div>
       </header>
 
