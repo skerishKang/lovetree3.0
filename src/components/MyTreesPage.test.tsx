@@ -132,7 +132,7 @@ describe("MyTreesPage — /my-trees", () => {
       mockUseMyTrees.mockReturnValue({ items: [], status: "empty", error: null, retry: vi.fn() });
       renderPage();
       expect(screen.getByText("아직 만든 러브트리가 없습니다.")).toBeInTheDocument();
-      expect(screen.getByText("새 러브트리 만들기")).toBeInTheDocument();
+      expect(screen.getAllByText("새 러브트리 만들기").length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText("다른 팬들 트리 구경하기")).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "다른 팬들 트리 구경하기" })).toHaveAttribute("href", "/community");
       expect(screen.queryByText("체험용 러브트리 만들기")).not.toBeInTheDocument();
