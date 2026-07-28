@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   MemoryRouter,
@@ -310,6 +311,31 @@ describe("Auth login screen (LT3-AUTH-001)", () => {
     expect(screen.getByRole("status")).not.toHaveTextContent("auth/raw-code");
     expect(screen.getByRole("status")).not.toHaveTextContent("raw-token");
     expect(screen.getByRole("status")).not.toHaveTextContent("secret-pw");
+  });
+
+  it("surfaces email failure status under StrictMode double-mount", async () => {
+    authMocks.value.signInWithEmail.mockRejectedValue({
+      name: "EmailAuthError",
+      reason: "invalid-credential",
+      code: "auth/raw-code",
+      token: "raw-token",
+    });
+    render(<StrictMode>{createTree("/login")}</StrictMode>);
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+    await user.type(screen.getByLabelText("이메일"), "user@example.com");
+    await user.type(screen.getByLabelText("비밀번호"), "secret-pw");
+    await user.click(screen.getByRole("button", { name: "이메일로 로그인" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "이메일 또는 비밀번호가 올바르지 않습니다"
+      );
+    });
+    expect(screen.getByRole("status")).not.toHaveTextContent(
+      "로그인 처리 중입니다"
+    );
   });
 
   it("follows the safe return target after a synthetic email login success", async () => {
