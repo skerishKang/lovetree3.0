@@ -28,10 +28,12 @@ describe("HomePage", () => {
     expect(screen.getByText(/기록해 보세요/)).toBeInTheDocument();
   });
 
-  it("CTA 버튼 2개를 렌더링한다", () => {
+  it("Hero CTA 2개를 링크로 렌더링한다", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
-    expect(screen.getByRole("button", { name: "첫 러브트리 만들기" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "다른 러브트리 구경하기" })).toBeInTheDocument();
+    const primary = screen.getByRole("link", { name: "첫 러브트리 만들기" });
+    expect(primary).toHaveAttribute("href", "/tree/new");
+    const secondary = screen.getByRole("link", { name: "다른 러브트리 구경하기" });
+    expect(secondary).toHaveAttribute("href", "/community");
   });
 
   it("하단 기능 설명 4개를 렌더링한다", () => {
@@ -40,6 +42,29 @@ describe("HomePage", () => {
     expect(screen.getByText("연결하기")).toBeInTheDocument();
     expect(screen.getByText("다시 보기")).toBeInTheDocument();
     expect(screen.getByText("공유하기")).toBeInTheDocument();
+  });
+
+  it("feature item 4개 — 각각 올바른 경로와 action label을 가진 링크다", () => {
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
+    const features = screen.getByRole("region", { name: "주요 기능" });
+    const featureLinks = features.querySelectorAll("a");
+    expect(featureLinks).toHaveLength(4);
+    expect(featureLinks[0]).toHaveAttribute("href", "/tree/new");
+    expect(featureLinks[1]).toHaveAttribute("href", "/tree/new-demo");
+    expect(featureLinks[2]).toHaveAttribute("href", "/my-trees");
+    expect(featureLinks[3]).toHaveAttribute("href", "/community");
+  });
+
+  it("연결하기에만 브라우저 데모 표시가 있고 다른 세 기능에는 없다", () => {
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
+    const connect = screen.getByText("연결하기").closest("a");
+    expect(connect?.textContent).toContain("브라우저 체험");
+    const record = screen.getByText("기록하기").closest("a");
+    const replay = screen.getByText("다시 보기").closest("a");
+    const share = screen.getByText("공유하기").closest("a");
+    expect(record?.textContent).not.toContain("브라우저 체험");
+    expect(replay?.textContent).not.toContain("브라우저 체험");
+    expect(share?.textContent).not.toContain("브라우저 체험");
   });
 
   it("5개 기억 카드의 날짜를 렌더링한다", () => {
@@ -83,10 +108,12 @@ describe("HomePage mobile containment contract", () => {
     expect(within(preview).getAllByRole("article")).toHaveLength(5);
   });
 
-  it("CTA 버튼은 type=button이다", () => {
+  it("Hero CTA는 링크이며 버튼이 아니다", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
-    expect(screen.getByRole("button", { name: "첫 러브트리 만들기" })).toHaveAttribute("type", "button");
-    expect(screen.getByRole("button", { name: "다른 러브트리 구경하기" })).toHaveAttribute("type", "button");
+    expect(screen.queryByRole("button", { name: "첫 러브트리 만들기" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "다른 러브트리 구경하기" })).toBeNull();
+    expect(screen.getByRole("link", { name: "첫 러브트리 만들기" })).toHaveAttribute("href", "/tree/new");
+    expect(screen.getByRole("link", { name: "다른 러브트리 구경하기" })).toHaveAttribute("href", "/community");
   });
 
   it("소개/주요 기능 해시 링크가 올바른 section id를 가리킨다", () => {
@@ -95,5 +122,16 @@ describe("HomePage mobile containment contract", () => {
     expect(screen.getByRole("link", { name: "주요 기능" })).toHaveAttribute("href", "/#features");
     expect(document.getElementById("about")).not.toBeNull();
     expect(document.getElementById("features")).not.toBeNull();
+  });
+
+  it("feature item 링크에 중첩 interactive element가 없다", () => {
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
+    const features = screen.getByRole("region", { name: "주요 기능" });
+    const featureLinks = features.querySelectorAll("a");
+    expect(featureLinks).toHaveLength(4);
+    featureLinks.forEach(link => {
+      const nestedControls = link.querySelectorAll("button, a");
+      expect(nestedControls.length).toBe(0);
+    });
   });
 });
