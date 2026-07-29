@@ -31,16 +31,6 @@ function renderAppAt(path: string) {
   return render(<App />);
 }
 
-async function clickHomeAction(page: HTMLElement, linkName: string) {
-  const link = page.querySelector(`a[href]`)?.closest("a");
-  // Find the link with matching text
-  const allLinks = Array.from(document.querySelectorAll("a"));
-  const target = allLinks.find(l => l.textContent?.includes(linkName));
-  if (!target) throw new Error(`Link "${linkName}" not found`);
-  const user = userEvent.setup();
-  await user.click(target);
-}
-
 describe("Home action routing", () => {
   afterEach(() => {
     cleanup();
