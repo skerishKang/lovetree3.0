@@ -118,7 +118,7 @@
 | Frontend status | `DEMO_ONLY` — `RequireAuth` wrapped but no real API connection |
 | API status | `NOT_CONNECTED` |
 | Auth required | Yes |
-| Backend dependency | LoveBud `PATCH /api/trees/:id`, `POST /api/trees/:id/memories`, `POST /api/trees/:id/connections` |
+| Backend dependency | LoveBud `PATCH /api/trees/:id`, `POST /api/memories`, `POST /api/trees/:id/connections` |
 
 ### 9. New tree demo flow
 
@@ -139,7 +139,7 @@
 | Frontend status | `DEMO_ONLY` |
 | API status | `NOT_CONNECTED` |
 | Auth required | Yes (`RequireAuth`) |
-| Backend dependency | LoveBud `POST /api/trees/:id/memories/:parentId/connect` |
+| Backend dependency | LoveBud `POST /api/memories` (with `parentId` in body) |
 
 ### 11. Media search
 
@@ -254,7 +254,7 @@
 **Gap #1 — Create tree → add first real memory** is the highest priority because:
 
 1. A user who completes `/tree/new` and receives a tree ID has no real path to add the first memory.
-2. Existing LoveBud `POST /api/trees/:id/memories` contract is documented in the handoff.
+2. Existing LoveBud `POST /api/memories` contract is confirmed in the handoff (body includes `treeId`, `title`, etc.).
 3. The `PublicDemoMemoryFormPage` component can be adapted — the demo UI is already built.
-4. No new backend design is needed; it's a bounded frontend slice: add `/tree/:treeId/memory/new` real route, wire `createTreeApi`-style memory creation API, redirect from tree creation.
+4. No new backend design is needed; it's a bounded frontend slice: add `/tree/:treeId/memory/new` real route, wire `POST /api/memories` via new `createMemoryApi`, redirect from tree creation.
 5. Privacy risk is controllable (owner-scoped memory creation, same auth guard as tree creation).
