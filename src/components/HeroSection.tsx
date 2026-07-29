@@ -4,7 +4,7 @@ import MemoryTreePreview from "./MemoryTreePreview";
 
 export default function HeroSection() {
   return (
-    <section id="about" className={styles.hero} style={{ scrollMarginTop: "80px" }}>
+    <section className={styles.hero}>
       <div className={styles.copy}>
         <h1 className={styles.headline}>
           사랑에 빠진 모든 순간을

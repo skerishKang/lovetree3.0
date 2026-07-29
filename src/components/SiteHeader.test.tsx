@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import SiteHeader from "./SiteHeader";
-import { HASH_SCROLL_ACTIVATION_EVENT } from "./HashScrollRestoration";
 
 const headerMocks = vi.hoisted(() => ({
   context: null as null | {
@@ -26,9 +25,9 @@ vi.mock("../context/AuthContext", () => ({
   useAuthContext: () => headerMocks.context,
 }));
 
-function renderHeader(initialEntry = "/") {
+function renderHeader() {
   return render(
-    <MemoryRouter initialEntries={[initialEntry]}>
+    <MemoryRouter>
       <SiteHeader />
       <Routes>
         <Route path="/login" element={<span>login destination</span>} />
@@ -44,22 +43,7 @@ describe("SiteHeader navigation", () => {
 
   afterEach(cleanup);
 
-  it("renders localized home-anchor labels with real link destinations", () => {
-    renderHeader();
-
-    expect(screen.getByRole("link", { name: "소개" })).toHaveAttribute(
-      "href",
-      "/#about",
-    );
-    expect(screen.getByRole("link", { name: "주요 기능" })).toHaveAttribute(
-      "href",
-      "/#features",
-    );
-    expect(screen.queryByRole("link", { name: "About" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Features" })).not.toBeInTheDocument();
-  });
-
-  it("preserves Community, My Tree, and login destinations", () => {
+  it("renders Community, My Tree, and login destinations", () => {
     renderHeader();
 
     expect(screen.getByRole("link", { name: "Community" })).toHaveAttribute(
@@ -74,39 +58,8 @@ describe("SiteHeader navigation", () => {
       "href",
       "/login",
     );
-  });
-
-  it("emits an explicit activation when the current hash is clicked again", async () => {
-    let activationCount = 0;
-    let activationDetail: unknown;
-    const activationListener = (event: Event) => {
-      activationCount += 1;
-      activationDetail = (event as CustomEvent).detail;
-    };
-    window.addEventListener(HASH_SCROLL_ACTIVATION_EVENT, activationListener);
-    renderHeader("/#about");
-
-    await userEvent.setup().click(screen.getByRole("link", { name: "소개" }));
-
-    expect(activationCount).toBe(1);
-    expect(activationDetail).toEqual({ hash: "#about" });
-    window.removeEventListener(HASH_SCROLL_ACTIVATION_EVENT, activationListener);
-  });
-
-  it("keeps keyboard activation semantics for repeated hash navigation", async () => {
-    let activationCount = 0;
-    const activationListener = () => {
-      activationCount += 1;
-    };
-    window.addEventListener(HASH_SCROLL_ACTIVATION_EVENT, activationListener);
-    renderHeader("/#features");
-    const features = screen.getByRole("link", { name: "주요 기능" });
-
-    features.focus();
-    await userEvent.setup().keyboard("{Enter}");
-
-    expect(activationCount).toBe(1);
-    window.removeEventListener(HASH_SCROLL_ACTIVATION_EVENT, activationListener);
+    expect(screen.queryByText("소개")).not.toBeInTheDocument();
+    expect(screen.queryByText("주요 기능")).not.toBeInTheDocument();
   });
 });
 

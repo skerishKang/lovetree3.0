@@ -67,7 +67,7 @@ function EmptyTreeEditorContent() {
       <aside className={editorStyles.sidebar}>
         <div className={editorStyles.brandArea}>
           <span className={editorStyles.brandIcon} aria-hidden="true">🌿</span>
-          <span className={editorStyles.brandName}>Relovetree</span>
+          <span className={editorStyles.brandName}>LoveTree</span>
         </div>
 
         <nav className={editorStyles.menuNav} aria-label="에디터 메뉴">

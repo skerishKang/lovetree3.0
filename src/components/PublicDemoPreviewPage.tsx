@@ -18,7 +18,7 @@ export default function PublicDemoPreviewPage() {
     return (
       <div className={styles.page}>
         <header className={styles.simpleHeader}>
-          <Link to="/tree/new-demo/edit" className={styles.brand}>Relovetree</Link>
+          <Link to="/tree/new-demo/edit" className={styles.brand}>LoveTree</Link>
           <span>공개 데모 미리보기 · 게시되지 않음</span>
         </header>
         <main className={styles.notFoundPage}>
@@ -35,7 +35,7 @@ export default function PublicDemoPreviewPage() {
   return (
     <div className={styles.page}>
       <header className={styles.simpleHeader}>
-        <Link to="/tree/new-demo/edit" className={styles.brand}>Relovetree</Link>
+        <Link to="/tree/new-demo/edit" className={styles.brand}>LoveTree</Link>
         <span>공개 데모 미리보기 · 게시되지 않음</span>
       </header>
       <main className={styles.previewPage}>

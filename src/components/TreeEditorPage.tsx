@@ -105,7 +105,7 @@ export default function TreeEditorPage() {
       <nav className={styles.workspaceNav} aria-label="작업 공간 내비게이션">
         <div className={styles.brandArea}>
           <span className={styles.brandIcon} aria-hidden="true">🌿</span>
-          <span className={styles.brandName}>Relovetree</span>
+          <span className={styles.brandName}>LoveTree</span>
         </div>
         <div className={styles.navSearch}>
           <input

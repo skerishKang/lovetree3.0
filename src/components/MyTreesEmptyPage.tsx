@@ -19,7 +19,7 @@ export default function MyTreesEmptyPage() {
   return (
     <div className={styles.page}>
       <header className={styles.brandBar}>
-        <span className={styles.brandName}>Relovetree</span>
+        <span className={styles.brandName}>LoveTree</span>
         <button type="button" className={styles.profileButton} aria-label="마이페이지">
           <span className={styles.profileIcon} aria-hidden="true" />
         </button>

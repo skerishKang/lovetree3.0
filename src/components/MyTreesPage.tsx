@@ -151,7 +151,7 @@ export default function MyTreesPage() {
       ) : null}
       <header className={styles.topBar}>
         <div className={styles.brandArea}>
-          <span className={styles.logo}>Relovetree</span>
+          <span className={styles.logo}>LoveTree</span>
         </div>
         <div className={styles.topBarRight}>
           <button

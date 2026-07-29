@@ -225,11 +225,12 @@ describe("UI 리메디에이션 — cross-screen DOM 계약", () => {
     }
   });
 
-  it.each(ROUTES)(
-    "%s에 visible 'LoveTree' 표기가 없다 (D-01)",
+  const BRANDED_ROUTES = ["/", "/community", "/login", "/my-trees"];
+  it.each(BRANDED_ROUTES)(
+    "%s에 visible 'LoveTree' 표기가 있다 (D-01 — brand standardization)",
     (route) => {
       renderAppAt(route);
-      expect(document.body.textContent ?? "").not.toMatch(/\bLove ?Tree\b/i);
+      expect(document.body.textContent ?? "").toContain("LoveTree");
     }
   );
 
