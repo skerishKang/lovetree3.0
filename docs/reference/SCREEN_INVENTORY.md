@@ -300,5 +300,44 @@
 - 작은 한글 텍스트는 원본 해상도에서도 일부 판독이 불확실합니다. 불확실한 문구를 원문으로 단정하지 마세요.
 - 화면 ID의 숫자 접미사(001, 002)는 동일 화면군 내 변형(Desktop/Mobile, 빈 상태/데이터 있음)을 구분합니다.
 - 12개 전체 화면의 UI BASE 구현은 PR #1, #5, #7, #9, #11, #13, #15, #17, #19, #21, #23, #25를 통해 완료되었습니다.
-- 모든 화면은 STATIC_IMPLEMENTED 상태이며, API/NOT_CONNECTED, 실제 navigation, 사용자 인증 없음.
-- 이 인벤토리는 VISUAL refinement 단계에서 업데이트됩니다.
+- 모든 reference 화면은 STATIC_IMPLEMENTED 상태로 등록되었으나, **실제 source 구현 상태는 아래 Current source status 섹션에서 확인하십시오.**
+
+---
+
+## Current source status (실제 구현 상태, 2026-07-29 기준)
+
+> Reference asset status와 Current source implementation status를 분리합니다.
+> Reference 이미지는 화면 기준 자료이며, source의 실제 구현 상태는 이 표를 기준으로 판단하십시오.
+
+| Screen ID | Screen name | Reference path | Real route | Demo route | Frontend status | API status | Auth required | Backend dependency |
+|---|---|---|---|---|---|---|---|---|
+| LT3-HOME-001 | 홈 랜딩 | `00-home/home-landing.png` | `/` | — | `SOURCE_IMPLEMENTED` | `NOT_CONNECTED` (mock data) | No | — |
+| LT3-COMMUNITY-001 | 커뮤니티 탐색 | `01-community/community-discovery.png` | `/community` | — | `SOURCE_IMPLEMENTED` | `API_CONTRACT_PRESENT` (not wired to UI) | No | LoveBud `GET /api/community/trees` |
+| LT3-TREE-DETAIL-001 | 트리 상세/타임라인 | `02-tree-detail/community-tree-detail-desktop.png` | `/tree/:treeId` | — | `SOURCE_IMPLEMENTED` | `API_CONTRACT_PRESENT` | No (public) | LoveBud `GET /api/trees/:id` |
+| LT3-MEMORY-001 | 메모리 연결 | `03-memory/memory-connect-mobile.png` | — | `/memory/connect-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | Yes | LoveBud `POST /api/trees/:id/memories/:parentId/connect` |
+| LT3-MEMORY-002 | 메모리 상세 | `03-memory/memory-detail-mobile.png` | `/tree/:treeId/memory/:memoryId` | `/memory/detail-demo` | `SOURCE_IMPLEMENTED` | `API_CONTRACT_PRESENT` | No (public) | LoveBud `GET /api/memories/:id` |
+| LT3-MEDIA-001 | 미디어 검색 | `04-media-search/media-search-mobile.png` | — | `/media/search-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | Yes | LoveBud `GET /api/media/search` |
+| LT3-EDITOR-001 | 빈 트리 에디터 | `05-editor/empty-tree-desktop.png` | — | `/tree/new-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | No | LoveBud `POST /api/trees`, `POST /api/trees/:id/memories` |
+| LT3-EDITOR-002 | 트리 에디터 캔버스 | `05-editor/tree-editor-desktop.png` | — | `/tree/edit-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | Yes | LoveBud `PATCH /api/trees/:id`, `POST /api/trees/:id/memories` |
+| LT3-MY-TREES-001 | 마이 트리 대시보드 | `06-my-trees/my-trees-dashboard-desktop.png` | `/my-trees` | — | `SOURCE_IMPLEMENTED` + `RequireAuth` | `API_CONTRACT_PRESENT` | **Yes** (redirect to `/login`) | LoveBud `GET /api/trees` with Bearer token |
+| LT3-MY-TREES-002 | 마이 트리 빈 상태 | `06-my-trees/my-trees-empty-mobile.png` | — | `/my-trees/empty-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | Yes | LoveBud `GET /api/trees` (empty response) |
+| LT3-SETTINGS-001 | 공개 범위 설정 | `07-settings/visibility-settings-mobile.png` | — | `/settings/visibility-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | Yes | LoveBud `PATCH /api/trees/:id` |
+| LT3-AUTH-001 | 로그인 | `08-auth/login-my-page-mobile.png` | `/login` | — | `SOURCE_IMPLEMENTED` | `FIREBASE_CONNECTED` | No (auth provider) | Firebase Auth |
+
+### 추가 real routes (reference 이미지 없음)
+
+| Route | Component | Auth | API status | Purpose |
+|---|---|---|---|---|
+| `/tree/new` | `CreateTreePage` | `RequireAuth` | `API_CONTRACT_PRESENT` — `createTreeApi.createTree()` | 실제 트리 생성 |
+
+### Status key
+
+| Status | Meaning |
+|--------|---------|
+| `SOURCE_IMPLEMENTED` | Frontend component exists in source and renders |
+| `API_CONTRACT_PRESENT` | API client module with typed request/response built |
+| `FIREBASE_CONNECTED` | Firebase Auth integration working (email + Google) |
+| `DEMO_ONLY` | Route uses `-demo` suffix, not wired to real data |
+| `NOT_CONNECTED` | UI exists but no API calls made |
+
+**Note:** Reference asset images are from an earlier design phase. The current source may differ visually. Always check `src/components/*.tsx` for the actual implementation.
