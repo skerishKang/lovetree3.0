@@ -50,7 +50,7 @@ export default function MemoryConnectPage() {
           </svg>
         </button>
         <Link to="/" className={styles.logoLink}>
-          <span className={styles.logo}>Relovetree</span>
+          <span className={styles.logo}>LoveTree</span>
         </Link>
       </header>
 

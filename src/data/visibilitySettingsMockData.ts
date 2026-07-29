@@ -28,7 +28,7 @@ export const VISIBILITY_OPTIONS: VisibilityOption[] = [
   {
     id: "community",
     label: "커뮤니티에 공개",
-    description: "모든 Relovetree 사용자가 커뮤니티에서 러브트리를 검색하고 볼 수 있습니다.",
+    description: "모든 LoveTree 사용자가 커뮤니티에서 러브트리를 검색하고 볼 수 있습니다.",
     iconType: "community",
   },
 ];

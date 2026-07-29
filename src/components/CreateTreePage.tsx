@@ -49,7 +49,7 @@ export default function CreateTreePage() {
     <div className={styles.page}>
       <header className={styles.topBar}>
         <div className={styles.brandArea}>
-          <span className={styles.logo}>Relovetree</span>
+          <span className={styles.logo}>LoveTree</span>
         </div>
         <button type="button" className={styles.cancelButton} onClick={() => navigate("/my-trees")}>
           취소

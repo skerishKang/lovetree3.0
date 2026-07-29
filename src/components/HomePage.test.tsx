@@ -4,17 +4,17 @@ import { MemoryRouter } from "react-router-dom";
 import HomePage from "./HomePage";
 
 describe("HomePage", () => {
-  it("로고 'Relovetree'를 렌더링한다", () => {
+  it("로고 'LoveTree'를 렌더링한다", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
-    expect(screen.getByText("Relovetree")).toBeInTheDocument();
+    expect(screen.getByText("LoveTree")).toBeInTheDocument();
   });
 
-  it("헤더 메뉴 4개를 모두 렌더링한다", () => {
+  it("헤더 메뉴 2개(Community/My Tree)를 렌더링한다", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
-    expect(screen.getByText("소개")).toBeInTheDocument();
-    expect(screen.getByText("주요 기능")).toBeInTheDocument();
     expect(screen.getByText("Community")).toBeInTheDocument();
     expect(screen.getByText("My Tree")).toBeInTheDocument();
+    expect(screen.queryByText("소개")).not.toBeInTheDocument();
+    expect(screen.queryByText("주요 기능")).not.toBeInTheDocument();
   });
 
   it("로그인 링크가 보이고 /login으로 연결된다", () => {
@@ -91,12 +91,10 @@ describe("HomePage mobile containment contract", () => {
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   });
 
-  it("주요 메뉴 nav가 4개 항목을 모두 단일 nav 안에 렌더링한다", () => {
+  it("주요 메뉴 nav가 Community/My Tree 항목을 단일 nav 안에 렌더링한다", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
     const nav = screen.getByRole("navigation", { name: "주요 메뉴" });
     expect(within(nav).getAllByRole("link").map((link) => link.textContent)).toEqual([
-      "소개",
-      "주요 기능",
       "Community",
       "My Tree",
     ]);
@@ -114,14 +112,6 @@ describe("HomePage mobile containment contract", () => {
     expect(screen.queryByRole("button", { name: "다른 러브트리 구경하기" })).toBeNull();
     expect(screen.getByRole("link", { name: "첫 러브트리 만들기" })).toHaveAttribute("href", "/tree/new");
     expect(screen.getByRole("link", { name: "다른 러브트리 구경하기" })).toHaveAttribute("href", "/community");
-  });
-
-  it("소개/주요 기능 해시 링크가 올바른 section id를 가리킨다", () => {
-    render(<MemoryRouter><HomePage /></MemoryRouter>);
-    expect(screen.getByRole("link", { name: "소개" })).toHaveAttribute("href", "/#about");
-    expect(screen.getByRole("link", { name: "주요 기능" })).toHaveAttribute("href", "/#features");
-    expect(document.getElementById("about")).not.toBeNull();
-    expect(document.getElementById("features")).not.toBeNull();
   });
 
   it("feature item 링크에 중첩 interactive element가 없다", () => {

@@ -5,7 +5,7 @@
  * No actual user data, API calls, or authentication.
  */
 
-export const APP_BRAND = "Relovetree";
+export const APP_BRAND = "LoveTree";
 
 export const LOGIN_HEADING = "내 러브트리를 계속 이어가려면 로그인하세요";
 

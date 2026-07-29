@@ -77,7 +77,7 @@ export default function PublicDemoEditorPage() {
   return (
     <div className={styles.page}>
       <header className={styles.editorHeader}>
-        <Link to="/tree/new-demo" className={styles.brand}>Relovetree</Link>
+        <Link to="/tree/new-demo" className={styles.brand}>LoveTree</Link>
         <div>
           <h1>공개 데모 러브트리 편집</h1>
           <p>브라우저 임시 저장 · 서버 게시 없음</p>

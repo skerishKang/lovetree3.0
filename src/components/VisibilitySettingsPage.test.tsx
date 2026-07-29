@@ -76,7 +76,7 @@ describe("VisibilitySettingsPage — /settings/visibility-demo", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("radio", {
-        name: "커뮤니티에 공개 모든 Relovetree 사용자가 커뮤니티에서 러브트리를 검색하고 볼 수 있습니다.",
+        name: "커뮤니티에 공개 모든 LoveTree 사용자가 커뮤니티에서 러브트리를 검색하고 볼 수 있습니다.",
       })
     ).toBeInTheDocument();
   });

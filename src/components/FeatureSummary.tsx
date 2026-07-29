@@ -5,7 +5,7 @@ import { iconMap } from "./icons";
 
 export default function FeatureSummary() {
   return (
-    <section id="features" className={styles.summary} aria-label="주요 기능" style={{ scrollMarginTop: "80px" }}>
+    <section className={styles.summary} aria-label="주요 기능">
       {featureItems.map((item) => {
         const Icon = iconMap[item.iconType];
         return (

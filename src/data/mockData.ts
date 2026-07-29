@@ -117,5 +117,5 @@ export const featureItems: FeatureItemData[] = [
   },
 ];
 
-export const navMenuItems = ["About", "Features", "Community", "My Tree"] as const;
-export const brandLogo = "Relovetree";
+export const navMenuItems = ["Community", "My Tree"] as const;
+export const brandLogo = "LoveTree";

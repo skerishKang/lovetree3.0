@@ -6,7 +6,6 @@ import {
   Routes,
 } from "react-router-dom";
 import { NavigationHistoryProvider } from "./hooks/NavigationHistory";
-import { HashScrollRestoration } from "./components/HashScrollRestoration";
 import { AuthProvider } from "./context/AuthContext";
 import { PublicDemoEditorProvider } from "./context/PublicDemoEditorContext";
 import AuthSessionController from "./components/AuthSessionController";
@@ -81,7 +80,6 @@ export function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <HashScrollRestoration />
       <AppRoutes />
     </BrowserRouter>
   );

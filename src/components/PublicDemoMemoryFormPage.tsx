@@ -118,7 +118,7 @@ export default function PublicDemoMemoryFormPage() {
   return (
     <div className={styles.page}>
       <header className={styles.simpleHeader}>
-        <Link to="/tree/new-demo/edit" className={styles.brand}>Relovetree</Link>
+        <Link to="/tree/new-demo/edit" className={styles.brand}>LoveTree</Link>
         <span>공개 데모 · 브라우저 임시 저장</span>
       </header>
       <main className={styles.formPage}>
