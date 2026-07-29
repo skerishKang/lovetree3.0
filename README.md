@@ -1,6 +1,38 @@
 # LoveTree 3.0
 
-LoveTree 3.0은 팬들의 좋아하는 순간을 트리 형태로 기록하고 연결하는 서비스의 프런트엔드 저장소입니다.
+LoveTree 3.0은 팬들이 좋아하는 순간을 트리 형태로 기록하고 연결하는 서비스의 프런트엔드 저장소입니다.
+
+> **🔴 Live app:** Cloudflare Pages 자동 배포 대상 — wrangler.toml `name = "lovetree3"` 기준 도메인 미확정. Cloudflare Pages dashboard에서 Pages 프로젝트 도메인 확인 필요.
+
+---
+
+## Current product capability overview
+
+| Capability | Route | Frontend | API Connection | Production Verification |
+|---|---|---|---|---|
+| Home landing | `/` | `SOURCE_IMPLEMENTED` | `NOT_CONNECTED` | `PENDING` |
+| Community list | `/community` | `SOURCE_IMPLEMENTED` | `API_CONTRACT_PRESENT` (not wired to UI) | `PENDING` |
+| Public tree detail | `/tree/:treeId` | `SOURCE_IMPLEMENTED` | `API_CONTRACT_PRESENT` | `PENDING` |
+| Memory detail | `/tree/:treeId/memory/:memoryId` | `SOURCE_IMPLEMENTED` | `API_CONTRACT_PRESENT` | `PENDING` |
+| Login (email/password) | `/login` | `SOURCE_IMPLEMENTED` | `FIREBASE_CONNECTED` | `PENDING` |
+| Login (Google) | `/login` | `SOURCE_IMPLEMENTED` | `FIREBASE_CONNECTED` | `PENDING` |
+| My trees list | `/my-trees` | `SOURCE_IMPLEMENTED` + `RequireAuth` | `API_CONTRACT_PRESENT` | `PENDING` |
+| Create real tree | `/tree/new` | `SOURCE_IMPLEMENTED` + `RequireAuth` | `API_CONTRACT_PRESENT` | `PENDING` |
+| Tree editor (canvas) | `/tree/edit-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | — |
+| New memory (demo) | `/tree/new-demo/*` | `DEMO_ONLY` | `NOT_CONNECTED` | — |
+| Memory connect | `/memory/connect-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | — |
+| Media search | `/media/search-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | — |
+| Visibility settings | `/settings/visibility-demo` | `DEMO_ONLY` | `NOT_CONNECTED` | — |
+| Likes | — | `NOT_IMPLEMENTED` | — | — |
+| Comments | — | `UI_COMPONENT_EXISTS` (CommentSection) | `NOT_CONNECTED` | — |
+| Share | — | `NOT_IMPLEMENTED` | — | — |
+| Memory deletion | — | `NOT_IMPLEMENTED` | — | — |
+
+> ⚠️ **Real routes** (`/my-trees`, `/tree/new`) are protected by `RequireAuth` and redirect unauthenticated users to `/login`. These work with Firebase Auth. However, the API client calls go to **LoveBud backend**, which must be separately deployed and accepting requests.
+
+> ⚠️ **Demo routes** (`*-demo`) exist in App.tsx but are **not wired to real backend data**. They render UI components with mock/static data.
+
+---
 
 ## 저장소 목적
 
@@ -36,16 +68,6 @@ Cloudflare Pages는 이 저장소의 `main`과 Git integration으로 연결되�
 
 상세 정책과 역할별 템플릿은
 [docs/operations/README.md](docs/operations/README.md)를 참조하십시오.
-
-## 현재 구현 상태
-
-- **구현 완료 화면**: LT3-HOME-001 (홈 랜딩, 정적 구현)
-- **구현 방식**: 정적 시각 구현 + 목업 데이터
-- **API 연결**: 없음 (NOT_CONNECTED)
-- **인증**: 없음
-- **기타 화면**: 11개 화면이 화면 기준 자료로 등록되어 있으나 아직 구현되지 않았습니다.
-
-화면 기준 자료 전체 목록은 [`docs/reference/SCREEN_INVENTORY.md`](docs/reference/SCREEN_INVENTORY.md)를 참조하세요.
 
 ## 기술 스택
 
@@ -91,13 +113,60 @@ npm run build
 
 위 명령은 로컬 검증용입니다. `npm run build` 또는 `npm run preview`는 production deployment 명령이 아닙니다.
 
-## 현재 구현 화면
+## Real routes (no /-demo suffix)
 
-- **LT3-HOME-001** — 홈 랜딩 (`/`)
-  - 기준 해상도: 2752 × 1536 (Desktop)
-  - 구현 상태: STATIC_IMPLEMENTED
-  - API 상태: NOT_CONNECTED
-  - 구현 증거: `docs/evidence/home-landing/`
+| Route | Component | Auth | Backend API |
+|---|---|---|---|
+| `/` | HomePage | Public | Mock data only |
+| `/community` | CommunityPage | Public | `communityApi.fetchMain()` / `fetchGrowing()` (contract present) |
+| `/login` | AuthLoginPage | Public | Firebase Auth (email/password + Google) |
+| `/tree/:treeId` | TreeDetailPage | Public | `publicTreeDetail.api` (contract present) |
+| `/tree/:treeId/memory/:memoryId` | MemoryDetailPage | Public | `publicMemoryDetail.api` (contract present) |
+| `/my-trees` | MyTreesPage | `RequireAuth` → `/login` redirect | `myTreesApi.fetchTrees()` (contract present) |
+| `/tree/new` | CreateTreePage | `RequireAuth` → `/login` redirect | `createTreeApi.createTree()` (contract present) |
+
+## Demo-only routes (/-demo suffix, not connected to real data)
+
+| Route | Component | Purpose |
+|---|---|---|
+| `/tree/new-demo` | EmptyTreeEditorPage | Empty tree onboarding visual |
+| `/tree/new-demo/edit` | PublicDemoEditorPage | Tree editor canvas visual |
+| `/tree/new-demo/memory/new` | PublicDemoMemoryFormPage | New memory form visual |
+| `/tree/new-demo/memory/:nodeId/edit` | PublicDemoMemoryFormPage | Edit memory form visual |
+| `/tree/new-demo/preview` | PublicDemoPreviewPage | Tree preview visual |
+| `/memory/connect-demo` | MemoryConnectPage | Memory connection visual |
+| `/memory/detail-demo` | MemoryDetailPage | Memory detail (same component as real route) |
+| `/tree/edit-demo` | TreeEditorPage | Editor canvas visual |
+| `/media/search-demo` | MediaSearchPage | Media search mock UI |
+| `/settings/visibility-demo` | VisibilitySettingsPage | Visibility settings mock UI |
+| `/my-trees/empty-demo` | MyTreesEmptyPage | Empty state visual |
+
+## API connectivity
+
+| Module | File | Status | LoveBud backend required |
+|---|---|---|---|
+| Auth (Firebase) | `src/api/auth.ts` | `CONNECTED` — Google + email/password | No (Firebase standalone) |
+| API Client | `src/api/client.ts` | `IMPLEMENTED` — retry, 401 refresh, idempotency | Yes |
+| Community | `src/api/community.ts` | `API_CONTRACT_PRESENT` — normalized response types | Yes |
+| Create Tree | `src/api/createTree.ts` | `API_CONTRACT_PRESENT` — input validation + normalization | Yes |
+| My Trees | `src/api/myTrees.ts` | `API_CONTRACT_PRESENT` — normalized response types | Yes |
+| Public Tree Detail | `src/api/publicTreeDetail.ts` | `API_CONTRACT_PRESENT` | Yes |
+| Public Memory Detail | `src/api/publicMemoryDetail.ts` | `API_CONTRACT_PRESENT` | Yes |
+
+All API calls target `baseUrl` (default: `/api`). LoveBud backend must be deployed and accepting requests at this path for any real data flow.
+
+## Known product gaps
+
+| Gap | Severity | Current workaround |
+|---|---|---|
+| Create tree → add first real memory (broken flow) | **CRITICAL** — product chain breaks here | `/tree/new-demo/memory/new` (demo only) |
+| Tree edit (real) | HIGH — no `/tree/:treeId/edit` route | `/tree/edit-demo` (demo only) |
+| Memory connect to existing tree | HIGH — no real `/tree/:treeId/memory/connect` route | `/memory/connect-demo` (demo only) |
+| Memory deletion | HIGH — not implemented at all | None |
+| Visibility update | MEDIUM | `/settings/visibility-demo` (demo only) |
+| Media search | MEDIUM | `/media/search-demo` (demo only) |
+| Like / Comment | MEDIUM | CommentSection UI exists but not connected |
+| Community API wired to UI | MEDIUM | API contract exists but page uses mock data |
 
 ## 화면 기준 자료 경로
 
@@ -125,32 +194,15 @@ docs/evidence/home-landing/
 └─ diff-original-vs-implementation.png   # 원본과 구현 비교 diff
 ```
 
-## 미연결 항목 명시
-
-다음 항목은 현재 구현에 **연결되어 있지 않습니다**.
-
-- Firebase 인증
-- LoveBud API 호출
-- reverse proxy
-- Cloudflare Pages Functions
-- Modal
-- Neon (데이터베이스)
-- 트리 생성·수정·삭제
-- 영상 재생
-- 카드 메뉴 동작
-
-모든 화면 데이터는 `src/data/mockData.ts`의 정적 목업 데이터입니다.
-
 ## 보안 원칙
 
 - 비밀키, DB 주소, 토큰, Firebase service account JSON 등 실제 비밀값은 저장소에 포함하지 않습니다.
 - `.env` 파일은 커밋하지 않으며 `.env.example`만 커밋 대상입니다. (현재 `.env.example`도 없습니다.)
 - 로컬 절대경로가 포함된 민감한 설정은 저장소에 포함하지 않습니다.
 
-## 기술 인수인계 문서
+## 참조 문서
 
-```
-docs/handoff/LoveTree3_LoveBud_기술인수인계_2026-07-20.md
-```
-
-이 문서는 기존 LoveBud 저장소의 구조와 API 계약을 참조하기 위한 읽기 전용 자료입니다.
+- [Screen Inventory](docs/reference/SCREEN_INVENTORY.md)
+- [Current Product Capability Ledger](docs/operations/CURRENT_PRODUCT_CAPABILITY_LEDGER.md)
+- [기술 인수인계 (LoveBud)](docs/handoff/LoveTree3_LoveBud_기술인수인계_2026-07-20.md)
+- [AI 운영 정책](docs/operations/README.md)
