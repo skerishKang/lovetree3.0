@@ -69,6 +69,9 @@ export interface FeatureItemData {
   description: string;
   iconBg: string;
   iconType: "record" | "connect" | "replay" | "share";
+  route: string;
+  actionLabel: string;
+  experience: "real" | "demo";
 }
 
 export const featureItems: FeatureItemData[] = [
@@ -78,6 +81,9 @@ export const featureItems: FeatureItemData[] = [
     description: "러브트리에 순간을 남겨요. 영상, 사진, 감정까지 모두 기록할 수 있어요.",
     iconBg: "var(--feat-bg-record)",
     iconType: "record",
+    route: "/tree/new",
+    actionLabel: "러브트리 만들기",
+    experience: "real",
   },
   {
     id: "feat-connect",
@@ -85,6 +91,9 @@ export const featureItems: FeatureItemData[] = [
     description: "기억들이 자연스럽게 이어져 나만의 사랑 흐름이 만들어져요.",
     iconBg: "var(--feat-bg-connect)",
     iconType: "connect",
+    route: "/tree/new-demo",
+    actionLabel: "기능 체험하기",
+    experience: "demo",
   },
   {
     id: "feat-replay",
@@ -92,6 +101,9 @@ export const featureItems: FeatureItemData[] = [
     description: "언제든 지난 순간을 다시 꺼내 보며 그 감정을 되짚어요.",
     iconBg: "var(--feat-bg-replay)",
     iconType: "replay",
+    route: "/my-trees",
+    actionLabel: "내 러브트리 보기",
+    experience: "real",
   },
   {
     id: "feat-share",
@@ -99,6 +111,9 @@ export const featureItems: FeatureItemData[] = [
     description: "소중한 러브트리를 친구에게 공유하고 함께 기억해요.",
     iconBg: "var(--feat-bg-share)",
     iconType: "share",
+    route: "/community",
+    actionLabel: "Community 보기",
+    experience: "real",
   },
 ];
 

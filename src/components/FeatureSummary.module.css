@@ -19,8 +19,57 @@
 .item {
   display: flex;
   flex-direction: column;
-  /* 원본: 아이콘-제목-본문 간격 확대 */
   gap: clamp(1rem, 1.5vw, 1.5rem);
+  text-decoration: none;
+  color: inherit;
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin: -0.75rem;
+  transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.item:hover {
+  background: rgba(45, 41, 38, 0.03);
+  transform: translateY(-2px);
+}
+
+.item:active {
+  transform: translateY(0);
+}
+
+.item:focus-visible {
+  outline: 3px solid var(--accent-rose);
+  outline-offset: 3px;
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.actionLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-rose);
+}
+
+.demoBadge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-tertiary, #888);
+  background: rgba(45, 41, 38, 0.05);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
 }
 
 .iconBox {

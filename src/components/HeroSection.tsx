@@ -1,10 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styles from "./HeroSection.module.css";
 import MemoryTreePreview from "./MemoryTreePreview";
 
 export default function HeroSection() {
-  const navigate = useNavigate();
-
   return (
     <section id="about" className={styles.hero} style={{ scrollMarginTop: "80px" }}>
       <div className={styles.copy}>
@@ -19,20 +17,12 @@ export default function HeroSection() {
           나만의 러브트리가 됩니다
         </p>
         <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.btnPrimary}
-            onClick={() => navigate("/tree/new-demo")}
-          >
+          <Link to="/tree/new" className={styles.btnPrimary}>
             첫 러브트리 만들기
-          </button>
-          <button
-            type="button"
-            className={styles.btnSecondary}
-            onClick={() => navigate("/community")}
-          >
+          </Link>
+          <Link to="/community" className={styles.btnSecondary}>
             다른 러브트리 구경하기
-          </button>
+          </Link>
         </div>
       </div>
 
